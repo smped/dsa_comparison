@@ -1,0 +1,44 @@
+---
+title: "Outline Of DSA Comparison"
+author: |
+  | Dr Stevie Pederson
+  | Black Ochre Data Labs
+  | Telethon Kids Institute
+  | Adelaide, Australia
+date: "`r format(Sys.Date(), '%d %B, %Y')`"
+bibliography: references.bib
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+
+## Brief Outline
+
+```{r readme, child=here::here("README.Rmd")}
+```
+
+## Summary of Samples
+
+```{r pkg}
+library(tidyverse)
+library(pander)
+samples <- here::here("config", "samples.tsv") %>% read_tsv()
+```
+
+
+```{r tbl-samples, echo=FALSE}
+samples %>% 
+  summarise(n = dplyr::n(), .by = all_of(c("cell_type", "target", "treat"))) %>% 
+  rename_with(\(x) x %>% str_replace_all("_", " ") %>% str_to_title()) %>% 
+  pander(
+    justify = "lllr",
+    caption = "*Summary of samples used for this comparison*"
+  )
+```
+
+
+## References

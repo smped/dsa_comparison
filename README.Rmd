@@ -1,0 +1,70 @@
+---
+title: "Comparison of DSA Approaches"
+author: |
+  | Dr Stevie Pederson
+  | Black Ochre Data Labs
+  | Telethon Kids Institute
+  | Adelaide, Australia
+date: "`r format(Sys.Date(), '%d %B, %Y')`"
+bibliography: analysis/references.bib
+output: github_document
+editor_options:
+  chunk_output_type: console
+---
+
+This repository holds a comparison of methods for Differential Signal Analysis (DSA) of ChIP-Seq data, as a baseline comparison between those offered by the Bioconductor packages `extraChIPs` and `DiffBind` [@Ross-Innes2012-zy].
+All individual analyses are simple pair-wise comparisons, with the differing results contrasted.
+
+Peaks for all analyses have been identified using `macs2 callpeak` [@Zhang2008-ms], with final peak sets being the union of treatment-specific consensus peaks.
+Treatment-specific consensus peaks were considered to be those detected in merged samples, and which overlapped peaks detected in at least 2 of the 3 individual samples within each group.
+Sliding window methods will use these peaks as a guide for setting thresholds when retaining or discarding windows, as is implemented in `extraChIPs`
+
+Analysis using limma-trend [@Law2014-xq] will use logCPM values whilst all other methods use count-based models.
+Smooth quantile normalisation [@Hicks2018-uw] will only be applied to sliding windows.
+
+Sample-specific library sizes will always be taken as the total number of alignments within a bam file, not just those within defined peaks.
+Given the broad similarity between RLE and TMM [@Robinson2010-qp] normalisation, only RLE normalisation will be used.
+This is the default for DiffBind and ensured consistency with a recent benchmarking analysis [@Eder2022-db].
+
+`quantro` [@Hicks2015-ee] will be used to assess equality of distributions between groups, using logCPM data produced with only library size normalisation.
+Any comparisons not passing either component of this test will be marked for analyses where the requirement for equal distributions is not met, i.e. RLE normalisation [@Anders2010-sd].
+Quantro tests will be performed separately for fixed and sliding window datasets.
+
+Each ChIP target will return two sets of ranges
+
+1. Those used for fixed-width window analysis, and
+2. Those retained and merged during sliding window approaches
+
+These sets of windows will be compared to ensure differences are clearly understood.
+
+For sliding windows, final merged values will be obtained using the asymptotically exact harmonic p-value [@Wilson2019-ln] and representative values for logFC and logCPM will be weighted by inverse p-values, as implemented in `extraChIPs`.
+
+Complete DSA will be performed twice.
+
+1. Using a point-based null hypothesis, i.e. H~0~: &mu; = 0
+2. Using a range-based null hypothesis, i.e. H~0~: -&lambda; < &mu; < &lambda;, setting &lambda; = log~2~1.2 as the default value for `treat` [@McCarthy2009-qf]
+
+A summary of the methods under investigation is
+
+| Package | Window Type | Normalisation Method | Model Fitting | Abbreviation |
+|:------- |:----------- |:-------------------- |:------------- |:------------ |
+| extraChIPs | fixed    | Library Size        | glmQLFit    | ec-fw-ls-ql  |
+| extraChIPs | fixed    | Library Size        | limma-trend | ec-fw-ls-lt  |
+| extraChIPs | fixed    | RLE                 | glmQLFit    | ec-fw-rle-ql |
+| extraChIPs | fixed    | RLE (Within Groups) | glmQLFit    | ec-fw-rlg-ql |
+| extraChIPs | fixed    | RLE                 | limma-trend | ec-fw-rle-lt |
+| extraChIPs | fixed    | RLE                 | WaldTest    | ec-fw-rle-wt |
+| DiffBind   | fixed    | Library Size        | WaldTest    | db-fw-ls-ql  |
+| DiffBind   | fixed    | RLE                 | WaldTest    | db-fw-rle-ql |
+| extraChIPs | sliding  | Library Size        | glmQLFit    | ec-sw-ls-ql  |
+| extraChIPs | sliding  | Library Size        | limma-trend | ec-sw-ls-lt  |
+| extraChIPs | sliding  | RLE                 | glmQLFit    | ec-sw-rle-ql |
+| extraChIPs | sliding  | RLE                 | limma-trend | ec-sw-rle-lt |
+| extraChIPs | sliding  | Smooth-Quantile     | limma-trend | ec-sw-sq-lt  |
+
+Table: *Summary of all methods used in this comparison*
+
+
+
+
+

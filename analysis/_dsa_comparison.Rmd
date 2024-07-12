@@ -1,0 +1,110 @@
+```{r set-params, echo = FALSE, eval = FALSE}
+params <- list(
+  target = "ER",
+  ref = "E2",
+  treat = "E2DHT",
+  cell_type = "ZR-75"
+)
+```
+
+```{r load-packages}
+library(tidyverse)
+library(DiffBind)
+library(extraChIPs)
+library(reactable)
+library(htmltools)
+library(scales)
+library(glue)
+library(Rsamtools)
+library(csaw)
+library(BiocParallel)
+library(edgeR)
+library(quantro)
+library(doParallel)
+# cores <- parallel::detectCores() - 2
+cores <- 4
+register(MulticoreParam(cores))
+theme_set(theme_bw())
+format_p <- function(p){
+  fmt <- "%.3f"
+  if (any(p < 0.01)) fmt <- "%.2e"
+  sprintf(fmt, p)
+}
+```
+
+
+```{r define-samples}
+samples <- here::here("config", "samples.tsv") %>% 
+  read_tsv() %>% 
+  dplyr::filter(
+    cell_type == params$cell_type,
+    target == params$target,
+    treat %in% c(params$ref, params$treat)
+  )
+```
+
+```{r define-objects}
+sq <- defineSeqinfo(build = "hg19")
+bl <- here::here("data", "external", "hg19_blacklist.bed.gz") %>% 
+  importPeaks(type = "bed", seqinfo = sq) %>% 
+  unlist() %>% 
+  unname()
+gl <- here::here("data", "external", samples$input) %>% 
+  unique() %>% 
+  paste0("_greylist.bed.gz") %>% 
+  importPeaks(type = "bed", seqinfo = sq) %>% 
+  unlist() %>% 
+  unname()
+peaks <- here::here("data", "peaks", params$cell_type, params$target) %>% 
+  paste0("_consensus_peaks.bed.gz") %>% 
+  importPeaks(type = "bed", seqinfo = sq, blacklist = c(bl, gl)) %>% 
+  unlist() %>% 
+  unname()
+bfl <- here::here("data", "bam", params$cell_type, samples$id) %>% 
+  paste0(".bam") %>% 
+  BamFileList()
+```
+
+```{r centre-peaks}
+fixed_width <- peaks %>% 
+  width() %>% 
+  quantile(0.75) %>% 
+  round(-1)
+fw_peaks <- peaks %>% 
+  resize(width = fixed_width, fix = "center")
+```
+
+```{r count-reads}
+se <- regionCounts(bfl, fw_peaks, BPPARAM = bpparam())
+assay(se, "logCPM") <- assay(se, "counts") %>% 
+  cpm(log = TRUE, normalized.lib.sizes = FALSE, lib.size = se$totals)
+colData(se) <- colData(se) %>% 
+  as_tibble(rownames = "id") %>% 
+  mutate(id = str_remove(id, ".bam$")) %>% 
+  left_join(samples) %>% 
+  as.data.frame() %>% 
+  magrittr::set_rownames(basename(.$bam.files)) %>% 
+  as("DataFrame")
+```
+
+```{r}
+cl <- makeCluster(cores)
+registerDoParallel(cl)
+## With 6 samples, there's only 20 combinations for permuting
+qtest <- quantro(assay(se, "logCPM"), groupFactor = se$treat, B = 1e3)
+stopCluster(cl)
+n_eff <- qtest@quantroStatPerm %>% unique() %>% length()
+n_less <- sum(unique(qtest@quantroStatPerm) < qtest@quantroStat)
+## Might need to rethink...
+quantro_p <- c(1 - n_less / (1 + n_eff),  qtest@anova$`Pr(>F)`[[1]]) 
+quantro_pass <- !any(quantro_p < 0.05)
+```
+
+```{r}
+plotAssayDensities(se, "logCPM", colour = "treat") +
+  scale_colour_brewer(palette = "Set1", direction = -1) +
+  ggtitle(paste("Min Quantro p =", format_p(min(quantro_p))))
+```
+
+
+

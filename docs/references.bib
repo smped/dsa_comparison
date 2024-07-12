@@ -1,0 +1,316 @@
+
+@ARTICLE{Law2014-xq,
+  title    = "voom: Precision weights unlock linear model analysis tools for
+              {RNA-seq} read counts",
+  author   = "Law, Charity W and Chen, Yunshun and Shi, Wei and Smyth, Gordon K",
+  abstract = "New normal linear modeling strategies are presented for analyzing
+              read counts from RNA-seq experiments. The voom method estimates
+              the mean-variance relationship of the log-counts, generates a
+              precision weight for each observation and enters these into the
+              limma empirical Bayes analysis pipeline. This opens access for
+              RNA-seq analysts to a large body of methodology developed for
+              microarrays. Simulation studies show that voom performs as well
+              or better than count-based RNA-seq methods even when the data are
+              generated according to the assumptions of the earlier methods.
+              Two case studies illustrate the use of linear modeling and gene
+              set testing methods.",
+  journal  = "Genome Biol.",
+  volume   =  15,
+  number   =  2,
+  pages    = "R29",
+  month    =  feb,
+  year     =  2014,
+  language = "en"
+}
+
+
+@ARTICLE{Ross-Innes2012-zy,
+  title    = "Differential oestrogen receptor binding is associated with
+              clinical outcome in breast cancer",
+  author   = "Ross-Innes, Caryn S and Stark, Rory and Teschendorff, Andrew E
+              and Holmes, Kelly A and Ali, H Raza and Dunning, Mark J and
+              Brown, Gordon D and Gojis, Ondrej and Ellis, Ian O and Green,
+              Andrew R and Ali, Simak and Chin, Suet-Feung and Palmieri, Carlo
+              and Caldas, Carlos and Carroll, Jason S",
+  abstract = "Oestrogen receptor-$\alpha$ (ER) is the defining and driving
+              transcription factor in the majority of breast cancers and its
+              target genes dictate cell growth and endocrine response, yet
+              genomic understanding of ER function has been restricted to model
+              systems. Here we map genome-wide ER-binding events, by chromatin
+              immunoprecipitation followed by high-throughput sequencing
+              (ChIP-seq), in primary breast cancers from patients with
+              different clinical outcomes and in distant ER-positive
+              metastases. We find that drug-resistant cancers still recruit ER
+              to the chromatin, but that ER binding is a dynamic process, with
+              the acquisition of unique ER-binding regions in tumours from
+              patients that are likely to relapse. The acquired ER regulatory
+              regions associated with poor clinical outcome observed in primary
+              tumours reveal gene signatures that predict clinical outcome in
+              ER-positive disease exclusively. We find that the differential
+              ER-binding programme observed in tumours from patients with poor
+              outcome is not due to the selection of a rare subpopulation of
+              cells, but is due to the FOXA1-mediated reprogramming of ER
+              binding on a rapid timescale. The parallel redistribution of ER
+              and FOXA1 binding events in drug-resistant cellular contexts is
+              supported by histological co-expression of ER and FOXA1 in
+              metastatic samples. By establishing transcription-factor mapping
+              in primary tumour material, we show that there is plasticity in
+              ER-binding capacity, with distinct combinations of cis-regulatory
+              elements linked with the different clinical outcomes.",
+  journal  = "Nature",
+  volume   =  481,
+  number   =  7381,
+  pages    = "389--393",
+  month    =  jan,
+  year     =  2012,
+  language = "en"
+}
+
+
+@ARTICLE{Hicks2015-ee,
+  title    = "quantro: a data-driven approach to guide the choice of an
+              appropriate normalization method",
+  author   = "Hicks, Stephanie C and Irizarry, Rafael A",
+  abstract = "Normalization is an essential step in the analysis of
+              high-throughput data. Multi-sample global normalization methods,
+              such as quantile normalization, have been successfully used to
+              remove technical variation. However, these methods rely on the
+              assumption that observed global changes across samples are due to
+              unwanted technical variability. Applying global normalization
+              methods has the potential to remove biologically driven
+              variation. Currently, it is up to the subject matter experts to
+              determine if the stated assumptions are appropriate. Here, we
+              propose a data-driven alternative. We demonstrate the utility of
+              our method (quantro) through examples and simulations. A software
+              implementation is available from
+              http://www.bioconductor.org/packages/release/bioc/html/quantro.html
+              .",
+  journal  = "Genome Biol.",
+  volume   =  16,
+  number   =  1,
+  pages    = "117",
+  month    =  jun,
+  year     =  2015,
+  language = "en"
+}
+
+
+@ARTICLE{Hicks2018-uw,
+  title    = "Smooth quantile normalization",
+  author   = "Hicks, Stephanie C and Okrah, Kwame and Paulson, Joseph N and
+              Quackenbush, John and Irizarry, Rafael A and Bravo, H{\'e}ctor
+              Corrada",
+  abstract = "Between-sample normalization is a critical step in genomic data
+              analysis to remove systematic bias and unwanted technical
+              variation in high-throughput data. Global normalization methods
+              are based on the assumption that observed variability in global
+              properties is due to technical reasons and are unrelated to the
+              biology of interest. For example, some methods correct for
+              differences in sequencing read counts by scaling features to have
+              similar median values across samples, but these fail to reduce
+              other forms of unwanted technical variation. Methods such as
+              quantile normalization transform the statistical distributions
+              across samples to be the same and assume global differences in
+              the distribution are induced by only technical variation.
+              However, it remains unclear how to proceed with normalization if
+              these assumptions are violated, for example, if there are global
+              differences in the statistical distributions between biological
+              conditions or groups, and external information, such as negative
+              or control features, is not available. Here, we introduce a
+              generalization of quantile normalization, referred to as smooth
+              quantile normalization (qsmooth), which is based on the
+              assumption that the statistical distribution of each sample
+              should be the same (or have the same distributional shape) within
+              biological groups or conditions, but allowing that they may
+              differ between groups. We illustrate the advantages of our method
+              on several high-throughput datasets with global differences in
+              distributions corresponding to different biological conditions.
+              We also perform a Monte Carlo simulation study to illustrate the
+              bias-variance tradeoff and root mean squared error of qsmooth
+              compared to other global normalization methods. A software
+              implementation is available from
+              https://github.com/stephaniehicks/qsmooth.",
+  journal  = "Biostatistics",
+  volume   =  19,
+  number   =  2,
+  pages    = "185--198",
+  month    =  apr,
+  year     =  2018,
+  language = "en"
+}
+
+
+@ARTICLE{Anders2010-sd,
+  title    = "Differential expression analysis for sequence count data",
+  author   = "Anders, Simon and Huber, Wolfgang",
+  abstract = "High-throughput sequencing assays such as RNA-Seq, ChIP-Seq or
+              barcode counting provide quantitative readouts in the form of
+              count data. To infer differential signal in such data correctly
+              and with good statistical power, estimation of data variability
+              throughout the dynamic range and a suitable error model are
+              required. We propose a method based on the negative binomial
+              distribution, with variance and mean linked by local regression
+              and present an implementation, DESeq, as an R/Bioconductor
+              package.",
+  journal  = "Genome Biol.",
+  volume   =  11,
+  number   =  10,
+  pages    = "R106",
+  month    =  oct,
+  year     =  2010,
+  language = "en"
+}
+
+
+@ARTICLE{Robinson2010-qp,
+  title    = "A scaling normalization method for differential expression
+              analysis of {RNA-seq} data",
+  author   = "Robinson, Mark D and Oshlack, Alicia",
+  abstract = "The fine detail provided by sequencing-based transcriptome
+              surveys suggests that RNA-seq is likely to become the platform of
+              choice for interrogating steady state RNA. In order to discover
+              biologically important changes in expression, we show that
+              normalization continues to be an essential step in the analysis.
+              We outline a simple and effective method for performing
+              normalization and show dramatically improved results for
+              inferring differential expression in simulated and publicly
+              available data sets.",
+  journal  = "Genome Biol.",
+  volume   =  11,
+  number   =  3,
+  pages    = "R25",
+  month    =  mar,
+  year     =  2010,
+  language = "en"
+}
+
+
+@ARTICLE{McCarthy2009-qf,
+  title    = "Testing significance relative to a fold-change threshold is a
+              {TREAT}",
+  author   = "McCarthy, Davis J and Smyth, Gordon K",
+  abstract = "MOTIVATION: Statistical methods are used to test for the
+              differential expression of genes in microarray experiments. The
+              most widely used methods successfully test whether the true
+              differential expression is different from zero, but give no
+              assurance that the differences found are large enough to be
+              biologically meaningful. RESULTS: We present a method, t-tests
+              relative to a threshold (TREAT), that allows researchers to test
+              formally the hypothesis (with associated p-values) that the
+              differential expression in a microarray experiment is greater
+              than a given (biologically meaningful) threshold. We have
+              evaluated the method using simulated data, a dataset from a
+              quality control experiment for microarrays and data from a
+              biological experiment investigating histone deacetylase
+              inhibitors. When the magnitude of differential expression is
+              taken into account, TREAT improves upon the false discovery rate
+              of existing methods and identifies more biologically relevant
+              genes. AVAILABILITY: R code implementing our methods is
+              contributed to the software package limma available at
+              http://www.bioconductor.org.",
+  journal  = "Bioinformatics",
+  volume   =  25,
+  number   =  6,
+  pages    = "765--771",
+  month    =  mar,
+  year     =  2009,
+  language = "en"
+}
+
+
+@ARTICLE{Zhang2008-ms,
+  title    = "Model-based analysis of {ChIP-Seq} ({MACS})",
+  author   = "Zhang, Yong and Liu, Tao and Meyer, Clifford A and Eeckhoute,
+              J{\'e}r{\^o}me and Johnson, David S and Bernstein, Bradley E and
+              Nusbaum, Chad and Myers, Richard M and Brown, Myles and Li, Wei
+              and Liu, X Shirley",
+  abstract = "We present Model-based Analysis of ChIP-Seq data, MACS, which
+              analyzes data generated by short read sequencers such as Solexa's
+              Genome Analyzer. MACS empirically models the shift size of
+              ChIP-Seq tags, and uses it to improve the spatial resolution of
+              predicted binding sites. MACS also uses a dynamic Poisson
+              distribution to effectively capture local biases in the genome,
+              allowing for more robust predictions. MACS compares favorably to
+              existing ChIP-Seq peak-finding algorithms, and is freely
+              available.",
+  journal  = "Genome Biol.",
+  volume   =  9,
+  number   =  9,
+  pages    = "R137",
+  month    =  sep,
+  year     =  2008,
+  language = "en"
+}
+
+
+@ARTICLE{Eder2022-db,
+  title    = "Comprehensive assessment of differential {ChIP-seq} tools guides
+              optimal algorithm selection",
+  author   = "Eder, Thomas and Grebien, Florian",
+  abstract = "BACKGROUND: The analysis of chromatin binding patterns of
+              proteins in different biological states is a main application of
+              chromatin immunoprecipitation followed by sequencing (ChIP-seq).
+              A large number of algorithms and computational tools for
+              quantitative comparison of ChIP-seq datasets exist, but their
+              performance is strongly dependent on the parameters of the
+              biological system under investigation. Thus, a systematic
+              assessment of available computational tools for differential
+              ChIP-seq analysis is required to guide the optimal selection of
+              analysis tools based on the present biological scenario. RESULTS:
+              We created standardized reference datasets by in silico
+              simulation and sub-sampling of genuine ChIP-seq data to represent
+              different biological scenarios and binding profiles. Using these
+              data, we evaluated the performance of 33 computational tools and
+              approaches for differential ChIP-seq analysis. Tool performance
+              was strongly dependent on peak size and shape as well as on the
+              scenario of biological regulation. CONCLUSIONS: Our analysis
+              provides unbiased guidelines for the optimized choice of software
+              tools in differential ChIP-seq analysis.",
+  journal  = "Genome Biol.",
+  volume   =  23,
+  number   =  1,
+  pages    = "119",
+  month    =  may,
+  year     =  2022,
+  keywords = "Benchmarking differential ChIP-seq tools; Bioinformatic analysis;
+              Differential ChIP-seq; Guidelines for differential ChIP-seq",
+  language = "en"
+}
+
+
+@ARTICLE{Wilson2019-ln,
+  title    = "The harmonic mean \textit{p}-value for combining dependent tests",
+  author   = "Wilson, Daniel J",
+  abstract = "Analysis of ``big data'' frequently involves statistical
+              comparison of millions of competing hypotheses to discover hidden
+              processes underlying observed patterns of data, for example, in
+              the search for genetic determinants of disease in genome-wide
+              association studies (GWAS). Controlling the familywise error rate
+              (FWER) is considered the strongest protection against false
+              positives but makes it difficult to reach the multiple
+              testing-corrected significance threshold. Here, I introduce the
+              harmonic mean p-value (HMP), which controls the FWER while
+              greatly improving statistical power by combining dependent tests
+              using generalized central limit theorem. I show that the HMP
+              effortlessly combines information to detect statistically
+              significant signals among groups of individually nonsignificant
+              hypotheses in examples of a human GWAS for neuroticism and a
+              joint human-pathogen GWAS for hepatitis C viral load. The HMP
+              simultaneously tests all ways to group hypotheses, allowing the
+              smallest groups of hypotheses that retain significance to be
+              sought. The power of the HMP to detect significant hypothesis
+              groups is greater than the power of the Benjamini-Hochberg
+              procedure to detect significant hypotheses, although the latter
+              only controls the weaker false discovery rate (FDR). The HMP has
+              broad implications for the analysis of large datasets, because it
+              enhances the potential for scientific discovery.",
+  journal  = "Proc. Natl. Acad. Sci. U. S. A.",
+  volume   =  116,
+  number   =  4,
+  pages    = "1195--1200",
+  month    =  jan,
+  year     =  2019,
+  keywords = "big data; false positives; model averaging; multiple testing;
+              p-values",
+  language = "en"
+}

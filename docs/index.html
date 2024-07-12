@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Outline Of DSA Comparison</title>
+
+<script src="site_libs/header-attrs-2.27/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/sandstone.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">DSA Comparison</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa-home"></span>
+     
+    Home
+  </a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    ER
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="zr75_er_e2_e2dht.html">ZR-75: E2DHT Vs E2</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/smped/dsa_comparison">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Outline Of DSA Comparison</h1>
+<h4 class="author"><div class="line-block">Dr Stevie Pederson<br />
+Black Ochre Data Labs<br />
+Telethon Kids Institute<br />
+Adelaide, Australia</div></h4>
+<h4 class="date">13 July, 2024</h4>
+
+</div>
+
+
+<div id="brief-outline" class="section level2">
+<h2>Brief Outline</h2>
+<p>This repository holds a comparison of methods for Differential Signal
+Analysis (DSA) of ChIP-Seq data, as a baseline comparison between those
+offered by the Bioconductor packages <code>extraChIPs</code> and
+<code>DiffBind</code> <span class="citation">(Ross-Innes et al.
+2012)</span>. All individual analyses are simple pair-wise comparisons,
+with the differing results contrasted.</p>
+<p>Peaks for all analyses have been identified using
+<code>macs2 callpeak</code> <span class="citation">(Zhang et al.
+2008)</span>, with final peak sets being the union of treatment-specific
+consensus peaks. Treatment-specific consensus peaks were considered to
+be those detected in merged samples, and which overlapped peaks detected
+in at least 2 of the 3 individual samples within each group. Sliding
+window methods will use these peaks as a guide for setting thresholds
+when retaining or discarding windows, as is implemented in
+<code>extraChIPs</code></p>
+<p>Analysis using limma-trend <span class="citation">(Law et al.
+2014)</span> will use logCPM values whilst all other methods use
+count-based models. Smooth quantile normalisation <span
+class="citation">(Hicks et al. 2018)</span> will only be applied to
+sliding windows.</p>
+<p>Sample-specific library sizes will always be taken as the total
+number of alignments within a bam file, not just those within defined
+peaks. Given the broad similarity between RLE and TMM <span
+class="citation">(Robinson and Oshlack 2010)</span> normalisation, only
+RLE normalisation will be used. This is the default for DiffBind and
+ensured consistency with a recent benchmarking analysis <span
+class="citation">(Eder and Grebien 2022)</span>.</p>
+<p><code>quantro</code> <span class="citation">(Hicks and Irizarry
+2015)</span> will be used to assess equality of distributions between
+groups, using logCPM data produced with only library size normalisation.
+Any comparisons not passing either component of this test will be marked
+for analyses where the requirement for equal distributions is not met,
+i.e. RLE normalisation <span class="citation">(Anders and Huber
+2010)</span>. Quantro tests will be performed separately for fixed and
+sliding window datasets.</p>
+<p>Each ChIP target will return two sets of ranges</p>
+<ol style="list-style-type: decimal">
+<li>Those used for fixed-width window analysis, and</li>
+<li>Those retained and merged during sliding window approaches</li>
+</ol>
+<p>These sets of windows will be compared to ensure differences are
+clearly understood.</p>
+<p>For sliding windows, final merged values will be obtained using the
+asymptotically exact harmonic p-value <span class="citation">(Wilson
+2019)</span> and representative values for logFC and logCPM will be
+weighted by inverse p-values..</p>
+<p>Complete DSA will be performed twice.</p>
+<ol style="list-style-type: decimal">
+<li>Using a point-based null hypothesis, i.e. H<sub>0</sub>: μ = 0</li>
+<li>Using a range-based null hypothesis, i.e. H<sub>0</sub>: -λ &lt; μ
+&lt; λ, setting λ = log<sub>2</sub>1.2 as the default value for
+<code>treat</code> <span class="citation">(McCarthy and Smyth
+2009)</span></li>
+</ol>
+<p>A summary of the methods under investigation is</p>
+<table>
+<caption><em>Summary of all methods used in this
+comparison</em></caption>
+<colgroup>
+<col width="11%" />
+<col width="17%" />
+<col width="30%" />
+<col width="20%" />
+<col width="19%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Package</th>
+<th align="left">Window Type</th>
+<th align="left">Normalisation Method</th>
+<th align="left">Model Fitting</th>
+<th align="left">Abbreviation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">extraChIPs</td>
+<td align="left">fixed</td>
+<td align="left">Library Size</td>
+<td align="left">glmQLFit</td>
+<td align="left">ec-fw-ls-ql</td>
+</tr>
+<tr class="even">
+<td align="left">extraChIPs</td>
+<td align="left">fixed</td>
+<td align="left">Library Size</td>
+<td align="left">limma-trend</td>
+<td align="left">ec-fw-ls-lt</td>
+</tr>
+<tr class="odd">
+<td align="left">extraChIPs</td>
+<td align="left">fixed</td>
+<td align="left">RLE</td>
+<td align="left">glmQLFit</td>
+<td align="left">ec-fw-rle-ql</td>
+</tr>
+<tr class="even">
+<td align="left">extraChIPs</td>
+<td align="left">fixed</td>
+<td align="left">RLE (Within Groups)</td>
+<td align="left">glmQLFit</td>
+<td align="left">ec-fw-rlg-ql</td>
+</tr>
+<tr class="odd">
+<td align="left">extraChIPs</td>
+<td align="left">fixed</td>
+<td align="left">RLE</td>
+<td align="left">limma-trend</td>
+<td align="left">ec-fw-rle-lt</td>
+</tr>
+<tr class="even">
+<td align="left">extraChIPs</td>
+<td align="left">fixed</td>
+<td align="left">RLE</td>
+<td align="left">WaldTest</td>
+<td align="left">ec-fw-rle-wt</td>
+</tr>
+<tr class="odd">
+<td align="left">DiffBind</td>
+<td align="left">fixed</td>
+<td align="left">Library Size</td>
+<td align="left">WaldTest</td>
+<td align="left">db-fw-ls-ql</td>
+</tr>
+<tr class="even">
+<td align="left">DiffBind</td>
+<td align="left">fixed</td>
+<td align="left">RLE</td>
+<td align="left">WaldTest</td>
+<td align="left">db-fw-rle-ql</td>
+</tr>
+<tr class="odd">
+<td align="left">extraChIPs</td>
+<td align="left">sliding</td>
+<td align="left">Library Size</td>
+<td align="left">glmQLFit</td>
+<td align="left">ec-sw-ls-ql</td>
+</tr>
+<tr class="even">
+<td align="left">extraChIPs</td>
+<td align="left">sliding</td>
+<td align="left">Library Size</td>
+<td align="left">limma-trend</td>
+<td align="left">ec-sw-ls-lt</td>
+</tr>
+<tr class="odd">
+<td align="left">extraChIPs</td>
+<td align="left">sliding</td>
+<td align="left">RLE</td>
+<td align="left">glmQLFit</td>
+<td align="left">ec-sw-rle-ql</td>
+</tr>
+<tr class="even">
+<td align="left">extraChIPs</td>
+<td align="left">sliding</td>
+<td align="left">RLE</td>
+<td align="left">limma-trend</td>
+<td align="left">ec-sw-rle-lt</td>
+</tr>
+<tr class="odd">
+<td align="left">extraChIPs</td>
+<td align="left">sliding</td>
+<td align="left">Smooth-Quantile</td>
+<td align="left">limma-trend</td>
+<td align="left">ec-sw-sq-lt</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="summary-of-samples" class="section level2">
+<h2>Summary of Samples</h2>
+<pre class="r"><code>library(tidyverse)
+library(pander)
+samples &lt;- here::here(&quot;config&quot;, &quot;samples.tsv&quot;) %&gt;% read_tsv()</code></pre>
+<table style="width:47%;">
+<caption><em>Summary of samples used for this comparison</em></caption>
+<colgroup>
+<col width="16%" />
+<col width="13%" />
+<col width="11%" />
+<col width="5%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Cell Type</th>
+<th align="left">Target</th>
+<th align="left">Treat</th>
+<th align="right">N</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">ZR-75</td>
+<td align="left">AR</td>
+<td align="left">E2</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">ZR-75</td>
+<td align="left">AR</td>
+<td align="left">E2DHT</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">ZR-75</td>
+<td align="left">ER</td>
+<td align="left">E2</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">ZR-75</td>
+<td align="left">ER</td>
+<td align="left">E2DHT</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">ZR-75</td>
+<td align="left">H3K27ac</td>
+<td align="left">E2</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">ZR-75</td>
+<td align="left">H3K27ac</td>
+<td align="left">E2DHT</td>
+<td align="right">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2 class="unnumbered">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
+<div id="ref-Anders2010-sd" class="csl-entry">
+Anders, Simon, and Wolfgang Huber. 2010. <span>“Differential Expression
+Analysis for Sequence Count Data.”</span> <em>Genome Biol.</em> 11 (10):
+R106.
+</div>
+<div id="ref-Eder2022-db" class="csl-entry">
+Eder, Thomas, and Florian Grebien. 2022. <span>“Comprehensive Assessment
+of Differential <span class="nocase">ChIP-seq</span> Tools Guides
+Optimal Algorithm Selection.”</span> <em>Genome Biol.</em> 23 (1): 119.
+</div>
+<div id="ref-Hicks2015-ee" class="csl-entry">
+Hicks, Stephanie C, and Rafael A Irizarry. 2015. <span>“Quantro: A
+Data-Driven Approach to Guide the Choice of an Appropriate Normalization
+Method.”</span> <em>Genome Biol.</em> 16 (1): 117.
+</div>
+<div id="ref-Hicks2018-uw" class="csl-entry">
+Hicks, Stephanie C, Kwame Okrah, Joseph N Paulson, John Quackenbush,
+Rafael A Irizarry, and Héctor Corrada Bravo. 2018. <span>“Smooth
+Quantile Normalization.”</span> <em>Biostatistics</em> 19 (2): 185–98.
+</div>
+<div id="ref-Law2014-xq" class="csl-entry">
+Law, Charity W, Yunshun Chen, Wei Shi, and Gordon K Smyth. 2014.
+<span>“Voom: Precision Weights Unlock Linear Model Analysis Tools for
+<span class="nocase">RNA-seq</span> Read Counts.”</span> <em>Genome
+Biol.</em> 15 (2): R29.
+</div>
+<div id="ref-McCarthy2009-qf" class="csl-entry">
+McCarthy, Davis J, and Gordon K Smyth. 2009. <span>“Testing Significance
+Relative to a Fold-Change Threshold Is a <span>TREAT</span>.”</span>
+<em>Bioinformatics</em> 25 (6): 765–71.
+</div>
+<div id="ref-Robinson2010-qp" class="csl-entry">
+Robinson, Mark D, and Alicia Oshlack. 2010. <span>“A Scaling
+Normalization Method for Differential Expression Analysis of <span
+class="nocase">RNA-seq</span> Data.”</span> <em>Genome Biol.</em> 11
+(3): R25.
+</div>
+<div id="ref-Ross-Innes2012-zy" class="csl-entry">
+Ross-Innes, Caryn S, Rory Stark, Andrew E Teschendorff, Kelly A Holmes,
+H Raza Ali, Mark J Dunning, Gordon D Brown, et al. 2012.
+<span>“Differential Oestrogen Receptor Binding Is Associated with
+Clinical Outcome in Breast Cancer.”</span> <em>Nature</em> 481 (7381):
+389–93.
+</div>
+<div id="ref-Wilson2019-ln" class="csl-entry">
+Wilson, Daniel J. 2019. <span>“The Harmonic Mean <em>p</em>-Value for
+Combining Dependent Tests.”</span> <em>Proc. Natl. Acad. Sci. U. S.
+A.</em> 116 (4): 1195–1200.
+</div>
+<div id="ref-Zhang2008-ms" class="csl-entry">
+Zhang, Yong, Tao Liu, Clifford A Meyer, Jérôme Eeckhoute, David S
+Johnson, Bradley E Bernstein, Chad Nusbaum, et al. 2008.
+<span>“Model-Based Analysis of <span>ChIP-Seq</span>
+(<span>MACS</span>).”</span> <em>Genome Biol.</em> 9 (9): R137.
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
