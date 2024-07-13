@@ -20,7 +20,13 @@ library(csaw)
 library(BiocParallel)
 library(edgeR)
 library(quantro)
+library(qsmooth)
 library(doParallel)
+library(magrittr)
+library(plyranges)
+library(patchwork)
+library(pander)
+library(corrplot)
 # cores <- parallel::detectCores() - 2
 cores <- 4
 register(MulticoreParam(cores))
@@ -30,6 +36,37 @@ format_p <- function(p){
   if (any(p < 0.01)) fmt <- "%.2e"
   sprintf(fmt, p)
 }
+js_greater <- htmlwidgets::JS(
+  "function(rows, columnId, filterValue) {
+    return rows.filter(function(row) {
+      return row.values[columnId] >= filterValue
+    })
+  }"
+)
+js_less <- htmlwidgets::JS(
+  "function(rows, columnId, filterValue) {
+    return rows.filter(function(row) {
+      return row.values[columnId] <= filterValue
+    })
+  }"
+)
+drop_filter <- function(values, name, id = NULL, sort = TRUE) {
+  if (sort) values <- sort(values)
+  tags$select(
+    # Set to undefined to clear the filter
+    onchange = sprintf(
+      "Reactable.setFilter('%s', '%s', event.target.value || undefined)",
+      id, name
+    ),
+    # "All" has an empty value to clear the filter, and is the default option
+    tags$option(value = "", "All"),
+    lapply(unique(values), tags$option),
+    "aria-label" = sprintf("Filter %s", name),
+    style = "width: 100%; height: 28px; font-size: 12px;"
+  )
+}
+fig_path <- here::here("docs", "assets", params$target)
+if (!dir.exists(fig_path)) dir.create(fig_path, recursive = TRUE)
 ```
 
 
@@ -40,7 +77,8 @@ samples <- here::here("config", "samples.tsv") %>%
     cell_type == params$cell_type,
     target == params$target,
     treat %in% c(params$ref, params$treat)
-  )
+  ) %>% 
+  mutate(treat = factor(treat, levels = c(params$ref, params$treat)))
 ```
 
 ```{r define-objects}
@@ -63,6 +101,10 @@ peaks <- here::here("data", "peaks", params$cell_type, params$target) %>%
 bfl <- here::here("data", "bam", params$cell_type, samples$id) %>% 
   paste0(".bam") %>% 
   BamFileList()
+ip_bfl <- here::here("data", "bam", params$cell_type, samples$input) %>% 
+  paste0(".bam") %>% 
+  unique() %>% 
+  BamFileList()
 ```
 
 ```{r centre-peaks}
@@ -71,40 +113,1013 @@ fixed_width <- peaks %>%
   quantile(0.75) %>% 
   round(-1)
 fw_peaks <- peaks %>% 
-  resize(width = fixed_width, fix = "center")
+  mutate(peak = granges(.)) %>% 
+  resize(width = fixed_width, fix = "center") %>% 
+  filter_by_non_overlaps(c(bl, gl))
 ```
+
+## Fixed-Width Windows
+
+All `r comma(length(peaks))` consensus peaks were loaded and the 75^th^ percentile of peaks widths was found to be `r fixed_width`bp.
+This was then set as the fixed width for all peaks and any resized peaks which overlapped black- or grey-listed regions were subsequently excluded, give a final set of `r comma(length(fw_peaks))` peaks fixed at `r fixed_width`bp.
+
 
 ```{r count-reads}
-se <- regionCounts(bfl, fw_peaks, BPPARAM = bpparam())
-assay(se, "logCPM") <- assay(se, "counts") %>% 
-  cpm(log = TRUE, normalized.lib.sizes = FALSE, lib.size = se$totals)
-colData(se) <- colData(se) %>% 
-  as_tibble(rownames = "id") %>% 
-  mutate(id = str_remove(id, ".bam$")) %>% 
-  left_join(samples) %>% 
-  as.data.frame() %>% 
-  magrittr::set_rownames(basename(.$bam.files)) %>% 
-  as("DataFrame")
+f <- here::here(
+  "output", "rds", 
+  "{params$cell_type}_{params$target}_{params$ref}_{params$treat}_fixed.rds"
+) %>% 
+  glue()
+if (file.exists(f)) {
+  se <- read_rds(f)
+} else{
+  se <- regionCounts(bfl, fw_peaks, BPPARAM = bpparam())
+  rownames(se) <- se %>% rowRanges() %>% as.character()
+  colData(se) <- colData(se) %>% 
+    as_tibble(rownames = "id") %>% 
+    mutate(id = str_remove(id, ".bam$")) %>% 
+    left_join(samples) %>% 
+    as.data.frame() %>% 
+    magrittr::set_rownames(basename(.$bam.files)) %>% 
+    as("DataFrame")
+  dge <- SE2DGEList(se)
+  dge$samples$lib.size <- se$totals
+  dge <- calcNormFactors(dge, "RLE")
+  assay(se, "logCPM") <- cpm(
+    dge, log = TRUE, normalized.lib.sizes = FALSE, lib.size = dge$samples$lib.size
+  )
+  assay(se, "logCPM_RLE") <- cpm(
+    dge, log = TRUE, normalized.lib.sizes = TRUE, lib.size = dge$samples$lib.size
+  )
+  write_rds(se, f, compress = "gz")
+}
 ```
 
-```{r}
+Alignments were counted for the set of fixed-width windows using the default settings of `regionCounts()` from the `csaw` package [@Lun2016-yu].
+Assays were added containing logCPM values using total library sizes only, and using RLE-normalised [@Anders2010-sd] logCPM values.
+Total alignments across the bam files were taken as library sizes in both cases
+
+### Quantro Test
+
+```{r qtest}
 cl <- makeCluster(cores)
 registerDoParallel(cl)
-## With 6 samples, there's only 20 combinations for permuting
 qtest <- quantro(assay(se, "logCPM"), groupFactor = se$treat, B = 1e3)
 stopCluster(cl)
-n_eff <- qtest@quantroStatPerm %>% unique() %>% length()
-n_less <- sum(unique(qtest@quantroStatPerm) < qtest@quantroStat)
-## Might need to rethink...
-quantro_p <- c(1 - n_less / (1 + n_eff),  qtest@anova$`Pr(>F)`[[1]]) 
-quantro_pass <- !any(quantro_p < 0.05)
+n_eff <- qtest@quantroStatPerm %>% 
+  unique() %>% 
+  length() %>% 
+  add(1)
+b <- sum(unique(qtest@quantroStatPerm) > qtest@quantroStat) + 1
+perm_p <- b/n_eff
 ```
 
-```{r}
-plotAssayDensities(se, "logCPM", colour = "treat") +
-  scale_colour_brewer(palette = "Set1", direction = -1) +
-  ggtitle(paste("Min Quantro p =", format_p(min(quantro_p))))
+The quantro test [@Hicks2015-ee] for both equality of medians and equality of distributions was applied to logCPM values without normalisation.
+Distributions were found to have `r ifelse(qtest@anova[["Pr(>F)"]][[1]] < 0.05, "unequal", "equal")` medians (ANOVA p = `r format_p(qtest@anova[["Pr(>F)"]][[1]])`).
+
+When checking for equality of distributions 1000 permutations were performed, acknowledging that for datasets with two groups and 6 samples, this far exceeds the number of viable permutations.
+After performing this step, the quantro statistics obtained from the set of permutations was subset to only the unique values, assuming that each permutation will return a distinct statistic.
+This subset of permutations was then used to define the effective number of permutations and the exact p-value was calculated using common strategies [as described in @Phipson2010-qh], by adding one to the number of tests greater that the observed test statistic, and likewise adding one to the number of effective permutations.
+This returned a permutation p-value of `r format_p(perm_p)` suggesting that RLE normalisation `r case_when(perm_p < 0.05 ~ "**is inappropriate**", perm_p < 0.1 ~ "*should be used with caution*", TRUE ~ "is appropriate")`.
+
+
+```{r plot-densities, fig.height=6, fig.cap = glue("*logCPM densities shown before (A) and after (B) RLE normalisation. This dataset returned a quantro ANOVA p-value of {format_p(qtest@anova$`Pr(>F)`[[1]])} and a permutation p-value of {format_p(perm_p)}*")}
+assayNames(se) %>% 
+  str_subset("logCPM") %>% 
+  lapply(
+    \(x) {
+      plotAssayDensities(se, x, colour = "treat") +
+        scale_colour_brewer(palette = "Set1", direction = -1) 
+    }
+  ) %>% 
+  wrap_plots() +
+  plot_layout(guides = "collect", axes = "collect") +
+  plot_annotation(tag_levels = "A")
 ```
 
 
+```{r ec-fw-params}
+X <- model.matrix(~treat, data = colData(se))
+ec_fw_tbl_params <- tribble(
+ ~assay, ~norm, ~method, ~abbr,
+ "counts", "none", "qlf", "ec-fw-ls-ql",
+ "counts", "none", "wald", "ec-fw-ls-wt",
+ "logCPM", "none", "lt", "ec-fw-ls-lt",
+ "counts", "RLE", "qlf", "ec-fw-rle-ql",
+ "counts", "RLE", "wald", "ec-fw-rle-wt",
+ "logCPM_RLE", "RLE", "lt", "ec-fw-rle-lt",
+ "counts", "RLE", "qlf", "ec-fw-rlg-ql"
+) %>% 
+  mutate(
+    quantro_flag = case_when(
+      !grepl("rle", abbr) ~ "",
+      min(perm_p, qtest@anova$`Pr(>F)`[[1]]) < 0.01 ~ "**",
+      min(perm_p, qtest@anova$`Pr(>F)`[[1]]) < 0.05 ~ "*",
+      min(perm_p, qtest@anova$`Pr(>F)`[[1]]) < 0.1 ~ "\u02D9",
+      TRUE ~ ""
+    )
+  )
+ec_fw_params <- ec_fw_tbl_params %>% 
+  split(.$abbr) %>% 
+  lapply(as.list) %>% 
+  lapply(
+    \(x) {
+      if (str_detect(x$abbr, "rlg")) x$groups <- "treat"
+      x$design <- X
+      x$asRanges <- TRUE
+      x[!names(x) %in% c("abbr", "quantro_flag")]
+    }
+  )
+ec_fw_res <- ec_fw_params %>% 
+  lapply(
+    \(x) {
+      x$x <- se
+      do.call("fitAssayDiff", x)
+    }
+  )
+```
+
+All methods defined for testing with `extraChIPs` using fixed-width windows were then fit as defined, with MA-plots shown for each individual approach.
+
+### MA Plots {.tabset}
+
+```{r plot-ma-ec-fw}
+tagList(
+  names(ec_fw_res) %>% 
+    lapply(
+      \(i) {
+        tbl <- as_tibble(ec_fw_res[[i]])
+        norm <- case_when(
+          grepl("ls", i) ~ "Library Size",
+          grepl("rle", i) ~ "RLE",
+          grepl("rlg", i) ~ "RLE-Grouped",
+          grepl("sq", i) ~ "Smooth Quantile",
+          TRUE ~ ""
+        )
+        fit <- case_when(
+          grepl("lt$", i) ~ "Limma Trend",
+          grepl("ql$", i) ~ "glmQLF",
+          grepl("wt$", i) ~ "Wald Test"
+        )
+        p <- tbl %>% 
+          arrange(desc(PValue)) %>% 
+          ggplot(aes(logCPM, logFC)) + 
+          geom_point(aes(colour = FDR < 0.05), alpha = 0.7) +
+          geom_smooth(se = FALSE, method = "lm", formula = y ~ x) +
+          geom_hline(yintercept = 0) +
+          ggtitle(
+            glue("{params$target}: {params$treat} Vs. {params$ref}"),
+            glue("Fixed-Width (extraChIPs): {norm} Normalisation + {fit}")
+          ) +
+          scale_colour_manual(values = c("grey20", "red2")) +
+          theme(
+            text = element_text(size = 12),
+            plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5)
+          )
+        
+        img_out <- here::here(fig_path, "{params$ref}_{params$treat}_{i}.png") %>% 
+          glue()
+        png(img_out, width = 10, height = 8, units = "in", res = 300)
+        print(p)
+        dev.off()
+        
+        ## Create html tags
+        fig_link <- str_extract(img_out, "assets.+")
+        cp <- htmltools::tags$em(
+          glue(
+            "MA-plot for fixed-width windows analysed using extraChIPs with 
+          {norm} normalisation and DSA results produced using {fit} methods.
+          "
+          )
+        )
+        htmltools::div(
+          id = img_out %>% 
+            basename() %>% 
+            str_remove_all(".png$") %>% 
+            str_to_lower() %>% 
+            str_replace_all("_", "-"),
+          class = "section level4",
+          htmltools::h4(glue("{norm} + {fit}")),
+          htmltools::div(
+            class = "figure", style = "text-align: center",
+            htmltools::img(src = fig_link, width = "100%"),
+            htmltools::tags$caption(cp)
+          )
+        )
+      }
+    )
+)
+```
+
+
+## DiffBind
+
+```{r setup-diffbind}
+db_fw_tbl_params <- tribble(
+ ~assay, ~norm, ~method, ~abbr,
+ "counts", "none", "wald", "db-fw-ls-wt",
+ "counts", "RLE", "wald", "db-fw-rle-wt",
+) %>% 
+  mutate(
+    quantro_flag = case_when(
+      !grepl("rle", abbr) ~ "",
+      min(perm_p, qtest@anova$`Pr(>F)`[[1]]) < 0.01 ~ "**",
+      min(perm_p, qtest@anova$`Pr(>F)`[[1]]) < 0.05 ~ "*",
+      min(perm_p, qtest@anova$`Pr(>F)`[[1]]) < 0.1 ~ "\u02D9",
+      TRUE ~ ""
+    )
+  )
+f <- here::here(
+  "output", "rds", 
+  "{params$cell_type}_{params$target}_{params$ref}_{params$treat}_dba.rds"
+) %>% 
+  glue()
+if (file.exists(f)) {
+  dba <- read_rds(f)
+} else {
+  db_sample_sheet <- samples %>%
+    mutate(
+      bamReads = path(bfl),
+      ControlID = "Pooled",
+      bamControl = file.path(dirname(bamReads), glue("{input}.bam"))#,
+      # Peaks = file.path(out_path, glue("{target}_centred_peaks.bed")),
+      # PeakCaller = "bed"
+    ) %>% 
+    dplyr::rename(
+      Tissue = cell_type, Factor = target, Treatment = treat, SampleID = id
+    ) %>% 
+    mutate(Replicate = seq_along(Treatment), .by = Treatment) %>% 
+    dplyr::select(
+      SampleID, Tissue, Factor, #Condition, 
+      Treatment, Replicate,
+      bamReads, ControlID, bamControl#, starts_with("Peak")
+    ) %>% 
+    as.data.frame()
+  dba <- dba(
+    sampleSheet = db_sample_sheet, 
+    config = data.frame(fragmentSize = 100, cores = cores)
+  ) %>% 
+    dba.count(peaks = fw_peaks, summits = fixed_width / 2)  %>% 
+    dba.blacklist(cores = cores, blacklist = bl, greylist = gl)
+  write_rds(dba, f, compress = "gz")
+}
+```
+
+```{r fit-db}
+dba_ls <- dba.normalize(dba, method = DBA_DESEQ2, normalize = DBA_NORM_LIB) %>% 
+  dba.analyze(method = DBA_DESEQ2)
+db_ls_results <-  dba_ls %>% 
+  dba.report(method = DBA_DESEQ2, th = 1) %>% 
+  sortSeqlevels() %>% 
+  sort() %>% 
+  select(logCPM = Conc, logFC = Fold, PValue = `p-value`, FDR) 
+seqinfo(db_ls_results) <- sq
+dba_rle <- dba.normalize(dba, method = DBA_DESEQ2, normalize = DBA_NORM_RLE) %>% 
+  dba.analyze(method = DBA_DESEQ2)
+db_rle_results <-  dba_rle %>% 
+  dba.report(method = DBA_DESEQ2, th = 1) %>% 
+  sortSeqlevels() %>% 
+  sort() %>% 
+  select(logCPM = Conc, logFC = Fold, PValue = `p-value`, FDR) 
+seqinfo(db_rle_results) <- sq
+db_fw_res <- list(
+  "db-fw-ls-wt" = db_ls_results,
+  "db-fw-rle-wt" = db_rle_results
+)
+```
+
+DBA objects were defined for analysis with `DiffBind` incorporating the black and grey-lists as above, and with the same set of fixed-width ranges provided for analysis with `extraChIPs`
+Notably, `DiffBind` will re-centre the provided ranges using an internal algorithm and as such, peak locations will differ slightly from those used with `extraChIPs`.
+Additionally, some peaks may be shifted enough to overlap the black- or grey-listed regions and will be excluded.
+
+All methods defined for testing with `Diffind` which only uses fixed-width windows were then fit, with MA-plots shown for each individual approach.
+
+### MA Plots {.tabset}
+
+```{r plot-ma-db-fw}
+tagList(
+  names(db_fw_res) %>% 
+    lapply(
+      \(i) {
+        tbl <- as_tibble(db_fw_res[[i]])
+        norm <- case_when(
+          grepl("ls", i) ~ "Library Size",
+          grepl("rle", i) ~ "RLE"
+        )
+        fit <- "Wald Test"
+        p <- tbl %>% 
+          arrange(desc(PValue)) %>% 
+          ggplot(aes(logCPM, logFC)) + 
+          geom_point(aes(colour = FDR < 0.05), alpha = 0.7) +
+          geom_smooth(se = FALSE, method = "lm", formula = y ~ x) +
+          geom_hline(yintercept = 0) +
+          ggtitle(
+            glue("{params$target}: {params$treat} Vs. {params$ref}"),
+            glue("Fixed-Width (DiffBind): {norm} Normalisation + {fit}")
+          ) +
+          scale_colour_manual(values = c("grey20", "red2")) +
+          theme(
+            text = element_text(size = 12),
+            plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5)
+          )
+        
+        img_out <- here::here(fig_path, "{params$ref}_{params$treat}_{i}.png") %>% 
+          glue()
+        png(img_out, width = 10, height = 8, units = "in", res = 300)
+        print(p)
+        dev.off()
+        
+        ## Create html tags
+        fig_link <- str_extract(img_out, "assets.+")
+        cp <- htmltools::tags$em(
+          glue(
+            "MA-plot for fixed-width windows analysed using DiffBind with
+            {norm} normalisation and DSA results produced using {fit} methods.
+            "
+          )
+        )
+        htmltools::div(
+          id = img_out %>% 
+            basename() %>% 
+            str_remove_all(".png$") %>% 
+            str_to_lower() %>% 
+            str_replace_all("_", "-"),
+          class = "section level4",
+          htmltools::h4(glue("{norm} + {fit}")),
+          htmltools::div(
+            class = "figure", style = "text-align: center",
+            htmltools::img(src = fig_link, width = "100%"),
+            htmltools::tags$caption(cp)
+          )
+        )
+      }
+    )
+)
+```
+
+
+## Sliding Windows
+
+```{r setup-sliding}
+f <- here::here(
+  "output", "rds", 
+  "{params$cell_type}_{params$target}_{params$ref}_{params$treat}_windows.rds"
+) %>% 
+  glue()
+window_size <- round(median(width(peaks)) / 2, -1)
+window_step <- round(window_size/3, -1)
+if (file.exists(f)) {
+  wincounts <- read_rds(f)
+} else {
+  gc()
+  wincounts <- windowCounts(
+    bam.files = c(bfl, ip_bfl),
+    spacing = window_step,
+    width = window_size,
+    ext = 100,
+    filter = length(bfl) * 2,
+    param = readParam(restrict = seqnames(sq), discard = c(bl, gl)),
+    BPPARAM = bpparam()
+  )
+  seqlevels(wincounts) <- seqlevels(sq)
+  seqinfo(wincounts) <- sq
+  colData(wincounts) <- colData(wincounts) %>% 
+    as_tibble(rownames = "id") %>% 
+    mutate(id = str_remove(id, ".bam$")) %>% 
+    left_join(samples) %>% 
+    as.data.frame() %>% 
+    magrittr::set_rownames(basename(.$bam.files)) %>% 
+    as("DataFrame")
+  write_rds(wincounts, f, compress = "gz")
+}
+f <- here::here(
+  "output", "rds", 
+  "{params$cell_type}_{params$target}_{params$ref}_{params$treat}_sliding.rds"
+) %>% 
+  glue()
+if (file.exists(f)) {
+  se_sliding <- read_rds(f)
+} else {
+  gc()
+  se_sliding <- dualFilter(
+    wincounts, bg = names(ip_bfl), ref = peaks, q = 0.7
+  )
+  rownames(se_sliding) <- as.character(rowRanges(se_sliding))
+  dge <- SE2DGEList(se_sliding)
+  dge$samples$lib.size <- se_sliding$totals
+  dge <- calcNormFactors(dge, "RLE")
+  assay(se_sliding, "logCPM_RLE") <- cpm(
+    dge, log = TRUE, normalized.lib.sizes = TRUE, lib.size = dge$samples$lib.size
+  )
+  write_rds(se_sliding, f, compress = "gz")
+}
+qs <- qsmooth(assay(se_sliding, "logCPM"), group_factor = se_sliding$treat)
+assay(se_sliding, "qsmooth") <- qsmoothData(qs)
+```
+
+```{r qtest-sliding}
+cl <- makeCluster(cores)
+registerDoParallel(cl)
+qtest_sliding <- quantro(assay(se_sliding, "logCPM"), groupFactor = se$treat, B = 1e3)
+stopCluster(cl)
+n_eff <- qtest_sliding@quantroStatPerm %>% 
+  unique() %>% 
+  length() %>% 
+  add(1)
+b <- sum(unique(qtest_sliding@quantroStatPerm) > qtest_sliding@quantroStat) + 1
+perm_p <- b/n_eff
+```
+
+Alignments were counted for the set of sliding windows using windows of `r window_size`bp shifting in increments of `r window_step`bp.
+Windows were required to return a total of at least `r length(bfl) * 2` alignments to be included during counting.
+
+The complete set of sliding windows was then reduced using `dualFilter()` from `extraChIPs` with thresholds defined to return ~70% of sliding windows which overlap a consensus peak.
+As a result ranges were retained from the top `r percent(metadata(se_sliding)$cuts$prop, accuracy = 0.01)` signal percentiles, wher signal was beyond `r round(metadata(se_sliding)$cuts$control, 2)` times the level of signal in the input samples.
+This retained a total of `r comma(length(se_sliding))` windows from the original set of `r comma(length(wincounts))` windows across the entire genome.
+
+```{r rm-wincounts, echo=FALSE, results='hide'}
+rm(wincounts)
+gc()
+```
+
+### Quantro Test
+
+The quantro test [@Hicks2015-ee] for both equality of medians and equality of distributions was again applied to logCPM values from sliding windows without normalisation.
+Distributions were found to have `r ifelse(qtest@anova[["Pr(>F)"]][[1]] < 0.05, "unequal", "equal")` medians (ANOVA p = `r format_p(qtest@anova[["Pr(>F)"]][[1]])`).
+
+Using the same strategy for permutation testing as above, a permutation p-value of `r format_p(perm_p)` was returned suggesting that RLE normalisation `r case_when(perm_p < 0.05 ~ "is inappropriate", perm_p < 0.1 ~ "should be used with caution", TRUE ~ "is appropriate")`.
+Importantly SQ-normalisation [@Hicks2018-uw] is expected to be robust to any results produced by this test.
+
+```{r fit-sw}
+X <- model.matrix(~treat, data = colData(se_sliding))
+ec_sw_tbl_params <- tribble(
+ ~assay, ~norm, ~method, ~abbr,
+ "counts", "none", "qlf", "ec-sw-ls-ql",
+ "counts", "none", "wald", "ec-sw-ls-wt",
+ "logCPM", "none", "lt", "ec-sw-ls-lt",
+ "counts", "RLE", "qlf", "ec-sw-rle-ql",
+ "counts", "RLE", "wald", "ec-sw-rle-wt",
+ "logCPM_RLE", "RLE", "lt", "ec-sw-rle-lt",
+ "qsmooth", "none", "lt", "ec-sw-sq-lt"
+) %>% 
+  mutate(
+    quantro_flag = case_when(
+      !grepl("rle", abbr) ~ "",
+      min(perm_p, qtest@anova$`Pr(>F)`[[1]]) < 0.01 ~ "**",
+      min(perm_p, qtest@anova$`Pr(>F)`[[1]]) < 0.05 ~ "*",
+      min(perm_p, qtest@anova$`Pr(>F)`[[1]]) < 0.1 ~ "\u02D9",
+      TRUE ~ ""
+    )
+  )
+ec_sw_params <- ec_sw_tbl_params %>% 
+  split(.$abbr) %>% 
+  lapply(as.list) %>% 
+  lapply(
+    \(x) {
+      x$design <- X
+      x[!names(x) %in% c("abbr", "quantro_flag")]
+    }
+  )
+ec_sw_res <- ec_sw_params %>% 
+  lapply(
+    \(x) {
+      x$x <- se_sliding
+      fits <- do.call("fitAssayDiff", x)
+      merged <- mergeByHMP(fits, hm_pre = "")
+      plyranges::select(
+        merged, keyval_range, logCPM, logFC, PValue, FDR = PValue_fdr
+      )
+    }
+  )
+```
+
+```{r plot_sw_densities, fig.height=10, fig.cap = glue("*Density plots for logCPM values (A), RLE normalised logCPM values (B) and Smooth Quantile normalised logCPM values (C). Weights used for SQN are shown in panel D*")}
+qs_plot <- tibble(w = qs@qsmoothWeights, q = seq_along(w) / length(w)) %>% 
+  ggplot(aes(q, w)) +
+  geom_line() +
+  geom_hline(yintercept = 0.5, colour = "red", linetype = 2) +
+  geom_vline(xintercept = 0.5, colour = "red", linetype = 2) +
+  ylim(0, 1) +
+  ggtitle("QSmooth Weights") +
+  labs(x = "Quantiles", y = "Weights") +
+  scale_x_continuous(expand = expansion(0.02)) +
+  theme(plot.title = element_text(hjust = 0.5))
+assayNames(se_sliding) %>% 
+  setdiff("counts") %>% 
+  lapply(
+    \(x) {
+      plotAssayDensities(se_sliding, x, colour = "treat") +
+        scale_colour_brewer(palette = "Set1", direction = -1) 
+    }
+  ) %>% 
+  c(list(qs_plot)) %>% 
+  wrap_plots(nrow = 2) +
+  plot_layout(guides = "collect", axes = "collect") +
+  plot_annotation(tag_levels = "A")
+```
+
+All methods defined for testing with `extraChIPs` using sliding windows were then fit as defined, with MA-plots shown for each individual approach.
+It should be noted that due to the merging of results across multiple windows using p-value weights may skew the relationship between signal intensity (A) and logFC (M) and these figures represent a poor strategy for assessing bias
+
+### MA Plots {.tabset}
+
+```{r plot-ma-ec-sw}
+tagList(
+  names(ec_sw_res) %>% 
+    lapply(
+      \(i) {
+        tbl <- as_tibble(ec_sw_res[[i]])
+        norm <- case_when(
+          grepl("ls", i) ~ "Library Size",
+          grepl("rle", i) ~ "RLE",
+          grepl("rlg", i) ~ "RLE-Grouped",
+          grepl("sq", i) ~ "Smooth Quantile",
+          TRUE ~ ""
+        )
+        fit <- case_when(
+          grepl("lt$", i) ~ "Limma Trend",
+          grepl("ql$", i) ~ "glmQLF",
+          grepl("wt$", i) ~ "Wald Test"
+        )
+        p <- tbl %>% 
+          arrange(desc(PValue)) %>% 
+          ggplot(aes(logCPM, logFC)) + 
+          geom_point(aes(colour = FDR < 0.05), alpha = 0.7) +
+          geom_smooth(se = FALSE, method = "lm", formula = y ~ x) +
+          geom_hline(yintercept = 0) +
+          ggtitle(
+            glue("{params$target}: {params$treat} Vs. {params$ref}"),
+            glue("Sliding Windows: {norm} Normalisation + {fit}")
+          ) +
+          scale_colour_manual(values = c("grey20", "red2")) +
+          theme(
+            text = element_text(size = 12),
+            plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5)
+          )
+        
+        img_out <- here::here(fig_path, "{params$ref}_{params$treat}_{i}.png") %>% 
+          glue()
+        png(img_out, width = 10, height = 8, units = "in", res = 300)
+        print(p)
+        dev.off()
+        
+        ## Create html tags
+        fig_link <- str_extract(img_out, "assets.+")
+        cp <- htmltools::tags$em(
+          glue(
+            "MA-plot for sliding windows analysed using extraChIPs with
+            {norm} normalisation and DSA results produced using {fit} methods.
+            "
+          )
+        )
+        htmltools::div(
+          id = img_out %>% 
+            basename() %>% 
+            str_remove_all(".png$") %>% 
+            str_to_lower() %>% 
+            str_replace_all("_", "-"),
+          class = "section level4",
+          htmltools::h4(glue("{norm} + {fit}")),
+          htmltools::div(
+            class = "figure", style = "text-align: center",
+            htmltools::img(src = fig_link, width = "100%"),
+            htmltools::tags$caption(cp)
+          )
+        )
+      }
+    )
+)
+```
+
+### Comparison Against Consensus Peaks & Fixed-Width {.tabset}
+
+```{r tbl-compare-windows}
+tbl <- GRangesList(
+  sliding = ec_sw_res$`ec-sw-ls-lt` %>% plyranges::select(logCPM),
+  fixed = ec_fw_res$`ec-fw-ls-lt` %>%
+    colToRanges("peak") %>% 
+    plyranges::select(logCPM)
+) %>% 
+  endoapply(mutate, w = width) %>% 
+  mapGrlCols(var = c("w", "logCPM")) %>% 
+  as_tibble() %>% 
+  mutate(
+    detected = case_when(
+      is.na(sliding_w) ~ "Fixed Only",
+      is.na(fixed_w) ~ "Sliding Only",
+      TRUE ~ "Both"
+    )
+  ) %>% 
+  summarise(
+    n = dplyr::n(),
+    sliding_total = sum(sliding_w / 1e3),
+    fixed_total = sum(fixed_w / 1e3),
+    across(contains("_"), median),
+    .by = detected
+  ) %>% 
+  reactable(
+    searchable = FALSE, filterable = FALSE,
+    columns = list(
+      detected = colDef("Detected In"),
+      n = colDef("Total Ranges"),
+      sliding_total = colDef("Sliding", format = colFormat(separators = TRUE, digits = 1)),
+      fixed_total = colDef("Fixed", format = colFormat(separators = TRUE, digits = 1)),
+      sliding_w =  colDef("Sliding", format = colFormat(separators = TRUE)),
+      fixed_w = colDef("Fixed", format = colFormat(separators = TRUE)),
+      sliding_logCPM =  colDef("Sliding", format = colFormat(digits = 3)),
+      fixed_logCPM = colDef("Fixed", format = colFormat(digits = 3))      
+    ),
+    columnGroups = list(
+      colGroup(
+        name = "Total Width (kb)", columns = str_subset(colnames(.), "_total")
+      ),
+      colGroup(name = "Median Width (bp)", columns = str_subset(colnames(.), "_w")),
+      colGroup(name = "Median logCPM", columns = str_subset(colnames(.), "_logCPM"))
+    )
+  )
+cp <- tags$caption(
+  tags$em(
+    paste(
+      "Characteristics of ranges included for analysis using sliding or fixed-width windows.",
+      "Ranges uniquely included in only one approach tended to be narrower with lower signal intensity, ",
+      "comfirming that for ranges with strong signal, they are well-captured by either method."
+    )
+  )
+)
+browsable(tagList(cp, tbl))
+```
+
+
+#### Range Widths
+
+```{r pairwise-widths, fig.cap = "*Comparison of the widths of consensus peaks and the width of the retained ranges when using sliding windows.*"}
+GRangesList(
+  Sliding = ec_sw_res$`ec-sw-ls-lt` %>% granges(),
+  Consensus = granges(peaks)
+) %>% 
+  endoapply(mutate, w = width) %>% 
+  plotPairwise(var = "w") +
+  scale_fill_brewer(palette = "Set1", direction = -1) +
+  labs(x = "Range Widths (Sliding)") +
+  theme(
+    legend.position = "none", axis.title.y = element_blank(),
+    plot.margin = unit(c(5.5, 5.5, 5.5, 20), "point")
+  )
+grid::grid.text("Range Widths (Consensus Peaks)", x = 0.02, y = 0.5, rot = 90)
+```
+
+#### Signal Estimates
+
+```{r pairwise-logcpm, fig.cap = "*Comparison of logCPM estimates for ranges included in the slidng-window and fixed-width analyses. Side panels show the distribution of values for the visible points as the 'Both Detected' boxes, whilst the distributions of values are additionally shown for ranges only included in one approach*"}
+GRangesList(
+  sliding = ec_sw_res$`ec-sw-ls-lt` %>% plyranges::select(logCPM),
+  fixed = ec_fw_res$`ec-fw-ls-lt` %>%
+    colToRanges("peak") %>% 
+    plyranges::select(logCPM)
+) %>% 
+  plotPairwise(var = "logCPM") +
+  scale_fill_brewer(palette = "Set1", direction = -1) +
+  theme(
+    legend.position = "none", axis.title.y = element_blank(),
+    plot.margin = unit(c(5.5, 5.5, 5.5, 20), "point")
+  )
+grid::grid.text("fixed logCPM", x = 0.02, y = 0.5, rot = 90)
+```
+
+## Method Comparison
+
+```{r all-res}
+all_res <- c(ec_fw_res, ec_sw_res, db_fw_res)
+all_sig <- lapply(all_res, subset, FDR < 0.05)
+all_tbl_params <- bind_rows(
+  ec_fw_tbl_params, ec_sw_tbl_params, db_fw_tbl_params
+)
+```
+
+
+```{r plot-all-sig, fig.cap = "*Summary of ranges considered as significant in each analyis, separated by direction of change. If any concerns were raised during data checking with quantro, method names will be prefixed by a measure of significance. Any showing one or more asterisks are likely to contain large numbers of Type 1 errors.*"}
+all_sig %>% 
+  lapply(\(x) tibble(up = sum(x$logFC > 0), down = sum(x$logFC < 0))) %>% 
+  bind_rows(.id = "abbr") %>% 
+  left_join(all_tbl_params) %>% 
+  mutate(
+    pkg = ifelse(grepl("^ec", abbr), "extraChIPs", "DiffBind"),
+    win_type = ifelse(grepl("-sw-", abbr), "Sliding", "Fixed")
+  ) %>% 
+  arrange(up + down) %>% 
+  mutate(
+    abbr = paste0(quantro_flag, abbr) %>% fct_inorder(),
+    method = method %>% 
+      str_replace_all("wald", "Wald Test") %>% 
+      str_replace_all("qlf", "glmQLF Test") %>% 
+      str_replace_all("lt", "limma-trend")
+  ) %>% 
+  ggplot(aes(y = abbr)) +
+  geom_col(aes(x = up),  fill = "red4") +
+  geom_col(aes(x = -down), fill = "steelblue3") +
+  geom_label(
+    aes(x = up + 5, label = comma(up)), colour = "red4", 
+    data = . %>% dplyr::filter(up > 0),
+    size = 3.5, hjust = 0
+  ) +
+  geom_label(
+    aes(x = -down - 5, label = comma(down)), colour = "steelblue3", 
+    data = . %>% dplyr::filter(down > 0),
+    size = 3.5, hjust = 1
+  ) +
+  facet_grid(method + pkg ~ ., scales = "free_y", space = "free", switch = "y") +
+  ggtitle(
+    glue("Summary of Results for {params$target}"),
+    glue("{params$treat} Vs. {params$ref}")
+  ) +
+  labs(x = "Significant Ranges", y = "Method") +
+  scale_y_discrete(
+    labels = \(x) x %>% 
+      str_remove_all("(ec|db)-") %>% 
+      str_remove_all("-(ql|wt|lt)$") %>% 
+      str_replace_all("sw-", "Sliding: ") %>% 
+      str_replace_all("fw-", "Fixed: ") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("ls", "Lib. Size") %>% 
+      str_replace_all("sq", "SQN") %>% 
+      str_replace_all("rlg", " RLE-Grouped") 
+  ) +
+  theme(
+    text = element_text(size = 12),
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
+  )
+```
+
+
+### UpSet Plots {.tabset}
+
+#### All Methods
+
+```{r upset-all, fig.height=10, fig.cap = "*Comparison of results from all methods under investigation. The median logCPM values for each range is shown as a boxplot in the upper panel. Any sets from comparisons flagged as potentially problematic by quantro are coloured orange for caution, dark red for inappropriate and bright red for highly problematic. All remaining sets are shown in dark grey.*"}
+all_sig %>% 
+  lapply(plyranges::select, starts_with("log"), PValue, FDR) %>% 
+  GRangesList() %>% 
+  setNames(
+    setNames(
+      paste0(all_tbl_params$quantro_flag, all_tbl_params$abbr),
+      all_tbl_params$abbr
+    )[names(.)]
+  ) %>% 
+  setNames(
+    names(.) %>% 
+      str_replace_all("db-fw-", "DiffBind: ") %>% 
+      str_replace_all("ec-fw-", "extraChIPs-Fixed: ") %>% 
+      str_replace_all("ec-sw-", "extraChIPs-Sliding: ") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("ls", "Lib. Size") %>% 
+      str_replace_all("sq", "SQN") %>% 
+      str_replace_all("rlg", "RLE-Grouped") %>% 
+      str_replace_all("-wt", " + WaldTest") %>% 
+      str_replace_all("-lt", " + Limma") %>% 
+      str_replace_all("-ql", " + glmQLF") 
+  ) %>% 
+  plotOverlaps(
+    var = "logCPM", f = "median", height_ratio = 1.5,
+    min_size = 10,
+    n_intersection = 15, 
+    set_col = case_when(
+      grepl(sprintf("^\u02D9"), names(.)) ~ "darkorange3",
+      grepl("^\\*{1}", names(.)) ~ "red4",
+      grepl("^\\*{2}", names(.)) ~ "red",
+      TRUE ~ "grey40"
+    )
+  ) 
+```
+
+#### Limma-Trend Methods
+
+```{r upset-lt, fig.cap = "*Comparison of results from all methods using limma-trend, with extraChIPs being the only possibility for these approaches. The median logCPM values for each range is shown as a boxplot in the upper panel*"}
+all_sig %>% 
+  lapply(plyranges::select, starts_with("log"), PValue, FDR) %>% 
+  GRangesList() %>% 
+  .[str_detect(names(.), "lt")] %>% 
+  setNames(
+    names(.) %>% 
+      str_extract("[fs]w-[lsreq]+") %>% 
+      str_replace_all("fw-", "Fixed + ") %>% 
+      str_replace_all("sw-", "Sliding + ") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("sq", "SQN") %>% 
+      str_replace_all("ls", "Lib. Size")  
+  ) %>% 
+  plotOverlaps(
+    min_size = 5, var = "logCPM", f = "median", height_ratio = 1.2,
+    n_intersection = 20
+  ) +
+  plot_annotation(title = "Limma-Trend Methods") &
+  theme(plot.title = element_text(hjust = 0.7))
+```
+
+#### Wald Test Methods
+
+```{r upset-wt, fig.cap = "*Comparison of results from all methods using a Wald Test for significance. DiffBind methods use fixed-width windows only, with extraChIPs methods using both sliding and fixed-width windows. The median logCPM values for each range is shown as a boxplot in the upper panel*"}
+all_sig %>% 
+  lapply(plyranges::select, starts_with("log"), PValue, FDR) %>% 
+  GRangesList() %>% 
+  .[str_detect(names(.), "wt$")] %>% 
+  setNames(
+    str_remove_all(names(.), "-wt$") %>% 
+      str_replace_all("db-fw-", "DiffBind: ") %>% 
+      str_replace_all("ec-fw-", "extraChIPs-Fixed: ") %>% 
+      str_replace_all("ec-sw-", "extraChIPs-Sliding: ") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("ls", "Lib. Size") 
+  ) %>%
+  plotOverlaps(
+    min_size = 5, var = "logCPM", f = "median", height_ratio = 1.2,
+    n_intersection = 20
+  ) +
+  plot_annotation(title = "Wald Test Methods") &
+  theme(plot.title = element_text(hjust = 0.7))
+```
+
+#### glmQLF Methods
+
+```{r upset-qlf, fig.cap = "*Comparison of results from all glmQLF methods, with all methods implemented in extraChIPs. The median logCPM values for each range is shown as a boxplot in the upper panel*"}
+all_sig %>% 
+  lapply(plyranges::select, starts_with("log"), PValue, FDR) %>% 
+  GRangesList() %>% 
+  .[str_detect(names(.), "ql")] %>% 
+  setNames(
+    str_remove_all(names(.), "-ql$") %>% 
+      str_remove("^ec-") %>% 
+      str_replace_all("sw-", "Sliding: ") %>% 
+      str_replace_all("fw-", "Fixed: ") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("rlg", "RLE-Grouped") %>% 
+      str_replace_all("ls", "Lib. Size")  
+  ) %>%
+  plotOverlaps(
+    min_size = 5, var = "logCPM", f = "median", height_ratio = 1.2,
+    n_intersection = 20
+  ) +
+  plot_annotation(title = "glmQLF Methods") &
+  theme(plot.title = element_text(hjust = 0.7))
+```
+
+### Pairwise Comparison of Approaches 
+
+#### Pairwise Matrix
+
+```{r corrplot, fig.height=10, fig.cap = "*Matrix summarising similarities between methods, with rows denoting the method under consideration and columns describing the percentage of shared sites considered as significant in both methods. All DiffBind analyses use fixed-width windows, whilst extraChIPs offers a choice between sliding and fixed-width windows*"}
+df <- names(all_sig) %>% 
+  mclapply(
+    \(x) {
+      alt <- all_sig[!names(all_sig) %in% x] %>% lapply(granges) %>% GRangesList()
+      gr <- all_sig[[x]]
+      ol <- lapply(all_sig, overlapsAny, gr) %>% 
+        lapply(sum) %>% 
+        lapply(divide_by, length(gr))
+      tibble(
+        abbr = x,
+        n_sig = length(gr),
+        n_unique = sum(!overlapsAny(all_sig[[x]], alt))
+      ) %>% 
+        bind_cols(as_tibble(ol))
+    }, mc.cores = cores
+  ) %>% 
+  bind_rows()
+df %>% 
+  rename_with(
+    \(x) x %>% 
+      str_replace_all("fw", "Fixed") %>% 
+      str_replace_all("sw", "Sliding") %>% 
+      str_remove_all("-ls") %>% 
+      str_replace_all("lt$", "limma") %>% 
+      str_replace_all("wt$", "Wald") %>% 
+      str_replace_all("ql$", "QLF") %>% 
+      str_remove_all("^ec-") %>% 
+      str_replace_all("^db-Fixed", "DiffBind") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("rlg", "RLE-Grouped") %>% 
+      str_replace_all("sq", "SQN") 
+  ) %>% 
+  mutate(
+    abbr = abbr %>% 
+      str_replace_all("fw", "Fixed") %>% 
+      str_replace_all("sw", "Sliding") %>% 
+      str_remove_all("-ls") %>% 
+      str_replace_all("lt$", "limma") %>% 
+      str_replace_all("wt$", "Wald") %>% 
+      str_replace_all("ql$", "QLF") %>% 
+      str_remove_all("^ec-") %>% 
+      str_replace_all("^db-Fixed", "DiffBind") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("rlg", "RLE-Grouped") %>% 
+      str_replace_all("sq", "SQN") 
+  ) %>% 
+  dplyr::select(abbr, contains("-")) %>% 
+  as.data.frame() %>% 
+  column_to_rownames("abbr") %>% 
+  as.matrix() %>% 
+  corrplot(
+    addCoef.col = "grey30", addCoefasPercent = TRUE, number.cex = 0.9,
+    order = "hclust", hclust.method = "complete",
+    is.corr = FALSE,
+    col = hcl.colors(200, "mako"), method = "shade", col.lim = c(0, 1)#, diag = FALSE
+  )
+```
+
+### Pairwise Table
+
+```{r tbl-all-comps, echo=FALSE}
+tbl_id <- "tbl-all-comps"
+tbl <- df %>% 
+  left_join(all_tbl_params) %>% 
+  mutate(
+    pkg = ifelse(grepl("^db", abbr), "DiffBind", "extraChIPs"),
+    windows = ifelse(grepl("-sw", abbr), "Sliding", "Fixed"),
+    norm = case_when(
+      assay == "qsmooth" ~ "SQN", 
+      grepl("rlg", abbr) ~ "RLE<br>(Grouped)",
+      TRUE ~ norm
+    ),
+    norm = paste0(quantro_flag, norm),
+    method = case_when(
+      method == "lt" ~ "limma-trend",
+      method == "wald" ~ "Wald Test",
+      method == "qlf" ~ "glmQLF"
+    )
+  ) %>% 
+  dplyr::select(
+    pkg, windows, norm, method, starts_with("n_"), starts_with("db"),
+    everything()
+  ) %>% 
+  dplyr::select(-abbr, -assay, -quantro_flag) %>% 
+  rename_with(
+    \(x) x %>% 
+      str_remove_all("-ls") %>% 
+      str_replace_all("db-fw-", "DiffBind<br>") %>% 
+      str_replace_all("(DiffBind.+)(wt|-wt)", "\\1") %>% 
+      str_replace_all("ec-fw-", "Fixed<br>") %>% 
+      str_replace_all("ec-sw-", "Sliding<br>") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("sq", "SQN") %>% 
+      str_replace_all("ql", "glmQLF") %>%
+      str_replace_all("-", " ") %>% 
+      str_replace_all("lt", "limma-trend") %>% 
+      str_replace_all("wt", "Wald") %>% 
+      str_replace_all("rlg", "RLE-Grouped") %>% 
+      str_remove_all("-$")
+  ) %>% 
+  reactable(
+    filterable = TRUE, pagination = FALSE,  highlight = TRUE,
+    columns = list(
+      pkg = colDef(
+        "R Package", minWidth = 80, maxWidth = 100
+      ),
+      windows = colDef(
+        "Window Type", minWidth = 75, maxWidth = 75
+      ),
+      norm = colDef(
+        "Norm", maxWidth = 70
+      ),
+      method = colDef(
+        "Method", minWidth = 80, maxWidth = 100,
+        style = list(borderRight = "1px solid rgba(0, 0, 0, 0.1)")
+      ),
+      n_sig = colDef("Sig", format = colFormat(separators = TRUE), maxWidth = 55),
+      n_unique = colDef(
+        "Unique", format = colFormat(separators = TRUE), maxWidth = 65,
+        style = list(borderRight = "1px solid rgba(0, 0, 0, 0.1)")
+      )
+    ),
+    defaultColDef = colDef(
+      maxWidth = 65, format = colFormat(percent = TRUE, digits = 0), 
+      html = TRUE, filterMethod = js_greater,
+      style = \(value) {
+        col <- rgb(0, 0.6, 0.1, 0)
+        if (is.numeric(value) & value <= 1) col <- rgb(0, 0.6, 0.1, value)
+        list(backgroundColor = col, fontSize = 12)
+      }
+    ),
+    columnGroups = list(
+      colGroup("DiffBind (Wald Test)", str_subset(names(.), "^Diff")),
+      colGroup("extraChIPs Fixed", str_subset(names(.), "^Fixed")),
+      colGroup("extraChIPs Sliding", str_subset(names(.), "^Sliding"))
+    ),
+    theme = reactableTheme(style = list(fontSize = 12)), 
+    elementId = tbl_id
+  )
+cp <- tags$caption(
+  tags$em(
+    paste(
+      "Summary of ranges considered significant under each method and compared to all other methods.",
+      "Library-Size normalisation is referred to as 'none' and is the default method used when no normalisation is explicilty listed.",
+      "Any methods where RLE has been flagged using quantro will have a suitable symbol prefacing RLE, ",
+      "with a dot indicating caution and any asterisk indicating an inappropriate method."
+    )
+  )
+)
+browsable(tagList(cp, tbl))
+```
 

@@ -1,0 +1,42 @@
+---
+title: "ER (ZR-75): E2DHT Vs. E2"
+subtitle: "Point Based H~0~"
+author: |
+  | Dr Stevie Pederson
+  | Black Ochre Data Labs
+  | Telethon Kids Institute
+  | Adelaide, Australia
+date: "`r format(Sys.Date(), '%d %B, %Y')`"
+bibliography: references.bib
+editor_options:
+  chunk_output_type: console
+params:
+  target: "ER"
+  ref: "E2"
+  treat: "E2DHT"
+  cell_type: "ZR-75"
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, warning = FALSE, fig.height = 8, fig.width = 10
+)
+```
+
+
+```{r run-analysis, child=here::here("analysis/_dsa_comparison.Rmd")}
+```
+
+## References
+
+<div id="refs"></div>
+<br>
+<button type="button" class="btn btn-default btn-sessioninfo" data-toggle="collapse" data-target="#sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="sessioninfo" class="collapse">
+
+```{r session-info, echo=FALSE}
+pander::pander(sessionInfo())
+```

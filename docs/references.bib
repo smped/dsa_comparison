@@ -314,3 +314,71 @@
               p-values",
   language = "en"
 }
+
+
+@ARTICLE{Phipson2010-qh,
+  title    = "Permutation P-values should never be zero: calculating exact
+              P-values when permutations are randomly drawn",
+  author   = "Phipson, Belinda and Smyth, Gordon K",
+  abstract = "Permutation tests are amongst the most commonly used statistical
+              tools in modern genomic research, a process by which p-values are
+              attached to a test statistic by randomly permuting the sample or
+              gene labels. Yet permutation p-values published in the genomic
+              literature are often computed incorrectly, understated by about
+              1/m, where m is the number of permutations. The same is often
+              true in the more general situation when Monte Carlo simulation is
+              used to assign p-values. Although the p-value understatement is
+              usually small in absolute terms, the implications can be serious
+              in a multiple testing context. The understatement arises from the
+              intuitive but mistaken idea of using permutation to estimate the
+              tail probability of the test statistic. We argue instead that
+              permutation should be viewed as generating an exact discrete null
+              distribution. The relevant literature, some of which is likely to
+              have been relatively inaccessible to the genomic community, is
+              reviewed and summarized. A computation strategy is developed for
+              exact p-values when permutations are randomly drawn. The strategy
+              is valid for any number of permutations and samples. Some simple
+              recommendations are made for the implementation of permutation
+              tests in practice.",
+  journal  = "Stat. Appl. Genet. Mol. Biol.",
+  volume   =  9,
+  pages    = "Article39",
+  month    =  oct,
+  year     =  2010,
+  language = "en"
+}
+
+
+@ARTICLE{Lun2016-yu,
+  title    = "csaw: a Bioconductor package for differential binding analysis of
+              {ChIP-seq} data using sliding windows",
+  author   = "Lun, Aaron T L and Smyth, Gordon K",
+  abstract = "Chromatin immunoprecipitation with massively parallel sequencing
+              (ChIP-seq) is widely used to identify binding sites for a target
+              protein in the genome. An important scientific application is to
+              identify changes in protein binding between different treatment
+              conditions, i.e. to detect differential binding. This can reveal
+              potential mechanisms through which changes in binding may
+              contribute to the treatment effect. The csaw package provides a
+              framework for the de novo detection of differentially bound
+              genomic regions. It uses a window-based strategy to summarize
+              read counts across the genome. It exploits existing statistical
+              software to test for significant differences in each window.
+              Finally, it clusters windows into regions for output and controls
+              the false discovery rate properly over all detected regions. The
+              csaw package can handle arbitrarily complex experimental designs
+              involving biological replicates. It can be applied to both
+              transcription factor and histone mark datasets, and, more
+              generally, to any type of sequencing data measuring genomic
+              coverage. csaw performs favorably against existing methods for de
+              novo DB analyses on both simulated and real data. csaw is
+              implemented as a R software package and is freely available from
+              the open-source Bioconductor project.",
+  journal  = "Nucleic Acids Res.",
+  volume   =  44,
+  number   =  5,
+  pages    = "e45",
+  month    =  mar,
+  year     =  2016,
+  language = "en"
+}

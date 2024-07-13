@@ -6,9 +6,11 @@ navbar:
   - icon: fa-home
     text: Home
     href: index.html
-  - text: ER
+  - text: Point Null Hypothesis
     menu:
-    - text: "ZR-75: E2DHT Vs E2"
+    - text: "AR (ZR-75): E2DHT Vs E2"
+      href: zr75_ar_e2_e2dht.html
+    - text: "ER (ZR-75): E2DHT Vs E2"
       href: zr75_er_e2_e2dht.html
   right:
   - icon: fa-github

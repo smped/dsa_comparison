@@ -49,21 +49,23 @@ A summary of the methods under investigation is
 | Package | Window Type | Normalisation Method | Model Fitting | Abbreviation |
 |:------- |:----------- |:-------------------- |:------------- |:------------ |
 | extraChIPs | fixed    | Library Size        | glmQLFit    | ec-fw-ls-ql  |
+| extraChIPs | fixed    | Library Size        | WaldTest    | ec-fw-ls-wt  |
 | extraChIPs | fixed    | Library Size        | limma-trend | ec-fw-ls-lt  |
 | extraChIPs | fixed    | RLE                 | glmQLFit    | ec-fw-rle-ql |
-| extraChIPs | fixed    | RLE (Within Groups) | glmQLFit    | ec-fw-rlg-ql |
-| extraChIPs | fixed    | RLE                 | limma-trend | ec-fw-rle-lt |
 | extraChIPs | fixed    | RLE                 | WaldTest    | ec-fw-rle-wt |
+| extraChIPs | fixed    | RLE                 | limma-trend | ec-fw-rle-lt |
+| extraChIPs | fixed    | RLE (Within Groups) | glmQLFit    | ec-fw-rlg-ql |
 | DiffBind   | fixed    | Library Size        | WaldTest    | db-fw-ls-ql  |
-| DiffBind   | fixed    | RLE                 | WaldTest    | db-fw-rle-ql |
+| DiffBind   | fixed    | RLE                 | WaldTest    | db-fw-rle-wt |
 | extraChIPs | sliding  | Library Size        | glmQLFit    | ec-sw-ls-ql  |
+| extraChIPs | sliding  | Library Size        | WaldTest    | ec-sw-ls-wt  |
 | extraChIPs | sliding  | Library Size        | limma-trend | ec-sw-ls-lt  |
 | extraChIPs | sliding  | RLE                 | glmQLFit    | ec-sw-rle-ql |
+| extraChIPs | sliding  | RLE                 | WaldTest    | ec-sw-rle-wt |
 | extraChIPs | sliding  | RLE                 | limma-trend | ec-sw-rle-lt |
 | extraChIPs | sliding  | Smooth-Quantile     | limma-trend | ec-sw-sq-lt  |
 
 Table: *Summary of all methods used in this comparison*
-
 
 
 
