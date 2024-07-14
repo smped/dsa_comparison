@@ -364,7 +364,7 @@ div.tocify {
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Point Null Hypothesis
+    AR
      
     <span class="caret"></span>
   </a>
@@ -372,6 +372,15 @@ div.tocify {
     <li>
       <a href="zr75_ar_e2_e2dht.html">AR (ZR-75): E2DHT Vs E2</a>
     </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    ER
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
     <li>
       <a href="zr75_er_e2_e2dht.html">ER (ZR-75): E2DHT Vs E2</a>
     </li>
@@ -572,10 +581,13 @@ was applied to logCPM values without normalisation. Distributions were
 found to have equal medians (ANOVA p = 0.916).</p>
 <p>When checking for equality of distributions 1000 permutations were
 performed, acknowledging that for datasets with two groups and 6
-samples, this far exceeds the number of viable permutations. After
-performing this step, the quantro statistics obtained from the set of
-permutations was subset to only the unique values, assuming that each
-permutation will return a distinct statistic. This subset of
+samples, this far exceeds the number of viable permutations. For these
+small datasets, however, a permutation p-value &lt; 0.1 is still
+possible and should be noted with more weight than one otherwise
+might.</p>
+<p>After performing this step, the quantro statistics obtained from the
+set of permutations were subset to only the unique values, assuming that
+each permutation will return a distinct statistic. This subset of
 permutations was then used to define the effective number of
 permutations and the exact p-value was calculated using common
 strategies <span class="citation">(as described in Phipson and Smyth
@@ -1313,8 +1325,8 @@ browsable(tagList(cp, tbl))</code></pre>
 <caption>
 <em>Characteristics of ranges included for analysis using sliding or fixed-width windows. Ranges uniquely included in only one approach tended to be narrower with lower signal intensity,  comfirming that for ranges with strong signal, they are well-captured by either method.</em>
 </caption>
-<div class="reactable html-widget html-fill-item" id="htmlwidget-71d94ff3ce970ca56f1f" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-71d94ff3ce970ca56f1f">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"detected":["Both","Sliding Only","Fixed Only"],"n":[6692,1270,225],"sliding_total":[3117.05,275.2,"NA"],"fixed_total":[2323.966,"NA",46.71],"sliding_w":[400,200,"NA"],"fixed_w":[307,"NA",199],"sliding_logCPM":[0.322445655103506,-0.225847058202051,"NA"],"fixed_logCPM":[0.908657035276956,"NA",-0.160644456574046]},"columns":[{"id":"detected","name":"Detected In","type":"character"},{"id":"n","name":"Total Ranges","type":"numeric"},{"id":"sliding_total","name":"Sliding","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"fixed_total","name":"Fixed","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"sliding_w","name":"Sliding","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"fixed_w","name":"Fixed","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"sliding_logCPM","name":"Sliding","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}},{"id":"fixed_logCPM","name":"Fixed","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}}],"columnGroups":[{"name":"Total Width (kb)","columns":["sliding_total","fixed_total"]},{"name":"Median Width (bp)","columns":["sliding_w","fixed_w"]},{"name":"Median logCPM","columns":["sliding_logCPM","fixed_logCPM"]}],"dataKey":"6559b0cafe5061a62fb0abc6847e2b56"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+<div class="reactable html-widget html-fill-item" id="htmlwidget-b0114b5a7ecfeb756b95" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-b0114b5a7ecfeb756b95">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"detected":["Both","Sliding Only","Fixed Only"],"n":[6692,1270,225],"sliding_total":[3117.05,275.2,"NA"],"fixed_total":[2323.966,"NA",46.71],"sliding_w":[400,200,"NA"],"fixed_w":[307,"NA",199],"sliding_logCPM":[0.322445655103506,-0.225847058202051,"NA"],"fixed_logCPM":[0.908657035276956,"NA",-0.160644456574046]},"columns":[{"id":"detected","name":"Detected In","type":"character"},{"id":"n","name":"Total Ranges","type":"numeric"},{"id":"sliding_total","name":"Sliding","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"fixed_total","name":"Fixed","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"sliding_w","name":"Sliding","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"fixed_w","name":"Fixed","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"sliding_logCPM","name":"Sliding","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}},{"id":"fixed_logCPM","name":"Fixed","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}}],"columnGroups":[{"name":"Total Width (kb)","columns":["sliding_total","fixed_total"]},{"name":"Median Width (bp)","columns":["sliding_w","fixed_w"]},{"name":"Median logCPM","columns":["sliding_logCPM","fixed_logCPM"]}],"dataKey":"6559b0cafe5061a62fb0abc6847e2b56"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
 <div id="range-widths" class="section level4">
 <h4>Range Widths</h4>
 <pre class="r"><code>GRangesList(
@@ -2049,6 +2061,88 @@ problematic. All remaining sets are shown in dark grey.</em>
 </p>
 </div>
 </div>
+</div>
+<div id="method-ranks" class="section level2">
+<h2>Method Ranks</h2>
+<pre class="r"><code>cp &lt;- tags$caption(
+  tags$em(
+    glue(
+    &quot;Comparison of all {length(all_sig)} approaches investigated for this 
+    analysis. The status of the model as assessed using quantro is provided in 
+    the final column.&quot;
+    )
+  )
+)
+tbl &lt;- all_sig %&gt;% 
+  map_int(length) %&gt;% 
+  as_tibble(rownames = &quot;abbr&quot;) %&gt;% 
+  left_join(all_tbl_params, by = &quot;abbr&quot;) %&gt;% 
+  mutate(
+    package = ifelse(grepl(&quot;^ec&quot;, abbr), &quot;extraChIPs&quot;, &quot;DiffBind&quot;),
+    windows = ifelse(grepl(&quot;-sw&quot;, abbr), &quot;Sliding&quot;, &quot;Fixed-Width&quot;),
+    norm = case_when(
+      grepl(&quot;rlg&quot;, abbr) ~ &quot;RLE-Grouped&quot;,
+      grepl(&quot;sq&quot;, abbr) ~ &quot;Smooth Quantile&quot;,
+      norm == &quot;none&quot; ~ &quot;Library Size&quot;,
+      TRUE ~ norm
+    ),
+    method = c(lt = &quot;limma-trend&quot;, wald = &quot;Wald Test&quot;, qlf = &quot;glmQLF&quot;)[method],
+    assay = str_replace_all(assay, &quot;_RLE&quot;, &quot; (RLE)&quot;),
+    range_null = map_int(all_treat_sig, length)[abbr],
+    quantro_status = case_when(
+      grepl(sprintf(&quot;^\u02D9&quot;), quantro_flag ) ~ &quot;Caution&quot;,
+      grepl(&quot;^\\*&quot;, quantro_flag) ~ &quot;Inappropriate&quot;,
+      TRUE ~ &quot;Appropriate&quot;
+    )
+  ) %&gt;% 
+  arrange(desc(value)) %&gt;% 
+  mutate(rank = seq_along(abbr)) %&gt;% 
+  dplyr::select(
+    rank, package, windows, norm, method, assay, n_sig = value, range_null, quantro_status
+  ) %&gt;% 
+  reactable(
+    showPageSizeOptions = FALSE, pagination = FALSE,
+    sortable = TRUE, filterable = TRUE,
+    columns = list(
+      rank = colDef(&quot;Rank&quot;, maxWidth = 70, filterMethod = js_less),
+      package = colDef(&quot;R Package&quot;, maxWidth = 100),
+      windows = colDef(&quot;Window Type&quot;, maxWidth = 100),
+      norm = colDef(&quot;Normalisation&quot;, minWidth = 100),
+      method = colDef(&quot;Analytic Approach&quot;, minWidth = 100),
+      assay = colDef(&quot;Assay&quot;, maxWidth = 120),
+      n_sig = colDef(
+        &quot;Point H&lt;sub&gt;0&lt;/sub&gt;&quot;, format = colFormat(separators = TRUE),
+        maxWidth = 90, filterMethod = js_greater
+      ),
+      range_null = colDef(
+        &quot;Range H&lt;sub&gt;0&lt;/sub&gt;&quot;, format = colFormat(separators = TRUE),
+        maxWidth = 90, filterMethod = js_greater
+      ),
+      quantro_status = colDef(
+        &quot;Status&quot;, maxWidth = 100,
+        style = \(value) {
+          col &lt;- &quot;lightgreen&quot;
+          if (value == &quot;Caution&quot;) col &lt;- &quot;orange&quot;
+          if (value == &quot;Inappropriate&quot;) col &lt;- &quot;red&quot;
+          list(backgroundColor = col)
+        }
+      )
+    ),
+    defaultColDef = colDef(html = TRUE),
+    columnGroups = list(
+      colGroup(&quot;Significant Sites&quot;, c(&quot;n_sig&quot;, &quot;range_null&quot;))
+    ),
+    theme = reactableTheme(style = list(fontSize = 13)),
+    elementId = &quot;tbl-ranks&quot;
+  )
+browsable(tagList(cp, tbl))</code></pre>
+<caption>
+<em>Comparison of all 16 approaches investigated for this 
+analysis. The status of the model as assessed using quantro is provided in 
+the final column.</em>
+</caption>
+<div class="reactable html-widget html-fill-item" id="tbl-ranks" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="tbl-ranks">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"rank":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],"package":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","extraChIPs","extraChIPs","extraChIPs","extraChIPs"],"windows":["Fixed-Width","Fixed-Width","Sliding","Sliding","Sliding","Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Sliding","Fixed-Width","Fixed-Width","Fixed-Width","Sliding","Sliding","Sliding"],"norm":["RLE","RLE","RLE","Smooth Quantile","RLE","RLE","RLE","RLE-Grouped","Library Size","RLE","Library Size","Library Size","Library Size","Library Size","Library Size","Library Size"],"method":["glmQLF","limma-trend","glmQLF","limma-trend","limma-trend","Wald Test","Wald Test","glmQLF","glmQLF","Wald Test","limma-trend","Wald Test","Wald Test","glmQLF","limma-trend","Wald Test"],"assay":["counts","logCPM (RLE)","counts","qsmooth","logCPM (RLE)","counts","counts","counts","counts","counts","logCPM","counts","counts","counts","logCPM","counts"],"n_sig":[594,544,408,353,326,307,297,234,205,197,188,164,128,125,124,78],"range_null":[289,250,219,181,185,160,174,114,106,85,90,79,42,64,51,30],"quantro_status":["Caution","Caution","Appropriate","Appropriate","Appropriate","Caution","Caution","Appropriate","Appropriate","Appropriate","Appropriate","Appropriate","Appropriate","Appropriate","Appropriate","Appropriate"]},"columns":[{"id":"rank","name":"Rank","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] <= filterValue\n    })\n  }","maxWidth":70},{"id":"package","name":"R Package","type":"character","html":true,"maxWidth":100},{"id":"windows","name":"Window Type","type":"character","html":true,"maxWidth":100},{"id":"norm","name":"Normalisation","type":"character","html":true,"minWidth":100},{"id":"method","name":"Analytic Approach","type":"character","html":true,"minWidth":100},{"id":"assay","name":"Assay","type":"character","html":true,"maxWidth":120},{"id":"n_sig","name":"Point H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"range_null","name":"Range H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"quantro_status","name":"Status","type":"character","html":true,"maxWidth":100,"style":[{"backgroundColor":"orange"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"}]}],"columnGroups":[{"name":"Significant Sites","columns":["n_sig","range_null"]}],"filterable":true,"pagination":false,"showPageSizeOptions":false,"theme":{"style":{"fontSize":13}},"elementId":"tbl-ranks","dataKey":"ace4739a446d3870ea12eb835304e4a4"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.filterMethod","tag.attribs.columns.6.filterMethod","tag.attribs.columns.7.filterMethod"],"jsHooks":[]}</script>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>

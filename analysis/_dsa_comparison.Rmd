@@ -178,7 +178,9 @@ The quantro test [@Hicks2015-ee] for both equality of medians and equality of di
 Distributions were found to have `r ifelse(qtest@anova[["Pr(>F)"]][[1]] < 0.05, "unequal", "equal")` medians (ANOVA p = `r format_p(qtest@anova[["Pr(>F)"]][[1]])`).
 
 When checking for equality of distributions 1000 permutations were performed, acknowledging that for datasets with two groups and 6 samples, this far exceeds the number of viable permutations.
-After performing this step, the quantro statistics obtained from the set of permutations was subset to only the unique values, assuming that each permutation will return a distinct statistic.
+For these small datasets, however, a permutation p-value < 0.1 is still possible and should be noted with more weight than one otherwise might.
+
+After performing this step, the quantro statistics obtained from the set of permutations were subset to only the unique values, assuming that each permutation will return a distinct statistic.
 This subset of permutations was then used to define the effective number of permutations and the exact p-value was calculated using common strategies [as described in @Phipson2010-qh], by adding one to the number of tests greater that the observed test statistic, and likewise adding one to the number of effective permutations.
 This returned a permutation p-value of `r format_p(perm_p)` suggesting that RLE normalisation `r case_when(perm_p < 0.05 ~ "**is inappropriate**", perm_p < 0.1 ~ "*should be used with caution*", TRUE ~ "is appropriate")`.
 
@@ -1318,3 +1320,81 @@ all_treat_sig %>%
     )
   ) 
 ```
+
+## Method Ranks
+
+```{r}
+cp <- tags$caption(
+  tags$em(
+    glue(
+    "Comparison of all {length(all_sig)} approaches investigated for this 
+    analysis. The status of the model as assessed using quantro is provided in 
+    the final column."
+    )
+  )
+)
+tbl <- all_sig %>% 
+  map_int(length) %>% 
+  as_tibble(rownames = "abbr") %>% 
+  left_join(all_tbl_params, by = "abbr") %>% 
+  mutate(
+    package = ifelse(grepl("^ec", abbr), "extraChIPs", "DiffBind"),
+    windows = ifelse(grepl("-sw", abbr), "Sliding", "Fixed-Width"),
+    norm = case_when(
+      grepl("rlg", abbr) ~ "RLE-Grouped",
+      grepl("sq", abbr) ~ "Smooth Quantile",
+      norm == "none" ~ "Library Size",
+      TRUE ~ norm
+    ),
+    method = c(lt = "limma-trend", wald = "Wald Test", qlf = "glmQLF")[method],
+    assay = str_replace_all(assay, "_RLE", " (RLE)"),
+    range_null = map_int(all_treat_sig, length)[abbr],
+    quantro_status = case_when(
+      grepl(sprintf("^\u02D9"), quantro_flag ) ~ "Caution",
+      grepl("^\\*", quantro_flag) ~ "Inappropriate",
+      TRUE ~ "Appropriate"
+    )
+  ) %>% 
+  arrange(desc(value)) %>% 
+  mutate(rank = seq_along(abbr)) %>% 
+  dplyr::select(
+    rank, package, windows, norm, method, assay, n_sig = value, range_null, quantro_status
+  ) %>% 
+  reactable(
+    showPageSizeOptions = FALSE, pagination = FALSE,
+    sortable = TRUE, filterable = TRUE,
+    columns = list(
+      rank = colDef("Rank", maxWidth = 70, filterMethod = js_less),
+      package = colDef("R Package", maxWidth = 100),
+      windows = colDef("Window Type", maxWidth = 100),
+      norm = colDef("Normalisation", minWidth = 100),
+      method = colDef("Analytic Approach", minWidth = 100),
+      assay = colDef("Assay", maxWidth = 120),
+      n_sig = colDef(
+        "Point H<sub>0</sub>", format = colFormat(separators = TRUE),
+        maxWidth = 90, filterMethod = js_greater
+      ),
+      range_null = colDef(
+        "Range H<sub>0</sub>", format = colFormat(separators = TRUE),
+        maxWidth = 90, filterMethod = js_greater
+      ),
+      quantro_status = colDef(
+        "Status", maxWidth = 100,
+        style = \(value) {
+          col <- "lightgreen"
+          if (value == "Caution") col <- "orange"
+          if (value == "Inappropriate") col <- "red"
+          list(backgroundColor = col)
+        }
+      )
+    ),
+    defaultColDef = colDef(html = TRUE),
+    columnGroups = list(
+      colGroup("Significant Sites", c("n_sig", "range_null"))
+    ),
+    theme = reactableTheme(style = list(fontSize = 13)),
+    elementId = "tbl-ranks"
+  )
+browsable(tagList(cp, tbl))
+```
+
