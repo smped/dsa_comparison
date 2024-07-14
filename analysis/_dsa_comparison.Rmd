@@ -859,7 +859,7 @@ all_sig %>%
 
 #### All Methods
 
-```{r upset-all, fig.height=10, fig.cap = "*Comparison of results from all methods under investigation. The median logCPM values for each range is shown as a boxplot in the upper panel. Any sets from comparisons flagged as potentially problematic by quantro are coloured orange for caution, dark red for inappropriate and bright red for highly problematic. All remaining sets are shown in dark grey.*"}
+```{r upset-all, fig.height=10, fig.cap = "*Comparison of results from all methods under investigation. The median logCPM values for each range are shown as a boxplot in the upper panel. Any sets from comparisons flagged as potentially problematic by quantro are coloured orange for caution, dark red for inappropriate and bright red for highly problematic. All remaining sets are shown in dark grey.*"}
 all_sig %>% 
   lapply(plyranges::select, starts_with("log"), PValue, FDR) %>% 
   GRangesList() %>% 
@@ -885,7 +885,7 @@ all_sig %>%
   plotOverlaps(
     var = "logCPM", f = "median", height_ratio = 1.5,
     min_size = 10,
-    n_intersection = 15, 
+    n_intersection = 12, 
     set_col = case_when(
       grepl(sprintf("^\u02D9"), names(.)) ~ "darkorange3",
       grepl("^\\*{1}", names(.)) ~ "red4",
@@ -1123,3 +1123,198 @@ cp <- tags$caption(
 browsable(tagList(cp, tbl))
 ```
 
+## Range Based H~0~
+
+```{r fit-ec-treat}
+ec_fw_treat <- ec_fw_params %>% 
+  lapply(
+    \(x) {
+      x$x <- se
+      x$fc <- 1.2
+      x$null <- "worst.case"
+      do.call("fitAssayDiff", x)
+    }
+  )
+ec_sw_treat <- ec_sw_params %>% 
+  lapply(
+    \(x) {
+      x$x <- se_sliding
+      x$fc <- 1.2
+      x$null <- "worst.case"
+      fits <- do.call("fitAssayDiff", x)
+      merged <- mergeByHMP(fits, hm_pre = "")
+      plyranges::select(
+        merged, keyval_range, logCPM, logFC, PValue, FDR = PValue_fdr
+      )
+    }
+  )
+```
+
+```{r fit-db-treat}
+db_ls_treat <-  dba_ls %>% 
+  dba.report(method = DBA_DESEQ2, th = 1, fold = log2(1.2)) %>% 
+  sortSeqlevels() %>% 
+  sort() %>% 
+  select(logCPM = Conc, logFC = Fold, PValue = `p-value`, FDR) 
+seqinfo(db_ls_treat) <- sq
+db_rle_treat <-  dba_rle %>% 
+  dba.report(method = DBA_DESEQ2, th = 1, fold = log2(1.2)) %>% 
+  sortSeqlevels() %>% 
+  sort() %>% 
+  select(logCPM = Conc, logFC = Fold, PValue = `p-value`, FDR) 
+seqinfo(db_rle_treat) <- sq
+db_fw_treat <- list(
+  "db-fw-ls-wt" = db_ls_treat,
+  "db-fw-rle-wt" = db_rle_treat
+)
+```
+
+```{r all-treat}
+all_treat <- c(ec_fw_treat, ec_sw_treat, db_fw_treat)
+all_treat_sig <- lapply(all_treat, subset, FDR < 0.05)
+```
+
+
+Data was re-analysed using a range-based H~0~, setting fold-change beyond 20% as being of interest.
+Whilst no change in the actual dataset was noted for methods fit using `extraChIPs`, the set of ranges returned by `DiffBind` was markedly smaller in each case, with > 90% of ranges excluded from the dataset.
+
+```{r tbl-treat-changes}
+tibble(
+  abbr = names(all_res),
+  orig_size = map_int(all_res, length)[abbr],
+  alt_size = map_int(all_treat, length)[abbr]
+) %>% 
+  left_join(all_tbl_params) %>% 
+  mutate(
+    Package = ifelse(grepl("ec-", abbr), "extraChIPs", "DiffBind")
+  ) %>% 
+  dplyr::select(abbr, Package, norm, method, ends_with("size")) %>% 
+  mutate(  
+    diff = alt_size - orig_size,
+    loss = percent(diff / orig_size),
+    norm = case_when(
+      grepl("rlg", abbr) ~ "RLE-Grouped",
+      grepl("sq", abbr) ~ "SQN",
+      TRUE ~ norm
+    )
+  ) %>% 
+  pander(
+    justify = "llllrrrr",
+    split.table = Inf, big.mark = ",",
+    caption = "Changes in the number of peaks/ranges returned by the packages when switching to a range-based H~0~"
+  )
+```
+
+### Sumary of Results
+
+```{r plot-all-treat, fig.cap = "*Summary of ranges considered as significant in each analyis when incorporating a range-based H~0~ of 20% change. Results without filtering are shown as transparent bars, with restricted results shown as solid bars. If any concerns were raised during data checking with quantro, method names will be prefixed by a measure of significance. Any showing one or more asterisks are likely to contain large numbers of Type 1 errors.*"}
+all_treat_sig %>% 
+  lapply(\(x) tibble(up = sum(x$logFC > 0), down = sum(x$logFC < 0))) %>% 
+  bind_rows(.id = "abbr") %>% 
+  left_join(all_tbl_params) %>% 
+  mutate(
+    pkg = ifelse(grepl("^ec", abbr), "extraChIPs", "DiffBind"),
+    win_type = ifelse(grepl("-sw-", abbr), "Sliding", "Fixed")
+  ) %>% 
+  arrange(up + down) %>% 
+  mutate(
+    method = method %>% 
+      str_replace_all("wald", "Wald Test") %>% 
+      str_replace_all("qlf", "glmQLF Test") %>% 
+      str_replace_all("lt", "limma-trend"),
+    up_all = map_int(all_sig, \(x) sum(x$logFC > 0))[abbr],
+    down_all = map_int(all_sig, \(x) sum(x$logFC < 0))[abbr],
+    abbr = paste0(quantro_flag, abbr) %>% fct_inorder(),
+  ) %>% 
+  ggplot(aes(y = abbr)) +
+  geom_col(aes(x = up_all),  fill = "red4", alpha = 0.4) +
+  geom_col(aes(x = up),  fill = "red4") +
+  geom_col(aes(x = -down_all), fill = "steelblue3", alpha = 0.4) +
+  geom_col(aes(x = -down), fill = "steelblue3") +
+  geom_label(
+    aes(x = up + 5, label = comma(up)), colour = "red4", 
+    data = . %>% dplyr::filter(up > 0),
+    size = 3.5, hjust = 0
+  ) +
+  geom_label(
+    aes(x = -down - 5, label = comma(down)), colour = "steelblue3", 
+    data = . %>% dplyr::filter(down > 0),
+    size = 3.5, hjust = 1
+  ) +
+  geom_label(
+    aes(x = up_all + 5, label = comma(up_all)), 
+    colour = do.call(
+      "rgb", as.list(col2rgb("red4")[,1]/255) %>% c(list(alpha = 0.4))
+    ),
+    data = . %>% dplyr::filter(up_all > 0), alpha = 0.5,
+    size = 3.5, hjust = 0
+  ) +
+  geom_label(
+    aes(x = -down_all - 5, label = comma(down_all)), 
+    colour = do.call(
+      "rgb", as.list(col2rgb("steelblue3")[,1]/255) %>% c(list(alpha = 0.4))
+    ),
+    data = . %>% dplyr::filter(down_all > 0), alpha = 0.5,
+    size = 3.5, hjust = 1
+  ) +
+  facet_grid(method + pkg ~ ., scales = "free_y", space = "free", switch = "y") +
+  ggtitle(
+    glue("Summary of logFC Filtered Results for {params$target}"),
+    glue("{params$treat} Vs. {params$ref}")
+  ) +
+  labs(x = "Significant Ranges", y = "Method") +
+  scale_y_discrete(
+    labels = \(x) x %>% 
+      str_remove_all("(ec|db)-") %>% 
+      str_remove_all("-(ql|wt|lt)$") %>% 
+      str_replace_all("sw-", "Sliding: ") %>% 
+      str_replace_all("fw-", "Fixed: ") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("ls", "Lib. Size") %>% 
+      str_replace_all("sq", "SQN") %>% 
+      str_replace_all("rlg", " RLE-Grouped") 
+  ) +
+  theme(
+    text = element_text(size = 12),
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
+  )
+```
+
+### UpSet Plot
+
+```{r upset-all-treat, fig.height=10, fig.cap = "*Comparison of results from all methods under investigation when incorporating a range-based H~0~. The median logCPM values for each range are shown as a boxplot in the upper panel. Any sets from comparisons flagged as potentially problematic by quantro are coloured orange for caution, dark red for inappropriate and bright red for highly problematic. All remaining sets are shown in dark grey.*"}
+all_treat_sig %>% 
+  lapply(plyranges::select, starts_with("log"), PValue, FDR) %>% 
+  GRangesList() %>% 
+  setNames(
+    setNames(
+      paste0(all_tbl_params$quantro_flag, all_tbl_params$abbr),
+      all_tbl_params$abbr
+    )[names(.)]
+  ) %>% 
+  setNames(
+    names(.) %>% 
+      str_replace_all("db-fw-", "DiffBind: ") %>% 
+      str_replace_all("ec-fw-", "extraChIPs-Fixed: ") %>% 
+      str_replace_all("ec-sw-", "extraChIPs-Sliding: ") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("ls", "Lib. Size") %>% 
+      str_replace_all("sq", "SQN") %>% 
+      str_replace_all("rlg", "RLE-Grouped") %>% 
+      str_replace_all("-wt", " + WaldTest") %>% 
+      str_replace_all("-lt", " + Limma") %>% 
+      str_replace_all("-ql", " + glmQLF") 
+  ) %>% 
+  plotOverlaps(
+    var = "logCPM", f = "median", height_ratio = 1.5,
+    min_size = 5,
+    n_intersection = 12, 
+    set_col = case_when(
+      grepl(sprintf("^\u02D9"), names(.)) ~ "darkorange3",
+      grepl("^\\*{1}", names(.)) ~ "red4",
+      grepl("^\\*{2}", names(.)) ~ "red",
+      TRUE ~ "grey40"
+    )
+  ) 
+```
