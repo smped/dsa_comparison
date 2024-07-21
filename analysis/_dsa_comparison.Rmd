@@ -1,6 +1,6 @@
 ```{r set-params, echo = FALSE, eval = FALSE}
 params <- list(
-  target = "ER",
+  target = "AR",
   ref = "E2",
   treat = "E2DHT",
   cell_type = "ZR-75"
@@ -27,8 +27,8 @@ library(plyranges)
 library(patchwork)
 library(pander)
 library(corrplot)
-cores <- parallel::detectCores() - 2
-# cores <- 4
+# cores <- parallel::detectCores() - 2
+cores <- 4
 register(MulticoreParam(cores))
 theme_set(theme_bw())
 format_p <- function(p){
@@ -538,7 +538,7 @@ Alignments were counted for the set of sliding windows using windows of `r windo
 Windows were required to return a total of at least `r length(bfl) * 2` alignments to be included during counting.
 
 The complete set of sliding windows was then reduced using `dualFilter()` from `extraChIPs` with thresholds defined to return ~70% of sliding windows which overlap a consensus peak.
-As a result ranges were retained from the top `r percent(metadata(se_sliding)$cuts$prop, accuracy = 0.01)` signal percentiles, wher signal was beyond `r round(metadata(se_sliding)$cuts$control, 2)` times the level of signal in the input samples.
+As a result ranges were retained from the top `r percent(metadata(se_sliding)$cuts$prop, accuracy = 0.01)` signal percentiles, where signal was beyond `r round(metadata(se_sliding)$cuts$control, 2)` times the level of signal in the input samples.
 This retained a total of `r comma(length(se_sliding))` windows from the original set of `r comma(length(wincounts))` windows across the entire genome.
 
 ```{r rm-wincounts, echo=FALSE, results='hide'}
@@ -549,7 +549,7 @@ gc()
 ### Quantro Test
 
 The quantro test [@Hicks2015-ee] for both equality of medians and equality of distributions was again applied to logCPM values from sliding windows without normalisation.
-Distributions were found to have `r ifelse(qtest@anova[["Pr(>F)"]][[1]] < 0.05, "unequal", "equal")` medians (ANOVA p = `r format_p(qtest@anova[["Pr(>F)"]][[1]])`).
+Distributions were found to have `r ifelse(qtest_sliding@anova[["Pr(>F)"]][[1]] < 0.05, "unequal", "equal")` medians (ANOVA p = `r format_p(qtest_sliding@anova[["Pr(>F)"]][[1]])`).
 
 Using the same strategy for permutation testing as above, a permutation p-value of `r format_p(perm_p)` was returned suggesting that RLE normalisation `r case_when(perm_p < 0.05 ~ "is inappropriate", perm_p < 0.1 ~ "should be used with caution", TRUE ~ "is appropriate")`.
 Importantly SQ-normalisation [@Hicks2018-uw] is expected to be robust to any results produced by this test.
@@ -838,6 +838,7 @@ all_sig %>%
     glue("{params$treat} Vs. {params$ref}")
   ) +
   labs(x = "Significant Ranges", y = "Method") +
+  scale_x_continuous(expand = expansion(0.1)) +
   scale_y_discrete(
     labels = \(x) x %>% 
       str_remove_all("(ec|db)-") %>% 
@@ -887,7 +888,7 @@ all_sig %>%
   plotOverlaps(
     var = "logCPM", f = "median", height_ratio = 1.5,
     min_size = 10,
-    n_intersection = 12, 
+    n_intersections = 12, 
     set_col = case_when(
       grepl(sprintf("^\u02D9"), names(.)) ~ "darkorange3",
       grepl("^\\*{1}", names(.)) ~ "red4",
@@ -915,7 +916,7 @@ all_sig %>%
   ) %>% 
   plotOverlaps(
     min_size = 5, var = "logCPM", f = "median", height_ratio = 1.2,
-    n_intersection = 20
+    n_intersections = 12
   ) +
   plot_annotation(title = "Limma-Trend Methods") &
   theme(plot.title = element_text(hjust = 0.7))
@@ -938,7 +939,7 @@ all_sig %>%
   ) %>%
   plotOverlaps(
     min_size = 5, var = "logCPM", f = "median", height_ratio = 1.2,
-    n_intersection = 20
+    n_intersections = 12
   ) +
   plot_annotation(title = "Wald Test Methods") &
   theme(plot.title = element_text(hjust = 0.7))
@@ -962,7 +963,7 @@ all_sig %>%
   ) %>%
   plotOverlaps(
     min_size = 5, var = "logCPM", f = "median", height_ratio = 1.2,
-    n_intersection = 20
+    n_intersections = 12
   ) +
   plot_annotation(title = "glmQLF Methods") &
   theme(plot.title = element_text(hjust = 0.7))
@@ -978,9 +979,7 @@ df <- names(all_sig) %>%
     \(x) {
       alt <- all_sig[!names(all_sig) %in% x] %>% lapply(granges) %>% GRangesList()
       gr <- all_sig[[x]]
-      ol <- lapply(all_sig, overlapsAny, gr) %>% 
-        lapply(sum) %>% 
-        lapply(divide_by, length(gr))
+      ol <- lapply(all_sig, overlapsAny, gr) %>% lapply(mean)
       tibble(
         abbr = x,
         n_sig = length(gr),
@@ -1022,7 +1021,7 @@ df %>%
   dplyr::select(abbr, contains("-")) %>% 
   as.data.frame() %>% 
   column_to_rownames("abbr") %>% 
-  as.matrix() %>% 
+  as.matrix() %>%
   corrplot(
     addCoef.col = "grey30", addCoefasPercent = TRUE, number.cex = 0.9,
     order = "hclust", hclust.method = "complete",
@@ -1236,12 +1235,12 @@ all_treat_sig %>%
   geom_label(
     aes(x = up + 5, label = comma(up)), colour = "red4", 
     data = . %>% dplyr::filter(up > 0),
-    size = 3.5, hjust = 0
+    size = 3.5, hjust = 1
   ) +
   geom_label(
     aes(x = -down - 5, label = comma(down)), colour = "steelblue3", 
     data = . %>% dplyr::filter(down > 0),
-    size = 3.5, hjust = 1
+    size = 3.5, hjust = 0
   ) +
   geom_label(
     aes(x = up_all + 5, label = comma(up_all)), 
@@ -1265,6 +1264,7 @@ all_treat_sig %>%
     glue("{params$treat} Vs. {params$ref}")
   ) +
   labs(x = "Significant Ranges", y = "Method") +
+  scale_x_continuous(expand = expansion(0.1)) +
   scale_y_discrete(
     labels = \(x) x %>% 
       str_remove_all("(ec|db)-") %>% 
@@ -1311,7 +1311,7 @@ all_treat_sig %>%
   plotOverlaps(
     var = "logCPM", f = "median", height_ratio = 1.5,
     min_size = 5,
-    n_intersection = 12, 
+    n_intersections = 12, 
     set_col = case_when(
       grepl(sprintf("^\u02D9"), names(.)) ~ "darkorange3",
       grepl("^\\*{1}", names(.)) ~ "red4",

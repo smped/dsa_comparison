@@ -1,0 +1,2423 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>H3K27ac (ZR-75): E2DHT Vs. E2</title>
+
+<script src="site_libs/header-attrs-2.27/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/sandstone.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/core-js-2.5.3/shim.min.js"></script>
+<script src="site_libs/react-18.2.0/react.min.js"></script>
+<script src="site_libs/react-18.2.0/react-dom.min.js"></script>
+<script src="site_libs/reactwidget-2.0.0/react-tools.umd.cjs"></script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="site_libs/reactable-0.4.4/reactable.css" rel="stylesheet" />
+<script src="site_libs/reactable-binding-0.4.4/reactable.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">DSA Comparison</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa-home"></span>
+     
+    Home
+  </a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    AR
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="zr75_ar_e2_e2dht.html">ZR-75: E2DHT Vs E2</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    ER
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="zr75_er_e2_e2dht.html">ZR-75: E2DHT Vs E2</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    GATA3
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="zr75_gata3_e2_e2dht.html">ZR-75: E2DHT Vs E2</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    H3K27ac
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="zr75_h3k27ac_e2_e2dht.html">ZR-75: E2DHT Vs E2</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/smped/dsa_comparison">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">H3K27ac (ZR-75): E2DHT Vs. E2</h1>
+<h3 class="subtitle">Point Based H<sub>0</sub></h3>
+<h4 class="author"><div class="line-block">Dr Stevie Pederson<br />
+Black Ochre Data Labs<br />
+Telethon Kids Institute<br />
+Adelaide, Australia</div></h4>
+<h4 class="date">22 July, 2024</h4>
+
+</div>
+
+
+<pre class="r"><code>library(tidyverse)
+library(DiffBind)
+library(extraChIPs)
+library(reactable)
+library(htmltools)
+library(scales)
+library(glue)
+library(Rsamtools)
+library(csaw)
+library(BiocParallel)
+library(edgeR)
+library(quantro)
+library(qsmooth)
+library(doParallel)
+library(magrittr)
+library(plyranges)
+library(patchwork)
+library(pander)
+library(corrplot)
+# cores &lt;- parallel::detectCores() - 2
+cores &lt;- 4
+register(MulticoreParam(cores))
+theme_set(theme_bw())
+format_p &lt;- function(p){
+  fmt &lt;- &quot;%.3f&quot;
+  if (any(p &lt; 0.01)) fmt &lt;- &quot;%.2e&quot;
+  sprintf(fmt, p)
+}
+js_greater &lt;- htmlwidgets::JS(
+  &quot;function(rows, columnId, filterValue) {
+    return rows.filter(function(row) {
+      return row.values[columnId] &gt;= filterValue
+    })
+  }&quot;
+)
+js_less &lt;- htmlwidgets::JS(
+  &quot;function(rows, columnId, filterValue) {
+    return rows.filter(function(row) {
+      return row.values[columnId] &lt;= filterValue
+    })
+  }&quot;
+)
+drop_filter &lt;- function(values, name, id = NULL, sort = TRUE) {
+  if (sort) values &lt;- sort(values)
+  tags$select(
+    # Set to undefined to clear the filter
+    onchange = sprintf(
+      &quot;Reactable.setFilter(&#39;%s&#39;, &#39;%s&#39;, event.target.value || undefined)&quot;,
+      id, name
+    ),
+    # &quot;All&quot; has an empty value to clear the filter, and is the default option
+    tags$option(value = &quot;&quot;, &quot;All&quot;),
+    lapply(unique(values), tags$option),
+    &quot;aria-label&quot; = sprintf(&quot;Filter %s&quot;, name),
+    style = &quot;width: 100%; height: 28px; font-size: 12px;&quot;
+  )
+}
+fig_path &lt;- here::here(&quot;docs&quot;, &quot;assets&quot;, params$target)
+if (!dir.exists(fig_path)) dir.create(fig_path, recursive = TRUE)</code></pre>
+<pre class="r"><code>samples &lt;- here::here(&quot;config&quot;, &quot;samples.tsv&quot;) %&gt;% 
+  read_tsv() %&gt;% 
+  dplyr::filter(
+    cell_type == params$cell_type,
+    target == params$target,
+    treat %in% c(params$ref, params$treat)
+  ) %&gt;% 
+  mutate(treat = factor(treat, levels = c(params$ref, params$treat)))</code></pre>
+<pre class="r"><code>sq &lt;- defineSeqinfo(build = &quot;hg19&quot;)
+bl &lt;- here::here(&quot;data&quot;, &quot;external&quot;, &quot;hg19_blacklist.bed.gz&quot;) %&gt;% 
+  importPeaks(type = &quot;bed&quot;, seqinfo = sq) %&gt;% 
+  unlist() %&gt;% 
+  unname()
+gl &lt;- here::here(&quot;data&quot;, &quot;external&quot;, samples$input) %&gt;% 
+  unique() %&gt;% 
+  paste0(&quot;_greylist.bed.gz&quot;) %&gt;% 
+  importPeaks(type = &quot;bed&quot;, seqinfo = sq) %&gt;% 
+  unlist() %&gt;% 
+  unname()
+peaks &lt;- here::here(&quot;data&quot;, &quot;peaks&quot;, params$cell_type, params$target) %&gt;% 
+  paste0(&quot;_consensus_peaks.bed.gz&quot;) %&gt;% 
+  importPeaks(type = &quot;bed&quot;, seqinfo = sq, blacklist = c(bl, gl)) %&gt;% 
+  unlist() %&gt;% 
+  unname()
+bfl &lt;- here::here(&quot;data&quot;, &quot;bam&quot;, params$cell_type, samples$id) %&gt;% 
+  paste0(&quot;.bam&quot;) %&gt;% 
+  BamFileList()
+ip_bfl &lt;- here::here(&quot;data&quot;, &quot;bam&quot;, params$cell_type, samples$input) %&gt;% 
+  paste0(&quot;.bam&quot;) %&gt;% 
+  unique() %&gt;% 
+  BamFileList()</code></pre>
+<pre class="r"><code>fixed_width &lt;- peaks %&gt;% 
+  width() %&gt;% 
+  quantile(0.75) %&gt;% 
+  round(-1)
+fw_peaks &lt;- peaks %&gt;% 
+  mutate(peak = granges(.)) %&gt;% 
+  resize(width = fixed_width, fix = &quot;center&quot;) %&gt;% 
+  filter_by_non_overlaps(c(bl, gl))</code></pre>
+<div id="fixed-width-windows" class="section level2">
+<h2>Fixed-Width Windows</h2>
+<p>All 39,708 consensus peaks were loaded and the 75<sup>th</sup>
+percentile of peaks widths was found to be 2250bp. This was then set as
+the fixed width for all peaks and any resized peaks which overlapped
+black- or grey-listed regions were subsequently excluded, give a final
+set of 39,583 peaks fixed at 2250bp.</p>
+<pre class="r"><code>f &lt;- here::here(
+  &quot;output&quot;, &quot;rds&quot;, 
+  &quot;{params$cell_type}_{params$target}_{params$ref}_{params$treat}_fixed.rds&quot;
+) %&gt;% 
+  glue()
+if (file.exists(f)) {
+  se &lt;- read_rds(f)
+} else{
+  se &lt;- regionCounts(bfl, fw_peaks, BPPARAM = bpparam())
+  rownames(se) &lt;- se %&gt;% rowRanges() %&gt;% as.character()
+  colData(se) &lt;- colData(se) %&gt;% 
+    as_tibble(rownames = &quot;id&quot;) %&gt;% 
+    mutate(id = str_remove(id, &quot;.bam$&quot;)) %&gt;% 
+    left_join(samples) %&gt;% 
+    as.data.frame() %&gt;% 
+    magrittr::set_rownames(basename(.$bam.files)) %&gt;% 
+    as(&quot;DataFrame&quot;)
+  dge &lt;- SE2DGEList(se)
+  dge$samples$lib.size &lt;- se$totals
+  dge &lt;- calcNormFactors(dge, &quot;RLE&quot;)
+  assay(se, &quot;logCPM&quot;) &lt;- cpm(
+    dge, log = TRUE, normalized.lib.sizes = FALSE, lib.size = dge$samples$lib.size
+  )
+  assay(se, &quot;logCPM_RLE&quot;) &lt;- cpm(
+    dge, log = TRUE, normalized.lib.sizes = TRUE, lib.size = dge$samples$lib.size
+  )
+  write_rds(se, f, compress = &quot;gz&quot;)
+}</code></pre>
+<p>Alignments were counted for the set of fixed-width windows using the
+default settings of <code>regionCounts()</code> from the
+<code>csaw</code> package <span class="citation">(Lun and Smyth
+2016)</span>. Assays were added containing logCPM values using total
+library sizes only, and using RLE-normalised <span
+class="citation">(Anders and Huber 2010)</span> logCPM values. Total
+alignments across the bam files were taken as library sizes in both
+cases</p>
+<div id="quantro-test" class="section level3">
+<h3>Quantro Test</h3>
+<pre class="r"><code>cl &lt;- makeCluster(cores)
+registerDoParallel(cl)
+qtest &lt;- quantro(assay(se, &quot;logCPM&quot;), groupFactor = se$treat, B = 1e3)
+stopCluster(cl)
+n_eff &lt;- qtest@quantroStatPerm %&gt;% 
+  unique() %&gt;% 
+  length() %&gt;% 
+  add(1)
+b &lt;- sum(unique(qtest@quantroStatPerm) &gt; qtest@quantroStat) + 1
+perm_p &lt;- b/n_eff</code></pre>
+<p>The quantro test <span class="citation">(Hicks and Irizarry
+2015)</span> for both equality of medians and equality of distributions
+was applied to logCPM values without normalisation. Distributions were
+found to have equal medians (ANOVA p = 0.481).</p>
+<p>When checking for equality of distributions 1000 permutations were
+performed, acknowledging that for datasets with two groups and 6
+samples, this far exceeds the number of viable permutations. For these
+small datasets, however, a permutation p-value &lt; 0.1 is still
+possible and should be noted with more weight than one otherwise
+might.</p>
+<p>After performing this step, the quantro statistics obtained from the
+set of permutations were subset to only the unique values, assuming that
+each permutation will return a distinct statistic. This subset of
+permutations was then used to define the effective number of
+permutations and the exact p-value was calculated using common
+strategies <span class="citation">(as described in Phipson and Smyth
+2010)</span>, by adding one to the number of tests greater that the
+observed test statistic, and likewise adding one to the number of
+effective permutations. This returned a permutation p-value of 0.091
+suggesting that RLE normalisation <em>should be used with
+caution</em>.</p>
+<pre class="r"><code>assayNames(se) %&gt;% 
+  str_subset(&quot;logCPM&quot;) %&gt;% 
+  lapply(
+    \(x) {
+      plotAssayDensities(se, x, colour = &quot;treat&quot;) +
+        scale_colour_brewer(palette = &quot;Set1&quot;, direction = -1) 
+    }
+  ) %&gt;% 
+  wrap_plots() +
+  plot_layout(guides = &quot;collect&quot;, axes = &quot;collect&quot;) +
+  plot_annotation(tag_levels = &quot;A&quot;)</code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/plot-densities-1.png" alt="*logCPM densities shown before (A) and after (B) RLE normalisation. This dataset returned a quantro ANOVA p-value of 0.481 and a permutation p-value of 0.091*" width="960" />
+<p class="caption">
+<em>logCPM densities shown before (A) and after (B) RLE normalisation.
+This dataset returned a quantro ANOVA p-value of 0.481 and a permutation
+p-value of 0.091</em>
+</p>
+</div>
+<pre class="r"><code>X &lt;- model.matrix(~treat, data = colData(se))
+ec_fw_tbl_params &lt;- tribble(
+ ~assay, ~norm, ~method, ~abbr,
+ &quot;counts&quot;, &quot;none&quot;, &quot;qlf&quot;, &quot;ec-fw-ls-ql&quot;,
+ &quot;counts&quot;, &quot;none&quot;, &quot;wald&quot;, &quot;ec-fw-ls-wt&quot;,
+ &quot;logCPM&quot;, &quot;none&quot;, &quot;lt&quot;, &quot;ec-fw-ls-lt&quot;,
+ &quot;counts&quot;, &quot;RLE&quot;, &quot;qlf&quot;, &quot;ec-fw-rle-ql&quot;,
+ &quot;counts&quot;, &quot;RLE&quot;, &quot;wald&quot;, &quot;ec-fw-rle-wt&quot;,
+ &quot;logCPM_RLE&quot;, &quot;RLE&quot;, &quot;lt&quot;, &quot;ec-fw-rle-lt&quot;,
+ &quot;counts&quot;, &quot;RLE&quot;, &quot;qlf&quot;, &quot;ec-fw-rlg-ql&quot;
+) %&gt;% 
+  mutate(
+    quantro_flag = case_when(
+      !grepl(&quot;rle&quot;, abbr) ~ &quot;&quot;,
+      min(perm_p, qtest@anova$`Pr(&gt;F)`[[1]]) &lt; 0.01 ~ &quot;**&quot;,
+      min(perm_p, qtest@anova$`Pr(&gt;F)`[[1]]) &lt; 0.05 ~ &quot;*&quot;,
+      min(perm_p, qtest@anova$`Pr(&gt;F)`[[1]]) &lt; 0.1 ~ &quot;\u02D9&quot;,
+      TRUE ~ &quot;&quot;
+    )
+  )
+ec_fw_params &lt;- ec_fw_tbl_params %&gt;% 
+  split(.$abbr) %&gt;% 
+  lapply(as.list) %&gt;% 
+  lapply(
+    \(x) {
+      if (str_detect(x$abbr, &quot;rlg&quot;)) x$groups &lt;- &quot;treat&quot;
+      x$design &lt;- X
+      x$asRanges &lt;- TRUE
+      x[!names(x) %in% c(&quot;abbr&quot;, &quot;quantro_flag&quot;)]
+    }
+  )
+ec_fw_res &lt;- ec_fw_params %&gt;% 
+  lapply(
+    \(x) {
+      x$x &lt;- se
+      do.call(&quot;fitAssayDiff&quot;, x)
+    }
+  )</code></pre>
+<p>All methods defined for testing with <code>extraChIPs</code> using
+fixed-width windows were then fit as defined, with MA-plots shown for
+each individual approach.</p>
+</div>
+<div id="ma-plots" class="section level3 tabset">
+<h3 class="tabset">MA Plots</h3>
+<pre class="r"><code>tagList(
+  names(ec_fw_res) %&gt;% 
+    lapply(
+      \(i) {
+        tbl &lt;- as_tibble(ec_fw_res[[i]])
+        norm &lt;- case_when(
+          grepl(&quot;ls&quot;, i) ~ &quot;Library Size&quot;,
+          grepl(&quot;rle&quot;, i) ~ &quot;RLE&quot;,
+          grepl(&quot;rlg&quot;, i) ~ &quot;RLE-Grouped&quot;,
+          grepl(&quot;sq&quot;, i) ~ &quot;Smooth Quantile&quot;,
+          TRUE ~ &quot;&quot;
+        )
+        fit &lt;- case_when(
+          grepl(&quot;lt$&quot;, i) ~ &quot;Limma Trend&quot;,
+          grepl(&quot;ql$&quot;, i) ~ &quot;glmQLF&quot;,
+          grepl(&quot;wt$&quot;, i) ~ &quot;Wald Test&quot;
+        )
+        p &lt;- tbl %&gt;% 
+          arrange(desc(PValue)) %&gt;% 
+          ggplot(aes(logCPM, logFC)) + 
+          geom_point(aes(colour = FDR &lt; 0.05), alpha = 0.7) +
+          geom_smooth(se = FALSE, method = &quot;lm&quot;, formula = y ~ x) +
+          geom_hline(yintercept = 0) +
+          ggtitle(
+            glue(&quot;{params$target}: {params$treat} Vs. {params$ref}&quot;),
+            glue(&quot;Fixed-Width (extraChIPs): {norm} Normalisation + {fit}&quot;)
+          ) +
+          scale_colour_manual(values = c(&quot;grey20&quot;, &quot;red2&quot;)) +
+          theme(
+            text = element_text(size = 12),
+            plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5)
+          )
+        
+        img_out &lt;- here::here(fig_path, &quot;{params$ref}_{params$treat}_{i}.png&quot;) %&gt;% 
+          glue()
+        png(img_out, width = 10, height = 8, units = &quot;in&quot;, res = 300)
+        print(p)
+        dev.off()
+        
+        ## Create html tags
+        fig_link &lt;- str_extract(img_out, &quot;assets.+&quot;)
+        cp &lt;- htmltools::tags$em(
+          glue(
+            &quot;MA-plot for fixed-width windows analysed using extraChIPs with 
+          {norm} normalisation and DSA results produced using {fit} methods.
+          &quot;
+          )
+        )
+        htmltools::div(
+          id = img_out %&gt;% 
+            basename() %&gt;% 
+            str_remove_all(&quot;.png$&quot;) %&gt;% 
+            str_to_lower() %&gt;% 
+            str_replace_all(&quot;_&quot;, &quot;-&quot;),
+          class = &quot;section level4&quot;,
+          htmltools::h4(glue(&quot;{norm} + {fit}&quot;)),
+          htmltools::div(
+            class = &quot;figure&quot;, style = &quot;text-align: center&quot;,
+            htmltools::img(src = fig_link, width = &quot;100%&quot;),
+            htmltools::tags$caption(cp)
+          )
+        )
+      }
+    )
+)</code></pre>
+<div id="e2-e2dht-ec-fw-ls-lt" class="section level4">
+<h4>Library Size + Limma Trend</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-fw-ls-lt.png" width="100%"/>
+<caption>
+<em>MA-plot for fixed-width windows analysed using extraChIPs with 
+Library Size normalisation and DSA results produced using Limma Trend methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-fw-ls-ql" class="section level4">
+<h4>Library Size + glmQLF</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-fw-ls-ql.png" width="100%"/>
+<caption>
+<em>MA-plot for fixed-width windows analysed using extraChIPs with 
+Library Size normalisation and DSA results produced using glmQLF methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-fw-ls-wt" class="section level4">
+<h4>Library Size + Wald Test</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-fw-ls-wt.png" width="100%"/>
+<caption>
+<em>MA-plot for fixed-width windows analysed using extraChIPs with 
+Library Size normalisation and DSA results produced using Wald Test methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-fw-rle-lt" class="section level4">
+<h4>RLE + Limma Trend</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-fw-rle-lt.png" width="100%"/>
+<caption>
+<em>MA-plot for fixed-width windows analysed using extraChIPs with 
+RLE normalisation and DSA results produced using Limma Trend methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-fw-rle-ql" class="section level4">
+<h4>RLE + glmQLF</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-fw-rle-ql.png" width="100%"/>
+<caption>
+<em>MA-plot for fixed-width windows analysed using extraChIPs with 
+RLE normalisation and DSA results produced using glmQLF methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-fw-rle-wt" class="section level4">
+<h4>RLE + Wald Test</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-fw-rle-wt.png" width="100%"/>
+<caption>
+<em>MA-plot for fixed-width windows analysed using extraChIPs with 
+RLE normalisation and DSA results produced using Wald Test methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-fw-rlg-ql" class="section level4">
+<h4>RLE-Grouped + glmQLF</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-fw-rlg-ql.png" width="100%"/>
+<caption>
+<em>MA-plot for fixed-width windows analysed using extraChIPs with 
+RLE-Grouped normalisation and DSA results produced using glmQLF methods.</em>
+</caption>
+</div>
+</div>
+</div>
+</div>
+<div id="diffbind" class="section level2">
+<h2>DiffBind</h2>
+<pre class="r"><code>db_fw_tbl_params &lt;- tribble(
+ ~assay, ~norm, ~method, ~abbr,
+ &quot;counts&quot;, &quot;none&quot;, &quot;wald&quot;, &quot;db-fw-ls-wt&quot;,
+ &quot;counts&quot;, &quot;RLE&quot;, &quot;wald&quot;, &quot;db-fw-rle-wt&quot;,
+) %&gt;% 
+  mutate(
+    quantro_flag = case_when(
+      !grepl(&quot;rle&quot;, abbr) ~ &quot;&quot;,
+      min(perm_p, qtest@anova$`Pr(&gt;F)`[[1]]) &lt; 0.01 ~ &quot;**&quot;,
+      min(perm_p, qtest@anova$`Pr(&gt;F)`[[1]]) &lt; 0.05 ~ &quot;*&quot;,
+      min(perm_p, qtest@anova$`Pr(&gt;F)`[[1]]) &lt; 0.1 ~ &quot;\u02D9&quot;,
+      TRUE ~ &quot;&quot;
+    )
+  )
+f &lt;- here::here(
+  &quot;output&quot;, &quot;rds&quot;, 
+  &quot;{params$cell_type}_{params$target}_{params$ref}_{params$treat}_dba.rds&quot;
+) %&gt;% 
+  glue()
+if (file.exists(f)) {
+  dba &lt;- read_rds(f)
+} else {
+  db_sample_sheet &lt;- samples %&gt;%
+    mutate(
+      bamReads = path(bfl),
+      ControlID = &quot;Pooled&quot;,
+      bamControl = file.path(dirname(bamReads), glue(&quot;{input}.bam&quot;))#,
+      # Peaks = file.path(out_path, glue(&quot;{target}_centred_peaks.bed&quot;)),
+      # PeakCaller = &quot;bed&quot;
+    ) %&gt;% 
+    dplyr::rename(
+      Tissue = cell_type, Factor = target, Treatment = treat, SampleID = id
+    ) %&gt;% 
+    mutate(Replicate = seq_along(Treatment), .by = Treatment) %&gt;% 
+    dplyr::select(
+      SampleID, Tissue, Factor, #Condition, 
+      Treatment, Replicate,
+      bamReads, ControlID, bamControl#, starts_with(&quot;Peak&quot;)
+    ) %&gt;% 
+    as.data.frame()
+  dba &lt;- dba(
+    sampleSheet = db_sample_sheet, 
+    config = data.frame(fragmentSize = 100, cores = cores)
+  ) %&gt;% 
+    dba.count(peaks = fw_peaks, summits = fixed_width / 2)  %&gt;% 
+    dba.blacklist(cores = cores, blacklist = bl, greylist = gl)
+  write_rds(dba, f, compress = &quot;gz&quot;)
+}</code></pre>
+<pre class="r"><code>dba_ls &lt;- dba.normalize(dba, method = DBA_DESEQ2, normalize = DBA_NORM_LIB) %&gt;% 
+  dba.analyze(method = DBA_DESEQ2)
+db_ls_results &lt;-  dba_ls %&gt;% 
+  dba.report(method = DBA_DESEQ2, th = 1) %&gt;% 
+  sortSeqlevels() %&gt;% 
+  sort() %&gt;% 
+  select(logCPM = Conc, logFC = Fold, PValue = `p-value`, FDR) 
+seqinfo(db_ls_results) &lt;- sq
+dba_rle &lt;- dba.normalize(dba, method = DBA_DESEQ2, normalize = DBA_NORM_RLE) %&gt;% 
+  dba.analyze(method = DBA_DESEQ2)
+db_rle_results &lt;-  dba_rle %&gt;% 
+  dba.report(method = DBA_DESEQ2, th = 1) %&gt;% 
+  sortSeqlevels() %&gt;% 
+  sort() %&gt;% 
+  select(logCPM = Conc, logFC = Fold, PValue = `p-value`, FDR) 
+seqinfo(db_rle_results) &lt;- sq
+db_fw_res &lt;- list(
+  &quot;db-fw-ls-wt&quot; = db_ls_results,
+  &quot;db-fw-rle-wt&quot; = db_rle_results
+)</code></pre>
+<p>DBA objects were defined for analysis with <code>DiffBind</code>
+incorporating the black and grey-lists as above, and with the same set
+of fixed-width ranges provided for analysis with <code>extraChIPs</code>
+Notably, <code>DiffBind</code> will re-centre the provided ranges using
+an internal algorithm and as such, peak locations will differ slightly
+from those used with <code>extraChIPs</code>. Additionally, some peaks
+may be shifted enough to overlap the black- or grey-listed regions and
+will be excluded.</p>
+<p>All methods defined for testing with <code>Diffind</code> which only
+uses fixed-width windows were then fit, with MA-plots shown for each
+individual approach.</p>
+<div id="ma-plots-1" class="section level3 tabset">
+<h3 class="tabset">MA Plots</h3>
+<pre class="r"><code>tagList(
+  names(db_fw_res) %&gt;% 
+    lapply(
+      \(i) {
+        tbl &lt;- as_tibble(db_fw_res[[i]])
+        norm &lt;- case_when(
+          grepl(&quot;ls&quot;, i) ~ &quot;Library Size&quot;,
+          grepl(&quot;rle&quot;, i) ~ &quot;RLE&quot;
+        )
+        fit &lt;- &quot;Wald Test&quot;
+        p &lt;- tbl %&gt;% 
+          arrange(desc(PValue)) %&gt;% 
+          ggplot(aes(logCPM, logFC)) + 
+          geom_point(aes(colour = FDR &lt; 0.05), alpha = 0.7) +
+          geom_smooth(se = FALSE, method = &quot;lm&quot;, formula = y ~ x) +
+          geom_hline(yintercept = 0) +
+          ggtitle(
+            glue(&quot;{params$target}: {params$treat} Vs. {params$ref}&quot;),
+            glue(&quot;Fixed-Width (DiffBind): {norm} Normalisation + {fit}&quot;)
+          ) +
+          scale_colour_manual(values = c(&quot;grey20&quot;, &quot;red2&quot;)) +
+          theme(
+            text = element_text(size = 12),
+            plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5)
+          )
+        
+        img_out &lt;- here::here(fig_path, &quot;{params$ref}_{params$treat}_{i}.png&quot;) %&gt;% 
+          glue()
+        png(img_out, width = 10, height = 8, units = &quot;in&quot;, res = 300)
+        print(p)
+        dev.off()
+        
+        ## Create html tags
+        fig_link &lt;- str_extract(img_out, &quot;assets.+&quot;)
+        cp &lt;- htmltools::tags$em(
+          glue(
+            &quot;MA-plot for fixed-width windows analysed using DiffBind with
+            {norm} normalisation and DSA results produced using {fit} methods.
+            &quot;
+          )
+        )
+        htmltools::div(
+          id = img_out %&gt;% 
+            basename() %&gt;% 
+            str_remove_all(&quot;.png$&quot;) %&gt;% 
+            str_to_lower() %&gt;% 
+            str_replace_all(&quot;_&quot;, &quot;-&quot;),
+          class = &quot;section level4&quot;,
+          htmltools::h4(glue(&quot;{norm} + {fit}&quot;)),
+          htmltools::div(
+            class = &quot;figure&quot;, style = &quot;text-align: center&quot;,
+            htmltools::img(src = fig_link, width = &quot;100%&quot;),
+            htmltools::tags$caption(cp)
+          )
+        )
+      }
+    )
+)</code></pre>
+<div id="e2-e2dht-db-fw-ls-wt" class="section level4">
+<h4>Library Size + Wald Test</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_db-fw-ls-wt.png" width="100%"/>
+<caption>
+<em>MA-plot for fixed-width windows analysed using DiffBind with
+Library Size normalisation and DSA results produced using Wald Test methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-db-fw-rle-wt" class="section level4">
+<h4>RLE + Wald Test</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_db-fw-rle-wt.png" width="100%"/>
+<caption>
+<em>MA-plot for fixed-width windows analysed using DiffBind with
+RLE normalisation and DSA results produced using Wald Test methods.</em>
+</caption>
+</div>
+</div>
+</div>
+</div>
+<div id="sliding-windows" class="section level2">
+<h2>Sliding Windows</h2>
+<pre class="r"><code>f &lt;- here::here(
+  &quot;output&quot;, &quot;rds&quot;, 
+  &quot;{params$cell_type}_{params$target}_{params$ref}_{params$treat}_windows.rds&quot;
+) %&gt;% 
+  glue()
+window_size &lt;- round(median(width(peaks)) / 2, -1)
+window_step &lt;- round(window_size/3, -1)
+if (file.exists(f)) {
+  wincounts &lt;- read_rds(f)
+} else {
+  gc()
+  wincounts &lt;- windowCounts(
+    bam.files = c(bfl, ip_bfl),
+    spacing = window_step,
+    width = window_size,
+    ext = 100,
+    filter = length(bfl) * 2,
+    param = readParam(restrict = seqnames(sq), discard = c(bl, gl)),
+    BPPARAM = bpparam()
+  )
+  seqlevels(wincounts) &lt;- seqlevels(sq)
+  seqinfo(wincounts) &lt;- sq
+  colData(wincounts) &lt;- colData(wincounts) %&gt;% 
+    as_tibble(rownames = &quot;id&quot;) %&gt;% 
+    mutate(id = str_remove(id, &quot;.bam$&quot;)) %&gt;% 
+    left_join(samples) %&gt;% 
+    as.data.frame() %&gt;% 
+    magrittr::set_rownames(basename(.$bam.files)) %&gt;% 
+    as(&quot;DataFrame&quot;)
+  write_rds(wincounts, f, compress = &quot;gz&quot;)
+}
+f &lt;- here::here(
+  &quot;output&quot;, &quot;rds&quot;, 
+  &quot;{params$cell_type}_{params$target}_{params$ref}_{params$treat}_sliding.rds&quot;
+) %&gt;% 
+  glue()
+if (file.exists(f)) {
+  se_sliding &lt;- read_rds(f)
+} else {
+  gc()
+  se_sliding &lt;- dualFilter(
+    wincounts, bg = names(ip_bfl), ref = peaks, q = 0.7
+  )
+  rownames(se_sliding) &lt;- as.character(rowRanges(se_sliding))
+  dge &lt;- SE2DGEList(se_sliding)
+  dge$samples$lib.size &lt;- se_sliding$totals
+  dge &lt;- calcNormFactors(dge, &quot;RLE&quot;)
+  assay(se_sliding, &quot;logCPM_RLE&quot;) &lt;- cpm(
+    dge, log = TRUE, normalized.lib.sizes = TRUE, lib.size = dge$samples$lib.size
+  )
+  write_rds(se_sliding, f, compress = &quot;gz&quot;)
+}
+qs &lt;- qsmooth(assay(se_sliding, &quot;logCPM&quot;), group_factor = se_sliding$treat)
+assay(se_sliding, &quot;qsmooth&quot;) &lt;- qsmoothData(qs)</code></pre>
+<pre class="r"><code>cl &lt;- makeCluster(cores)
+registerDoParallel(cl)
+qtest_sliding &lt;- quantro(assay(se_sliding, &quot;logCPM&quot;), groupFactor = se$treat, B = 1e3)
+stopCluster(cl)
+n_eff &lt;- qtest_sliding@quantroStatPerm %&gt;% 
+  unique() %&gt;% 
+  length() %&gt;% 
+  add(1)
+b &lt;- sum(unique(qtest_sliding@quantroStatPerm) &gt; qtest_sliding@quantroStat) + 1
+perm_p &lt;- b/n_eff</code></pre>
+<p>Alignments were counted for the set of sliding windows using windows
+of 670bp shifting in increments of 220bp. Windows were required to
+return a total of at least 12 alignments to be included during
+counting.</p>
+<p>The complete set of sliding windows was then reduced using
+<code>dualFilter()</code> from <code>extraChIPs</code> with thresholds
+defined to return ~70% of sliding windows which overlap a consensus
+peak. As a result ranges were retained from the top 97.74% signal
+percentiles, where signal was beyond 2.57 times the level of signal in
+the input samples. This retained a total of 314,688 windows from the
+original set of 6,852,750 windows across the entire genome.</p>
+<div id="quantro-test-1" class="section level3">
+<h3>Quantro Test</h3>
+<p>The quantro test <span class="citation">(Hicks and Irizarry
+2015)</span> for both equality of medians and equality of distributions
+was again applied to logCPM values from sliding windows without
+normalisation. Distributions were found to have equal medians (ANOVA p =
+0.257).</p>
+<p>Using the same strategy for permutation testing as above, a
+permutation p-value of 0.545 was returned suggesting that RLE
+normalisation is appropriate. Importantly SQ-normalisation <span
+class="citation">(Hicks et al. 2018)</span> is expected to be robust to
+any results produced by this test.</p>
+<pre class="r"><code>X &lt;- model.matrix(~treat, data = colData(se_sliding))
+ec_sw_tbl_params &lt;- tribble(
+ ~assay, ~norm, ~method, ~abbr,
+ &quot;counts&quot;, &quot;none&quot;, &quot;qlf&quot;, &quot;ec-sw-ls-ql&quot;,
+ &quot;counts&quot;, &quot;none&quot;, &quot;wald&quot;, &quot;ec-sw-ls-wt&quot;,
+ &quot;logCPM&quot;, &quot;none&quot;, &quot;lt&quot;, &quot;ec-sw-ls-lt&quot;,
+ &quot;counts&quot;, &quot;RLE&quot;, &quot;qlf&quot;, &quot;ec-sw-rle-ql&quot;,
+ &quot;counts&quot;, &quot;RLE&quot;, &quot;wald&quot;, &quot;ec-sw-rle-wt&quot;,
+ &quot;logCPM_RLE&quot;, &quot;RLE&quot;, &quot;lt&quot;, &quot;ec-sw-rle-lt&quot;,
+ &quot;qsmooth&quot;, &quot;none&quot;, &quot;lt&quot;, &quot;ec-sw-sq-lt&quot;
+) %&gt;% 
+  mutate(
+    quantro_flag = case_when(
+      !grepl(&quot;rle&quot;, abbr) ~ &quot;&quot;,
+      min(perm_p, qtest@anova$`Pr(&gt;F)`[[1]]) &lt; 0.01 ~ &quot;**&quot;,
+      min(perm_p, qtest@anova$`Pr(&gt;F)`[[1]]) &lt; 0.05 ~ &quot;*&quot;,
+      min(perm_p, qtest@anova$`Pr(&gt;F)`[[1]]) &lt; 0.1 ~ &quot;\u02D9&quot;,
+      TRUE ~ &quot;&quot;
+    )
+  )
+ec_sw_params &lt;- ec_sw_tbl_params %&gt;% 
+  split(.$abbr) %&gt;% 
+  lapply(as.list) %&gt;% 
+  lapply(
+    \(x) {
+      x$design &lt;- X
+      x[!names(x) %in% c(&quot;abbr&quot;, &quot;quantro_flag&quot;)]
+    }
+  )
+ec_sw_res &lt;- ec_sw_params %&gt;% 
+  lapply(
+    \(x) {
+      x$x &lt;- se_sliding
+      fits &lt;- do.call(&quot;fitAssayDiff&quot;, x)
+      merged &lt;- mergeByHMP(fits, hm_pre = &quot;&quot;)
+      plyranges::select(
+        merged, keyval_range, logCPM, logFC, PValue, FDR = PValue_fdr
+      )
+    }
+  )</code></pre>
+<pre class="r"><code>qs_plot &lt;- tibble(w = qs@qsmoothWeights, q = seq_along(w) / length(w)) %&gt;% 
+  ggplot(aes(q, w)) +
+  geom_line() +
+  geom_hline(yintercept = 0.5, colour = &quot;red&quot;, linetype = 2) +
+  geom_vline(xintercept = 0.5, colour = &quot;red&quot;, linetype = 2) +
+  ylim(0, 1) +
+  ggtitle(&quot;QSmooth Weights&quot;) +
+  labs(x = &quot;Quantiles&quot;, y = &quot;Weights&quot;) +
+  scale_x_continuous(expand = expansion(0.02)) +
+  theme(plot.title = element_text(hjust = 0.5))
+assayNames(se_sliding) %&gt;% 
+  setdiff(&quot;counts&quot;) %&gt;% 
+  lapply(
+    \(x) {
+      plotAssayDensities(se_sliding, x, colour = &quot;treat&quot;) +
+        scale_colour_brewer(palette = &quot;Set1&quot;, direction = -1) 
+    }
+  ) %&gt;% 
+  c(list(qs_plot)) %&gt;% 
+  wrap_plots(nrow = 2) +
+  plot_layout(guides = &quot;collect&quot;, axes = &quot;collect&quot;) +
+  plot_annotation(tag_levels = &quot;A&quot;)</code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/plot_sw_densities-1.png" alt="*Density plots for logCPM values (A), RLE normalised logCPM values (B) and Smooth Quantile normalised logCPM values (C). Weights used for SQN are shown in panel D*" width="960" />
+<p class="caption">
+<em>Density plots for logCPM values (A), RLE normalised logCPM values
+(B) and Smooth Quantile normalised logCPM values (C). Weights used for
+SQN are shown in panel D</em>
+</p>
+</div>
+<p>All methods defined for testing with <code>extraChIPs</code> using
+sliding windows were then fit as defined, with MA-plots shown for each
+individual approach. It should be noted that due to the merging of
+results across multiple windows using p-value weights may skew the
+relationship between signal intensity (A) and logFC (M) and these
+figures represent a poor strategy for assessing bias</p>
+</div>
+<div id="ma-plots-2" class="section level3 tabset">
+<h3 class="tabset">MA Plots</h3>
+<pre class="r"><code>tagList(
+  names(ec_sw_res) %&gt;% 
+    lapply(
+      \(i) {
+        tbl &lt;- as_tibble(ec_sw_res[[i]])
+        norm &lt;- case_when(
+          grepl(&quot;ls&quot;, i) ~ &quot;Library Size&quot;,
+          grepl(&quot;rle&quot;, i) ~ &quot;RLE&quot;,
+          grepl(&quot;rlg&quot;, i) ~ &quot;RLE-Grouped&quot;,
+          grepl(&quot;sq&quot;, i) ~ &quot;Smooth Quantile&quot;,
+          TRUE ~ &quot;&quot;
+        )
+        fit &lt;- case_when(
+          grepl(&quot;lt$&quot;, i) ~ &quot;Limma Trend&quot;,
+          grepl(&quot;ql$&quot;, i) ~ &quot;glmQLF&quot;,
+          grepl(&quot;wt$&quot;, i) ~ &quot;Wald Test&quot;
+        )
+        p &lt;- tbl %&gt;% 
+          arrange(desc(PValue)) %&gt;% 
+          ggplot(aes(logCPM, logFC)) + 
+          geom_point(aes(colour = FDR &lt; 0.05), alpha = 0.7) +
+          geom_smooth(se = FALSE, method = &quot;lm&quot;, formula = y ~ x) +
+          geom_hline(yintercept = 0) +
+          ggtitle(
+            glue(&quot;{params$target}: {params$treat} Vs. {params$ref}&quot;),
+            glue(&quot;Sliding Windows: {norm} Normalisation + {fit}&quot;)
+          ) +
+          scale_colour_manual(values = c(&quot;grey20&quot;, &quot;red2&quot;)) +
+          theme(
+            text = element_text(size = 12),
+            plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5)
+          )
+        
+        img_out &lt;- here::here(fig_path, &quot;{params$ref}_{params$treat}_{i}.png&quot;) %&gt;% 
+          glue()
+        png(img_out, width = 10, height = 8, units = &quot;in&quot;, res = 300)
+        print(p)
+        dev.off()
+        
+        ## Create html tags
+        fig_link &lt;- str_extract(img_out, &quot;assets.+&quot;)
+        cp &lt;- htmltools::tags$em(
+          glue(
+            &quot;MA-plot for sliding windows analysed using extraChIPs with
+            {norm} normalisation and DSA results produced using {fit} methods.
+            &quot;
+          )
+        )
+        htmltools::div(
+          id = img_out %&gt;% 
+            basename() %&gt;% 
+            str_remove_all(&quot;.png$&quot;) %&gt;% 
+            str_to_lower() %&gt;% 
+            str_replace_all(&quot;_&quot;, &quot;-&quot;),
+          class = &quot;section level4&quot;,
+          htmltools::h4(glue(&quot;{norm} + {fit}&quot;)),
+          htmltools::div(
+            class = &quot;figure&quot;, style = &quot;text-align: center&quot;,
+            htmltools::img(src = fig_link, width = &quot;100%&quot;),
+            htmltools::tags$caption(cp)
+          )
+        )
+      }
+    )
+)</code></pre>
+<div id="e2-e2dht-ec-sw-ls-lt" class="section level4">
+<h4>Library Size + Limma Trend</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-sw-ls-lt.png" width="100%"/>
+<caption>
+<em>MA-plot for sliding windows analysed using extraChIPs with
+Library Size normalisation and DSA results produced using Limma Trend methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-sw-ls-ql" class="section level4">
+<h4>Library Size + glmQLF</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-sw-ls-ql.png" width="100%"/>
+<caption>
+<em>MA-plot for sliding windows analysed using extraChIPs with
+Library Size normalisation and DSA results produced using glmQLF methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-sw-ls-wt" class="section level4">
+<h4>Library Size + Wald Test</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-sw-ls-wt.png" width="100%"/>
+<caption>
+<em>MA-plot for sliding windows analysed using extraChIPs with
+Library Size normalisation and DSA results produced using Wald Test methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-sw-rle-lt" class="section level4">
+<h4>RLE + Limma Trend</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-sw-rle-lt.png" width="100%"/>
+<caption>
+<em>MA-plot for sliding windows analysed using extraChIPs with
+RLE normalisation and DSA results produced using Limma Trend methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-sw-rle-ql" class="section level4">
+<h4>RLE + glmQLF</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-sw-rle-ql.png" width="100%"/>
+<caption>
+<em>MA-plot for sliding windows analysed using extraChIPs with
+RLE normalisation and DSA results produced using glmQLF methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-sw-rle-wt" class="section level4">
+<h4>RLE + Wald Test</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-sw-rle-wt.png" width="100%"/>
+<caption>
+<em>MA-plot for sliding windows analysed using extraChIPs with
+RLE normalisation and DSA results produced using Wald Test methods.</em>
+</caption>
+</div>
+</div>
+<div id="e2-e2dht-ec-sw-sq-lt" class="section level4">
+<h4>Smooth Quantile + Limma Trend</h4>
+<div class="figure" style="text-align: center">
+<img src="assets/H3K27ac/E2_E2DHT_ec-sw-sq-lt.png" width="100%"/>
+<caption>
+<em>MA-plot for sliding windows analysed using extraChIPs with
+Smooth Quantile normalisation and DSA results produced using Limma Trend methods.</em>
+</caption>
+</div>
+</div>
+</div>
+<div id="comparison-against-consensus-peaks-fixed-width"
+class="section level3 tabset">
+<h3 class="tabset">Comparison Against Consensus Peaks &amp;
+Fixed-Width</h3>
+<pre class="r"><code>tbl &lt;- GRangesList(
+  sliding = ec_sw_res$`ec-sw-ls-lt` %&gt;% plyranges::select(logCPM),
+  fixed = ec_fw_res$`ec-fw-ls-lt` %&gt;%
+    colToRanges(&quot;peak&quot;) %&gt;% 
+    plyranges::select(logCPM)
+) %&gt;% 
+  endoapply(mutate, w = width) %&gt;% 
+  mapGrlCols(var = c(&quot;w&quot;, &quot;logCPM&quot;)) %&gt;% 
+  as_tibble() %&gt;% 
+  mutate(
+    detected = case_when(
+      is.na(sliding_w) ~ &quot;Fixed Only&quot;,
+      is.na(fixed_w) ~ &quot;Sliding Only&quot;,
+      TRUE ~ &quot;Both&quot;
+    )
+  ) %&gt;% 
+  summarise(
+    n = dplyr::n(),
+    sliding_total = sum(sliding_w / 1e3),
+    fixed_total = sum(fixed_w / 1e3),
+    across(contains(&quot;_&quot;), median),
+    .by = detected
+  ) %&gt;% 
+  reactable(
+    searchable = FALSE, filterable = FALSE,
+    columns = list(
+      detected = colDef(&quot;Detected In&quot;),
+      n = colDef(&quot;Total Ranges&quot;),
+      sliding_total = colDef(&quot;Sliding&quot;, format = colFormat(separators = TRUE, digits = 1)),
+      fixed_total = colDef(&quot;Fixed&quot;, format = colFormat(separators = TRUE, digits = 1)),
+      sliding_w =  colDef(&quot;Sliding&quot;, format = colFormat(separators = TRUE)),
+      fixed_w = colDef(&quot;Fixed&quot;, format = colFormat(separators = TRUE)),
+      sliding_logCPM =  colDef(&quot;Sliding&quot;, format = colFormat(digits = 3)),
+      fixed_logCPM = colDef(&quot;Fixed&quot;, format = colFormat(digits = 3))      
+    ),
+    columnGroups = list(
+      colGroup(
+        name = &quot;Total Width (kb)&quot;, columns = str_subset(colnames(.), &quot;_total&quot;)
+      ),
+      colGroup(name = &quot;Median Width (bp)&quot;, columns = str_subset(colnames(.), &quot;_w&quot;)),
+      colGroup(name = &quot;Median logCPM&quot;, columns = str_subset(colnames(.), &quot;_logCPM&quot;))
+    )
+  )
+cp &lt;- tags$caption(
+  tags$em(
+    paste(
+      &quot;Characteristics of ranges included for analysis using sliding or fixed-width windows.&quot;,
+      &quot;Ranges uniquely included in only one approach tended to be narrower with lower signal intensity, &quot;,
+      &quot;comfirming that for ranges with strong signal, they are well-captured by either method.&quot;
+    )
+  )
+)
+browsable(tagList(cp, tbl))</code></pre>
+<caption>
+<em>Characteristics of ranges included for analysis using sliding or fixed-width windows. Ranges uniquely included in only one approach tended to be narrower with lower signal intensity,  comfirming that for ranges with strong signal, they are well-captured by either method.</em>
+</caption>
+<div class="reactable html-widget html-fill-item" id="htmlwidget-78972b9342552658ebee" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-78972b9342552658ebee">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"detected":["Both","Sliding Only","Fixed Only"],"n":[32229,580,7454],"sliding_total":[88735.01,1325.58,"NA"],"fixed_total":[68517.046,"NA",2990.322],"sliding_w":[2210,1550,"NA"],"fixed_w":[1644,"NA",344],"sliding_logCPM":[1.69343668973404,1.50054550851841,"NA"],"fixed_logCPM":[2.97665823328427,"NA",1.27071676570677]},"columns":[{"id":"detected","name":"Detected In","type":"character"},{"id":"n","name":"Total Ranges","type":"numeric"},{"id":"sliding_total","name":"Sliding","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"fixed_total","name":"Fixed","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"sliding_w","name":"Sliding","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"fixed_w","name":"Fixed","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"sliding_logCPM","name":"Sliding","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}},{"id":"fixed_logCPM","name":"Fixed","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}}],"columnGroups":[{"name":"Total Width (kb)","columns":["sliding_total","fixed_total"]},{"name":"Median Width (bp)","columns":["sliding_w","fixed_w"]},{"name":"Median logCPM","columns":["sliding_logCPM","fixed_logCPM"]}],"dataKey":"423a6368522a88381cae5b163709f4eb"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+<div id="range-widths" class="section level4">
+<h4>Range Widths</h4>
+<pre class="r"><code>GRangesList(
+  Sliding = ec_sw_res$`ec-sw-ls-lt` %&gt;% granges(),
+  Consensus = granges(peaks)
+) %&gt;% 
+  endoapply(mutate, w = width) %&gt;% 
+  plotPairwise(var = &quot;w&quot;) +
+  scale_fill_brewer(palette = &quot;Set1&quot;, direction = -1) +
+  labs(x = &quot;Range Widths (Sliding)&quot;) +
+  theme(
+    legend.position = &quot;none&quot;, axis.title.y = element_blank(),
+    plot.margin = unit(c(5.5, 5.5, 5.5, 20), &quot;point&quot;)
+  )
+grid::grid.text(&quot;Range Widths (Consensus Peaks)&quot;, x = 0.02, y = 0.5, rot = 90)</code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/pairwise-widths-1.png" alt="*Comparison of the widths of consensus peaks and the width of the retained ranges when using sliding windows.*" width="960" />
+<p class="caption">
+<em>Comparison of the widths of consensus peaks and the width of the
+retained ranges when using sliding windows.</em>
+</p>
+</div>
+</div>
+<div id="signal-estimates" class="section level4">
+<h4>Signal Estimates</h4>
+<pre class="r"><code>GRangesList(
+  sliding = ec_sw_res$`ec-sw-ls-lt` %&gt;% plyranges::select(logCPM),
+  fixed = ec_fw_res$`ec-fw-ls-lt` %&gt;%
+    colToRanges(&quot;peak&quot;) %&gt;% 
+    plyranges::select(logCPM)
+) %&gt;% 
+  plotPairwise(var = &quot;logCPM&quot;) +
+  scale_fill_brewer(palette = &quot;Set1&quot;, direction = -1) +
+  theme(
+    legend.position = &quot;none&quot;, axis.title.y = element_blank(),
+    plot.margin = unit(c(5.5, 5.5, 5.5, 20), &quot;point&quot;)
+  )
+grid::grid.text(&quot;fixed logCPM&quot;, x = 0.02, y = 0.5, rot = 90)</code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/pairwise-logcpm-1.png" alt="*Comparison of logCPM estimates for ranges included in the slidng-window and fixed-width analyses. Side panels show the distribution of values for the visible points as the 'Both Detected' boxes, whilst the distributions of values are additionally shown for ranges only included in one approach*" width="960" />
+<p class="caption">
+<em>Comparison of logCPM estimates for ranges included in the
+slidng-window and fixed-width analyses. Side panels show the
+distribution of values for the visible points as the ‘Both Detected’
+boxes, whilst the distributions of values are additionally shown for
+ranges only included in one approach</em>
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="method-comparison" class="section level2">
+<h2>Method Comparison</h2>
+<pre class="r"><code>all_res &lt;- c(ec_fw_res, ec_sw_res, db_fw_res)
+all_sig &lt;- lapply(all_res, subset, FDR &lt; 0.05)
+all_tbl_params &lt;- bind_rows(
+  ec_fw_tbl_params, ec_sw_tbl_params, db_fw_tbl_params
+)</code></pre>
+<pre class="r"><code>all_sig %&gt;% 
+  lapply(\(x) tibble(up = sum(x$logFC &gt; 0), down = sum(x$logFC &lt; 0))) %&gt;% 
+  bind_rows(.id = &quot;abbr&quot;) %&gt;% 
+  left_join(all_tbl_params) %&gt;% 
+  mutate(
+    pkg = ifelse(grepl(&quot;^ec&quot;, abbr), &quot;extraChIPs&quot;, &quot;DiffBind&quot;),
+    win_type = ifelse(grepl(&quot;-sw-&quot;, abbr), &quot;Sliding&quot;, &quot;Fixed&quot;)
+  ) %&gt;% 
+  arrange(up + down) %&gt;% 
+  mutate(
+    abbr = paste0(quantro_flag, abbr) %&gt;% fct_inorder(),
+    method = method %&gt;% 
+      str_replace_all(&quot;wald&quot;, &quot;Wald Test&quot;) %&gt;% 
+      str_replace_all(&quot;qlf&quot;, &quot;glmQLF Test&quot;) %&gt;% 
+      str_replace_all(&quot;lt&quot;, &quot;limma-trend&quot;)
+  ) %&gt;% 
+  ggplot(aes(y = abbr)) +
+  geom_col(aes(x = up),  fill = &quot;red4&quot;) +
+  geom_col(aes(x = -down), fill = &quot;steelblue3&quot;) +
+  geom_label(
+    aes(x = up + 5, label = comma(up)), colour = &quot;red4&quot;, 
+    data = . %&gt;% dplyr::filter(up &gt; 0),
+    size = 3.5, hjust = 0
+  ) +
+  geom_label(
+    aes(x = -down - 5, label = comma(down)), colour = &quot;steelblue3&quot;, 
+    data = . %&gt;% dplyr::filter(down &gt; 0),
+    size = 3.5, hjust = 1
+  ) +
+  facet_grid(method + pkg ~ ., scales = &quot;free_y&quot;, space = &quot;free&quot;, switch = &quot;y&quot;) +
+  ggtitle(
+    glue(&quot;Summary of Results for {params$target}&quot;),
+    glue(&quot;{params$treat} Vs. {params$ref}&quot;)
+  ) +
+  labs(x = &quot;Significant Ranges&quot;, y = &quot;Method&quot;) +
+  scale_x_continuous(expand = expansion(0.1)) +
+  scale_y_discrete(
+    labels = \(x) x %&gt;% 
+      str_remove_all(&quot;(ec|db)-&quot;) %&gt;% 
+      str_remove_all(&quot;-(ql|wt|lt)$&quot;) %&gt;% 
+      str_replace_all(&quot;sw-&quot;, &quot;Sliding: &quot;) %&gt;% 
+      str_replace_all(&quot;fw-&quot;, &quot;Fixed: &quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;) %&gt;% 
+      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) %&gt;% 
+      str_replace_all(&quot;rlg&quot;, &quot; RLE-Grouped&quot;) 
+  ) +
+  theme(
+    text = element_text(size = 12),
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
+  )</code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/plot-all-sig-1.png" alt="*Summary of ranges considered as significant in each analyis, separated by direction of change. If any concerns were raised during data checking with quantro, method names will be prefixed by a measure of significance. Any showing one or more asterisks are likely to contain large numbers of Type 1 errors.*" width="960" />
+<p class="caption">
+<em>Summary of ranges considered as significant in each analyis,
+separated by direction of change. If any concerns were raised during
+data checking with quantro, method names will be prefixed by a measure
+of significance. Any showing one or more asterisks are likely to contain
+large numbers of Type 1 errors.</em>
+</p>
+</div>
+<div id="upset-plots" class="section level3 tabset">
+<h3 class="tabset">UpSet Plots</h3>
+<div id="all-methods" class="section level4">
+<h4>All Methods</h4>
+<pre class="r"><code>all_sig %&gt;% 
+  lapply(plyranges::select, starts_with(&quot;log&quot;), PValue, FDR) %&gt;% 
+  GRangesList() %&gt;% 
+  setNames(
+    setNames(
+      paste0(all_tbl_params$quantro_flag, all_tbl_params$abbr),
+      all_tbl_params$abbr
+    )[names(.)]
+  ) %&gt;% 
+  setNames(
+    names(.) %&gt;% 
+      str_replace_all(&quot;db-fw-&quot;, &quot;DiffBind: &quot;) %&gt;% 
+      str_replace_all(&quot;ec-fw-&quot;, &quot;extraChIPs-Fixed: &quot;) %&gt;% 
+      str_replace_all(&quot;ec-sw-&quot;, &quot;extraChIPs-Sliding: &quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;) %&gt;% 
+      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) %&gt;% 
+      str_replace_all(&quot;rlg&quot;, &quot;RLE-Grouped&quot;) %&gt;% 
+      str_replace_all(&quot;-wt&quot;, &quot; + WaldTest&quot;) %&gt;% 
+      str_replace_all(&quot;-lt&quot;, &quot; + Limma&quot;) %&gt;% 
+      str_replace_all(&quot;-ql&quot;, &quot; + glmQLF&quot;) 
+  ) %&gt;% 
+  plotOverlaps(
+    var = &quot;logCPM&quot;, f = &quot;median&quot;, height_ratio = 1.5,
+    min_size = 10,
+    n_intersections = 12, 
+    set_col = case_when(
+      grepl(sprintf(&quot;^\u02D9&quot;), names(.)) ~ &quot;darkorange3&quot;,
+      grepl(&quot;^\\*{1}&quot;, names(.)) ~ &quot;red4&quot;,
+      grepl(&quot;^\\*{2}&quot;, names(.)) ~ &quot;red&quot;,
+      TRUE ~ &quot;grey40&quot;
+    )
+  ) </code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/upset-all-1.png" alt="*Comparison of results from all methods under investigation. The median logCPM values for each range are shown as a boxplot in the upper panel. Any sets from comparisons flagged as potentially problematic by quantro are coloured orange for caution, dark red for inappropriate and bright red for highly problematic. All remaining sets are shown in dark grey.*" width="960" />
+<p class="caption">
+<em>Comparison of results from all methods under investigation. The
+median logCPM values for each range are shown as a boxplot in the upper
+panel. Any sets from comparisons flagged as potentially problematic by
+quantro are coloured orange for caution, dark red for inappropriate and
+bright red for highly problematic. All remaining sets are shown in dark
+grey.</em>
+</p>
+</div>
+</div>
+<div id="limma-trend-methods" class="section level4">
+<h4>Limma-Trend Methods</h4>
+<pre class="r"><code>all_sig %&gt;% 
+  lapply(plyranges::select, starts_with(&quot;log&quot;), PValue, FDR) %&gt;% 
+  GRangesList() %&gt;% 
+  .[str_detect(names(.), &quot;lt&quot;)] %&gt;% 
+  setNames(
+    names(.) %&gt;% 
+      str_extract(&quot;[fs]w-[lsreq]+&quot;) %&gt;% 
+      str_replace_all(&quot;fw-&quot;, &quot;Fixed + &quot;) %&gt;% 
+      str_replace_all(&quot;sw-&quot;, &quot;Sliding + &quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) %&gt;% 
+      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;)  
+  ) %&gt;% 
+  plotOverlaps(
+    min_size = 5, var = &quot;logCPM&quot;, f = &quot;median&quot;, height_ratio = 1.2,
+    n_intersections = 12
+  ) +
+  plot_annotation(title = &quot;Limma-Trend Methods&quot;) &amp;
+  theme(plot.title = element_text(hjust = 0.7))</code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/upset-lt-1.png" alt="*Comparison of results from all methods using limma-trend, with extraChIPs being the only possibility for these approaches. The median logCPM values for each range is shown as a boxplot in the upper panel*" width="960" />
+<p class="caption">
+<em>Comparison of results from all methods using limma-trend, with
+extraChIPs being the only possibility for these approaches. The median
+logCPM values for each range is shown as a boxplot in the upper
+panel</em>
+</p>
+</div>
+</div>
+<div id="wald-test-methods" class="section level4">
+<h4>Wald Test Methods</h4>
+<pre class="r"><code>all_sig %&gt;% 
+  lapply(plyranges::select, starts_with(&quot;log&quot;), PValue, FDR) %&gt;% 
+  GRangesList() %&gt;% 
+  .[str_detect(names(.), &quot;wt$&quot;)] %&gt;% 
+  setNames(
+    str_remove_all(names(.), &quot;-wt$&quot;) %&gt;% 
+      str_replace_all(&quot;db-fw-&quot;, &quot;DiffBind: &quot;) %&gt;% 
+      str_replace_all(&quot;ec-fw-&quot;, &quot;extraChIPs-Fixed: &quot;) %&gt;% 
+      str_replace_all(&quot;ec-sw-&quot;, &quot;extraChIPs-Sliding: &quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;) 
+  ) %&gt;%
+  plotOverlaps(
+    min_size = 5, var = &quot;logCPM&quot;, f = &quot;median&quot;, height_ratio = 1.2,
+    n_intersections = 12
+  ) +
+  plot_annotation(title = &quot;Wald Test Methods&quot;) &amp;
+  theme(plot.title = element_text(hjust = 0.7))</code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/upset-wt-1.png" alt="*Comparison of results from all methods using a Wald Test for significance. DiffBind methods use fixed-width windows only, with extraChIPs methods using both sliding and fixed-width windows. The median logCPM values for each range is shown as a boxplot in the upper panel*" width="960" />
+<p class="caption">
+<em>Comparison of results from all methods using a Wald Test for
+significance. DiffBind methods use fixed-width windows only, with
+extraChIPs methods using both sliding and fixed-width windows. The
+median logCPM values for each range is shown as a boxplot in the upper
+panel</em>
+</p>
+</div>
+</div>
+<div id="glmqlf-methods" class="section level4">
+<h4>glmQLF Methods</h4>
+<pre class="r"><code>all_sig %&gt;% 
+  lapply(plyranges::select, starts_with(&quot;log&quot;), PValue, FDR) %&gt;% 
+  GRangesList() %&gt;% 
+  .[str_detect(names(.), &quot;ql&quot;)] %&gt;% 
+  setNames(
+    str_remove_all(names(.), &quot;-ql$&quot;) %&gt;% 
+      str_remove(&quot;^ec-&quot;) %&gt;% 
+      str_replace_all(&quot;sw-&quot;, &quot;Sliding: &quot;) %&gt;% 
+      str_replace_all(&quot;fw-&quot;, &quot;Fixed: &quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;rlg&quot;, &quot;RLE-Grouped&quot;) %&gt;% 
+      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;)  
+  ) %&gt;%
+  plotOverlaps(
+    min_size = 5, var = &quot;logCPM&quot;, f = &quot;median&quot;, height_ratio = 1.2,
+    n_intersections = 12
+  ) +
+  plot_annotation(title = &quot;glmQLF Methods&quot;) &amp;
+  theme(plot.title = element_text(hjust = 0.7))</code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/upset-qlf-1.png" alt="*Comparison of results from all glmQLF methods, with all methods implemented in extraChIPs. The median logCPM values for each range is shown as a boxplot in the upper panel*" width="960" />
+<p class="caption">
+<em>Comparison of results from all glmQLF methods, with all methods
+implemented in extraChIPs. The median logCPM values for each range is
+shown as a boxplot in the upper panel</em>
+</p>
+</div>
+</div>
+</div>
+<div id="pairwise-comparison-of-approaches" class="section level3">
+<h3>Pairwise Comparison of Approaches</h3>
+<div id="pairwise-matrix" class="section level4">
+<h4>Pairwise Matrix</h4>
+<pre class="r"><code>df &lt;- names(all_sig) %&gt;% 
+  mclapply(
+    \(x) {
+      alt &lt;- all_sig[!names(all_sig) %in% x] %&gt;% lapply(granges) %&gt;% GRangesList()
+      gr &lt;- all_sig[[x]]
+      ol &lt;- lapply(all_sig, overlapsAny, gr) %&gt;% lapply(mean)
+      tibble(
+        abbr = x,
+        n_sig = length(gr),
+        n_unique = sum(!overlapsAny(all_sig[[x]], alt))
+      ) %&gt;% 
+        bind_cols(as_tibble(ol))
+    }, mc.cores = cores
+  ) %&gt;% 
+  bind_rows()
+df %&gt;% 
+  rename_with(
+    \(x) x %&gt;% 
+      str_replace_all(&quot;fw&quot;, &quot;Fixed&quot;) %&gt;% 
+      str_replace_all(&quot;sw&quot;, &quot;Sliding&quot;) %&gt;% 
+      str_remove_all(&quot;-ls&quot;) %&gt;% 
+      str_replace_all(&quot;lt$&quot;, &quot;limma&quot;) %&gt;% 
+      str_replace_all(&quot;wt$&quot;, &quot;Wald&quot;) %&gt;% 
+      str_replace_all(&quot;ql$&quot;, &quot;QLF&quot;) %&gt;% 
+      str_remove_all(&quot;^ec-&quot;) %&gt;% 
+      str_replace_all(&quot;^db-Fixed&quot;, &quot;DiffBind&quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;rlg&quot;, &quot;RLE-Grouped&quot;) %&gt;% 
+      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) 
+  ) %&gt;% 
+  mutate(
+    abbr = abbr %&gt;% 
+      str_replace_all(&quot;fw&quot;, &quot;Fixed&quot;) %&gt;% 
+      str_replace_all(&quot;sw&quot;, &quot;Sliding&quot;) %&gt;% 
+      str_remove_all(&quot;-ls&quot;) %&gt;% 
+      str_replace_all(&quot;lt$&quot;, &quot;limma&quot;) %&gt;% 
+      str_replace_all(&quot;wt$&quot;, &quot;Wald&quot;) %&gt;% 
+      str_replace_all(&quot;ql$&quot;, &quot;QLF&quot;) %&gt;% 
+      str_remove_all(&quot;^ec-&quot;) %&gt;% 
+      str_replace_all(&quot;^db-Fixed&quot;, &quot;DiffBind&quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;rlg&quot;, &quot;RLE-Grouped&quot;) %&gt;% 
+      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) 
+  ) %&gt;% 
+  dplyr::select(abbr, contains(&quot;-&quot;)) %&gt;% 
+  as.data.frame() %&gt;% 
+  column_to_rownames(&quot;abbr&quot;) %&gt;% 
+  as.matrix() %&gt;%
+  corrplot(
+    addCoef.col = &quot;grey30&quot;, addCoefasPercent = TRUE, number.cex = 0.9,
+    order = &quot;hclust&quot;, hclust.method = &quot;complete&quot;,
+    is.corr = FALSE,
+    col = hcl.colors(200, &quot;mako&quot;), method = &quot;shade&quot;, col.lim = c(0, 1)#, diag = FALSE
+  )</code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/corrplot-1.png" alt="*Matrix summarising similarities between methods, with rows denoting the method under consideration and columns describing the percentage of shared sites considered as significant in both methods. All DiffBind analyses use fixed-width windows, whilst extraChIPs offers a choice between sliding and fixed-width windows*" width="960" />
+<p class="caption">
+<em>Matrix summarising similarities between methods, with rows denoting
+the method under consideration and columns describing the percentage of
+shared sites considered as significant in both methods. All DiffBind
+analyses use fixed-width windows, whilst extraChIPs offers a choice
+between sliding and fixed-width windows</em>
+</p>
+</div>
+</div>
+</div>
+<div id="pairwise-table" class="section level3">
+<h3>Pairwise Table</h3>
+<caption>
+<em>Summary of ranges considered significant under each method and compared to all other methods. Library-Size normalisation is referred to as 'none' and is the default method used when no normalisation is explicilty listed. Any methods where RLE has been flagged using quantro will have a suitable symbol prefacing RLE,  with a dot indicating caution and any asterisk indicating an inappropriate method.</em>
+</caption>
+<div class="reactable html-widget html-fill-item" id="tbl-all-comps" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="tbl-all-comps">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"pkg":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","DiffBind"],"windows":["Fixed","Fixed","Fixed","Fixed","Fixed","Fixed","Fixed","Sliding","Sliding","Sliding","Sliding","Sliding","Sliding","Sliding","Fixed","Fixed"],"norm":["none","none","none","˙RLE","˙RLE","˙RLE","RLE<br>(Grouped)","none","none","none","RLE","RLE","RLE","SQN","none","˙RLE"],"method":["limma-trend","glmQLF","Wald Test","limma-trend","glmQLF","Wald Test","glmQLF","limma-trend","glmQLF","Wald Test","limma-trend","glmQLF","Wald Test","limma-trend","Wald Test","Wald Test"],"n_sig":[2863,2967,1338,2887,2961,1517,3020,1297,1417,440,1320,1472,506,1328,1323,1325],"n_unique":[4,7,0,11,23,0,38,0,18,0,1,31,0,7,2,0],"DiffBind<br>":[0.993197278911565,0.99395313681028,0.813303099017385,0.993197278911565,0.993197278911565,0.848072562358277,0.993197278911565,0.630385487528345,0.656084656084656,0.308390022675737,0.63718820861678,0.656840513983371,0.347694633408919,0.637944066515495,1,0.949357520786092],"DiffBind<br>RLE ":[0.993962264150943,0.994716981132076,0.831698113207547,0.995471698113208,0.995471698113208,0.884528301886792,0.993207547169811,0.633962264150943,0.655094339622642,0.311698113207547,0.647547169811321,0.670188679245283,0.351698113207547,0.64377358490566,0.947924528301887,1],"Fixed<br>limma-trend":[1,0.991966468739085,0.477471184072651,0.957736639888229,0.96018162766329,0.540691582256374,0.98812434509256,0.413901501921062,0.442892071253929,0.166957736639888,0.416346489696123,0.448480614739783,0.18966119455117,0.418791477471184,0.516590988473629,0.519734544184422],"Fixed<br>glmQLF":[0.957532861476239,1,0.460734748904617,0.935962251432423,0.949106841927873,0.521739130434783,0.987192450286485,0.405123019885406,0.434782608695652,0.161105493764746,0.406808223795079,0.439838220424671,0.18335018537243,0.409841590832491,0.499494438827098,0.502190765082575],"Fixed<br>Wald":[1,1,1,1,1,0.999252615844544,1,0.588938714499253,0.603139013452915,0.342301943198804,0.60762331838565,0.621076233183857,0.384902840059791,0.598654708520179,0.900597907324365,0.920029895366218],"Fixed<br>RLE limma-trend":[0.951160374090752,0.962590924835469,0.474194665742986,1,0.98753030827849,0.537235885001732,0.963630065812262,0.413578108763422,0.441288534811223,0.166262556286803,0.420505715275372,0.452372705230343,0.189470038101836,0.420159334949775,0.512989262209906,0.517145826117077],"Fixed<br>RLE glmQLF":[0.931104356636272,0.95339412360689,0.462343802769335,0.964539007092199,1,0.523809523809524,0.959473150962513,0.405943937858831,0.43532590341101,0.162107396149949,0.412022965214455,0.446470786896319,0.184734886862546,0.412022965214455,0.500506585612969,0.504221546774738],"Fixed<br>RLE Wald":[1,1,0.887277521423863,1,1,1,0.998022412656559,0.570204350692156,0.588661832564272,0.308503625576796,0.600527356624918,0.618325642715887,0.347396176664469,0.586684245220831,0.827949901120633,0.862887277521424],"Fixed<br>RLE-Grouped glmQLF":[0.939072847682119,0.971854304635762,0.452980132450331,0.922516556291391,0.940397350993378,0.511920529801325,1,0.397019867549669,0.426490066225166,0.158278145695364,0.398013245033113,0.43112582781457,0.179801324503311,0.400993377483444,0.491059602649007,0.493377483443709],"Sliding<br>limma-trend":[0.838087895142637,0.851195065535852,0.560524286815729,0.843484965304549,0.848111025443331,0.61449498843485,0.8473400154202,1,0.988434849653046,0.339244410177332,0.931380107941403,0.966075558982267,0.390131071703932,0.959907478797224,0.64148033924441,0.646106399383192],"Sliding<br>glmQLF":[0.821453775582216,0.836979534227241,0.527170077628793,0.824982357092449,0.834156669019054,0.582921665490473,0.834156669019054,0.904728299223712,1,0.310515172900494,0.878616796047989,0.935074100211715,0.357092448835568,0.896259703599153,0.611856033874382,0.611856033874382],"Sliding<br>Wald":[0.965909090909091,0.968181818181818,0.936363636363636,0.970454545454545,0.970454545454545,0.95,0.965909090909091,1,1,1,1,1,0.997727272727273,1,0.920454545454545,0.931818181818182],"Sliding<br>RLE limma-trend":[0.827272727272727,0.838636363636364,0.570454545454545,0.842424242424242,0.845454545454545,0.639393939393939,0.833333333333333,0.915151515151515,0.943181818181818,0.333333333333333,1,0.99469696969697,0.383333333333333,0.953787878787879,0.637878787878788,0.649242424242424],"Sliding<br>RLE glmQLF":[0.802309782608696,0.817255434782609,0.52445652173913,0.816576086956522,0.826086956521739,0.592391304347826,0.813179347826087,0.851222826086957,0.900135869565217,0.298913043478261,0.891983695652174,1,0.34375,0.876358695652174,0.591032608695652,0.603940217391304],"Sliding<br>RLE Wald":[0.960474308300395,0.964426877470356,0.920948616600791,0.968379446640316,0.968379446640316,0.936758893280632,0.960474308300395,1,1,0.867588932806324,1,1,1,1,0.901185770750988,0.91304347826087],"Sliding<br>SQN limma-trend":[0.82605421686747,0.838855421686747,0.557228915662651,0.835843373493976,0.83960843373494,0.618975903614458,0.833584337349398,0.9375,0.956325301204819,0.331325301204819,0.948042168674699,0.971385542168675,0.381024096385542,1,0.634036144578313,0.640813253012048]},"columns":[{"id":"pkg","name":"R Package","type":"character","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":100,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}],"minWidth":80},{"id":"windows","name":"Window Type","type":"character","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":75,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}],"minWidth":75},{"id":"norm","name":"Norm","type":"character","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":70,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}]},{"id":"method","name":"Method","type":"character","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":100,"style":{"borderRight":"1px solid rgba(0, 0, 0, 0.1)"},"minWidth":80},{"id":"n_sig","name":"Sig","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"html":true,"maxWidth":55,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}]},{"id":"n_unique","name":"Unique","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"html":true,"maxWidth":65,"style":{"borderRight":"1px solid rgba(0, 0, 0, 0.1)"}},{"id":"DiffBind<br>","name":"DiffBind<br>","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991ACF","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AD8","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AA1","fontSize":12},{"backgroundColor":"#00991AA7","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991AA7","fontSize":12},{"backgroundColor":"#00991A59","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12}]},{"id":"DiffBind<br>RLE ","name":"DiffBind<br>RLE ","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AD4","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AE2","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991AA7","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991AA5","fontSize":12},{"backgroundColor":"#00991AAB","fontSize":12},{"backgroundColor":"#00991A5A","fontSize":12},{"backgroundColor":"#00991AA4","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12}]},{"id":"Fixed<br>limma-trend","name":"Fixed<br>limma-trend","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991A7A","fontSize":12},{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991A8A","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A6A","fontSize":12},{"backgroundColor":"#00991A71","fontSize":12},{"backgroundColor":"#00991A2B","fontSize":12},{"backgroundColor":"#00991A6A","fontSize":12},{"backgroundColor":"#00991A72","fontSize":12},{"backgroundColor":"#00991A30","fontSize":12},{"backgroundColor":"#00991A6B","fontSize":12},{"backgroundColor":"#00991A84","fontSize":12},{"backgroundColor":"#00991A85","fontSize":12}]},{"id":"Fixed<br>glmQLF","name":"Fixed<br>glmQLF","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A75","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12},{"backgroundColor":"#00991A85","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A67","fontSize":12},{"backgroundColor":"#00991A6F","fontSize":12},{"backgroundColor":"#00991A29","fontSize":12},{"backgroundColor":"#00991A68","fontSize":12},{"backgroundColor":"#00991A70","fontSize":12},{"backgroundColor":"#00991A2F","fontSize":12},{"backgroundColor":"#00991A69","fontSize":12},{"backgroundColor":"#00991A7F","fontSize":12},{"backgroundColor":"#00991A80","fontSize":12}]},{"id":"Fixed<br>Wald","name":"Fixed<br>Wald","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A96","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12},{"backgroundColor":"#00991A57","fontSize":12},{"backgroundColor":"#00991A9B","fontSize":12},{"backgroundColor":"#00991A9E","fontSize":12},{"backgroundColor":"#00991A62","fontSize":12},{"backgroundColor":"#00991A99","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12}]},{"id":"Fixed<br>RLE limma-trend","name":"Fixed<br>RLE limma-trend","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991A79","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A89","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991A69","fontSize":12},{"backgroundColor":"#00991A71","fontSize":12},{"backgroundColor":"#00991A2A","fontSize":12},{"backgroundColor":"#00991A6B","fontSize":12},{"backgroundColor":"#00991A73","fontSize":12},{"backgroundColor":"#00991A30","fontSize":12},{"backgroundColor":"#00991A6B","fontSize":12},{"backgroundColor":"#00991A83","fontSize":12},{"backgroundColor":"#00991A84","fontSize":12}]},{"id":"Fixed<br>RLE glmQLF","name":"Fixed<br>RLE glmQLF","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AED","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991A76","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A86","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991A68","fontSize":12},{"backgroundColor":"#00991A6F","fontSize":12},{"backgroundColor":"#00991A29","fontSize":12},{"backgroundColor":"#00991A69","fontSize":12},{"backgroundColor":"#00991A72","fontSize":12},{"backgroundColor":"#00991A2F","fontSize":12},{"backgroundColor":"#00991A69","fontSize":12},{"backgroundColor":"#00991A80","fontSize":12},{"backgroundColor":"#00991A81","fontSize":12}]},{"id":"Fixed<br>RLE Wald","name":"Fixed<br>RLE Wald","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AE2","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991A91","fontSize":12},{"backgroundColor":"#00991A96","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991A99","fontSize":12},{"backgroundColor":"#00991A9E","fontSize":12},{"backgroundColor":"#00991A59","fontSize":12},{"backgroundColor":"#00991A96","fontSize":12},{"backgroundColor":"#00991AD3","fontSize":12},{"backgroundColor":"#00991ADC","fontSize":12}]},{"id":"Fixed<br>RLE-Grouped glmQLF","name":"Fixed<br>RLE-Grouped glmQLF","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991A74","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991AF0","fontSize":12},{"backgroundColor":"#00991A83","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A65","fontSize":12},{"backgroundColor":"#00991A6D","fontSize":12},{"backgroundColor":"#00991A28","fontSize":12},{"backgroundColor":"#00991A65","fontSize":12},{"backgroundColor":"#00991A6E","fontSize":12},{"backgroundColor":"#00991A2E","fontSize":12},{"backgroundColor":"#00991A66","fontSize":12},{"backgroundColor":"#00991A7D","fontSize":12},{"backgroundColor":"#00991A7E","fontSize":12}]},{"id":"Sliding<br>limma-trend","name":"Sliding<br>limma-trend","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AD6","fontSize":12},{"backgroundColor":"#00991AD9","fontSize":12},{"backgroundColor":"#00991A8F","fontSize":12},{"backgroundColor":"#00991AD7","fontSize":12},{"backgroundColor":"#00991AD8","fontSize":12},{"backgroundColor":"#00991A9D","fontSize":12},{"backgroundColor":"#00991AD8","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A57","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991A63","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991AA4","fontSize":12},{"backgroundColor":"#00991AA5","fontSize":12}]},{"id":"Sliding<br>glmQLF","name":"Sliding<br>glmQLF","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AD1","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991A86","fontSize":12},{"backgroundColor":"#00991AD2","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991A95","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991AE7","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991AE0","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12},{"backgroundColor":"#00991A5B","fontSize":12},{"backgroundColor":"#00991AE5","fontSize":12},{"backgroundColor":"#00991A9C","fontSize":12},{"backgroundColor":"#00991A9C","fontSize":12}]},{"id":"Sliding<br>Wald","name":"Sliding<br>Wald","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12}]},{"id":"Sliding<br>RLE limma-trend","name":"Sliding<br>RLE limma-trend","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AD3","fontSize":12},{"backgroundColor":"#00991AD6","fontSize":12},{"backgroundColor":"#00991A91","fontSize":12},{"backgroundColor":"#00991AD7","fontSize":12},{"backgroundColor":"#00991AD8","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12},{"backgroundColor":"#00991AF1","fontSize":12},{"backgroundColor":"#00991A55","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991A62","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AA6","fontSize":12}]},{"id":"Sliding<br>RLE glmQLF","name":"Sliding<br>RLE glmQLF","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991ACD","fontSize":12},{"backgroundColor":"#00991AD0","fontSize":12},{"backgroundColor":"#00991A86","fontSize":12},{"backgroundColor":"#00991AD0","fontSize":12},{"backgroundColor":"#00991AD3","fontSize":12},{"backgroundColor":"#00991A97","fontSize":12},{"backgroundColor":"#00991ACF","fontSize":12},{"backgroundColor":"#00991AD9","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12},{"backgroundColor":"#00991A4C","fontSize":12},{"backgroundColor":"#00991AE3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A58","fontSize":12},{"backgroundColor":"#00991ADF","fontSize":12},{"backgroundColor":"#00991A97","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12}]},{"id":"Sliding<br>RLE Wald","name":"Sliding<br>RLE Wald","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991ADD","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12}]},{"id":"Sliding<br>SQN limma-trend","name":"Sliding<br>SQN limma-trend","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AD3","fontSize":12},{"backgroundColor":"#00991AD6","fontSize":12},{"backgroundColor":"#00991A8E","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991AD6","fontSize":12},{"backgroundColor":"#00991A9E","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991A54","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991A61","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12}]}],"columnGroups":[{"name":"DiffBind (Wald Test)","columns":["DiffBind<br>","DiffBind<br>RLE "]},{"name":"extraChIPs Fixed","columns":["Fixed<br>limma-trend","Fixed<br>glmQLF","Fixed<br>Wald","Fixed<br>RLE limma-trend","Fixed<br>RLE glmQLF","Fixed<br>RLE Wald","Fixed<br>RLE-Grouped glmQLF"]},{"name":"extraChIPs Sliding","columns":["Sliding<br>limma-trend","Sliding<br>glmQLF","Sliding<br>Wald","Sliding<br>RLE limma-trend","Sliding<br>RLE glmQLF","Sliding<br>RLE Wald","Sliding<br>SQN limma-trend"]}],"filterable":true,"pagination":false,"highlight":true,"theme":{"style":{"fontSize":12}},"elementId":"tbl-all-comps","dataKey":"5f7f6ff5a38182e18e38b47aa59029b8"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.filterMethod","tag.attribs.columns.1.filterMethod","tag.attribs.columns.2.filterMethod","tag.attribs.columns.3.filterMethod","tag.attribs.columns.4.filterMethod","tag.attribs.columns.5.filterMethod","tag.attribs.columns.6.filterMethod","tag.attribs.columns.7.filterMethod","tag.attribs.columns.8.filterMethod","tag.attribs.columns.9.filterMethod","tag.attribs.columns.10.filterMethod","tag.attribs.columns.11.filterMethod","tag.attribs.columns.12.filterMethod","tag.attribs.columns.13.filterMethod","tag.attribs.columns.14.filterMethod","tag.attribs.columns.15.filterMethod","tag.attribs.columns.16.filterMethod","tag.attribs.columns.17.filterMethod","tag.attribs.columns.18.filterMethod","tag.attribs.columns.19.filterMethod","tag.attribs.columns.20.filterMethod","tag.attribs.columns.21.filterMethod"],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="range-based-h0" class="section level2">
+<h2>Range Based H<sub>0</sub></h2>
+<pre class="r"><code>ec_fw_treat &lt;- ec_fw_params %&gt;% 
+  lapply(
+    \(x) {
+      x$x &lt;- se
+      x$fc &lt;- 1.2
+      x$null &lt;- &quot;worst.case&quot;
+      do.call(&quot;fitAssayDiff&quot;, x)
+    }
+  )
+ec_sw_treat &lt;- ec_sw_params %&gt;% 
+  lapply(
+    \(x) {
+      x$x &lt;- se_sliding
+      x$fc &lt;- 1.2
+      x$null &lt;- &quot;worst.case&quot;
+      fits &lt;- do.call(&quot;fitAssayDiff&quot;, x)
+      merged &lt;- mergeByHMP(fits, hm_pre = &quot;&quot;)
+      plyranges::select(
+        merged, keyval_range, logCPM, logFC, PValue, FDR = PValue_fdr
+      )
+    }
+  )</code></pre>
+<pre class="r"><code>db_ls_treat &lt;-  dba_ls %&gt;% 
+  dba.report(method = DBA_DESEQ2, th = 1, fold = log2(1.2)) %&gt;% 
+  sortSeqlevels() %&gt;% 
+  sort() %&gt;% 
+  select(logCPM = Conc, logFC = Fold, PValue = `p-value`, FDR) 
+seqinfo(db_ls_treat) &lt;- sq
+db_rle_treat &lt;-  dba_rle %&gt;% 
+  dba.report(method = DBA_DESEQ2, th = 1, fold = log2(1.2)) %&gt;% 
+  sortSeqlevels() %&gt;% 
+  sort() %&gt;% 
+  select(logCPM = Conc, logFC = Fold, PValue = `p-value`, FDR) 
+seqinfo(db_rle_treat) &lt;- sq
+db_fw_treat &lt;- list(
+  &quot;db-fw-ls-wt&quot; = db_ls_treat,
+  &quot;db-fw-rle-wt&quot; = db_rle_treat
+)</code></pre>
+<pre class="r"><code>all_treat &lt;- c(ec_fw_treat, ec_sw_treat, db_fw_treat)
+all_treat_sig &lt;- lapply(all_treat, subset, FDR &lt; 0.05)</code></pre>
+<p>Data was re-analysed using a range-based H<sub>0</sub>, setting
+fold-change beyond 20% as being of interest. Whilst no change in the
+actual dataset was noted for methods fit using <code>extraChIPs</code>,
+the set of ranges returned by <code>DiffBind</code> was markedly smaller
+in each case, with &gt; 90% of ranges excluded from the dataset.</p>
+<pre class="r"><code>tibble(
+  abbr = names(all_res),
+  orig_size = map_int(all_res, length)[abbr],
+  alt_size = map_int(all_treat, length)[abbr]
+) %&gt;% 
+  left_join(all_tbl_params) %&gt;% 
+  mutate(
+    Package = ifelse(grepl(&quot;ec-&quot;, abbr), &quot;extraChIPs&quot;, &quot;DiffBind&quot;)
+  ) %&gt;% 
+  dplyr::select(abbr, Package, norm, method, ends_with(&quot;size&quot;)) %&gt;% 
+  mutate(  
+    diff = alt_size - orig_size,
+    loss = percent(diff / orig_size),
+    norm = case_when(
+      grepl(&quot;rlg&quot;, abbr) ~ &quot;RLE-Grouped&quot;,
+      grepl(&quot;sq&quot;, abbr) ~ &quot;SQN&quot;,
+      TRUE ~ norm
+    )
+  ) %&gt;% 
+  pander(
+    justify = &quot;llllrrrr&quot;,
+    split.table = Inf, big.mark = &quot;,&quot;,
+    caption = &quot;Changes in the number of peaks/ranges returned by the packages when switching to a range-based H~0~&quot;
+  )</code></pre>
+<table>
+<caption>Changes in the number of peaks/ranges returned by the packages
+when switching to a range-based H<sub>0</sub></caption>
+<colgroup>
+<col width="15%" />
+<col width="13%" />
+<col width="14%" />
+<col width="9%" />
+<col width="12%" />
+<col width="11%" />
+<col width="10%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">abbr</th>
+<th align="left">Package</th>
+<th align="left">norm</th>
+<th align="left">method</th>
+<th align="right">orig_size</th>
+<th align="right">alt_size</th>
+<th align="right">diff</th>
+<th align="right">loss</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">ec-fw-ls-lt</td>
+<td align="left">extraChIPs</td>
+<td align="left">none</td>
+<td align="left">lt</td>
+<td align="right">39,583</td>
+<td align="right">39,583</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="even">
+<td align="left">ec-fw-ls-ql</td>
+<td align="left">extraChIPs</td>
+<td align="left">none</td>
+<td align="left">qlf</td>
+<td align="right">39,583</td>
+<td align="right">39,583</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="odd">
+<td align="left">ec-fw-ls-wt</td>
+<td align="left">extraChIPs</td>
+<td align="left">none</td>
+<td align="left">wald</td>
+<td align="right">39,583</td>
+<td align="right">39,583</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="even">
+<td align="left">ec-fw-rle-lt</td>
+<td align="left">extraChIPs</td>
+<td align="left">RLE</td>
+<td align="left">lt</td>
+<td align="right">39,583</td>
+<td align="right">39,583</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="odd">
+<td align="left">ec-fw-rle-ql</td>
+<td align="left">extraChIPs</td>
+<td align="left">RLE</td>
+<td align="left">qlf</td>
+<td align="right">39,583</td>
+<td align="right">39,583</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="even">
+<td align="left">ec-fw-rle-wt</td>
+<td align="left">extraChIPs</td>
+<td align="left">RLE</td>
+<td align="left">wald</td>
+<td align="right">39,583</td>
+<td align="right">39,583</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="odd">
+<td align="left">ec-fw-rlg-ql</td>
+<td align="left">extraChIPs</td>
+<td align="left">RLE-Grouped</td>
+<td align="left">qlf</td>
+<td align="right">39,583</td>
+<td align="right">39,583</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="even">
+<td align="left">ec-sw-ls-lt</td>
+<td align="left">extraChIPs</td>
+<td align="left">none</td>
+<td align="left">lt</td>
+<td align="right">31,460</td>
+<td align="right">31,460</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="odd">
+<td align="left">ec-sw-ls-ql</td>
+<td align="left">extraChIPs</td>
+<td align="left">none</td>
+<td align="left">qlf</td>
+<td align="right">31,460</td>
+<td align="right">31,460</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="even">
+<td align="left">ec-sw-ls-wt</td>
+<td align="left">extraChIPs</td>
+<td align="left">none</td>
+<td align="left">wald</td>
+<td align="right">31,460</td>
+<td align="right">31,460</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="odd">
+<td align="left">ec-sw-rle-lt</td>
+<td align="left">extraChIPs</td>
+<td align="left">RLE</td>
+<td align="left">lt</td>
+<td align="right">31,460</td>
+<td align="right">31,460</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="even">
+<td align="left">ec-sw-rle-ql</td>
+<td align="left">extraChIPs</td>
+<td align="left">RLE</td>
+<td align="left">qlf</td>
+<td align="right">31,460</td>
+<td align="right">31,460</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="odd">
+<td align="left">ec-sw-rle-wt</td>
+<td align="left">extraChIPs</td>
+<td align="left">RLE</td>
+<td align="left">wald</td>
+<td align="right">31,460</td>
+<td align="right">31,460</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="even">
+<td align="left">ec-sw-sq-lt</td>
+<td align="left">extraChIPs</td>
+<td align="left">SQN</td>
+<td align="left">lt</td>
+<td align="right">31,460</td>
+<td align="right">31,460</td>
+<td align="right">0</td>
+<td align="right">0.000%</td>
+</tr>
+<tr class="odd">
+<td align="left">db-fw-ls-wt</td>
+<td align="left">DiffBind</td>
+<td align="left">none</td>
+<td align="left">wald</td>
+<td align="right">35,515</td>
+<td align="right">1,437</td>
+<td align="right">-34,078</td>
+<td align="right">-95.954%</td>
+</tr>
+<tr class="even">
+<td align="left">db-fw-rle-wt</td>
+<td align="left">DiffBind</td>
+<td align="left">RLE</td>
+<td align="left">wald</td>
+<td align="right">35,515</td>
+<td align="right">1,459</td>
+<td align="right">-34,056</td>
+<td align="right">-95.892%</td>
+</tr>
+</tbody>
+</table>
+<div id="sumary-of-results" class="section level3">
+<h3>Sumary of Results</h3>
+<pre class="r"><code>all_treat_sig %&gt;% 
+  lapply(\(x) tibble(up = sum(x$logFC &gt; 0), down = sum(x$logFC &lt; 0))) %&gt;% 
+  bind_rows(.id = &quot;abbr&quot;) %&gt;% 
+  left_join(all_tbl_params) %&gt;% 
+  mutate(
+    pkg = ifelse(grepl(&quot;^ec&quot;, abbr), &quot;extraChIPs&quot;, &quot;DiffBind&quot;),
+    win_type = ifelse(grepl(&quot;-sw-&quot;, abbr), &quot;Sliding&quot;, &quot;Fixed&quot;)
+  ) %&gt;% 
+  arrange(up + down) %&gt;% 
+  mutate(
+    method = method %&gt;% 
+      str_replace_all(&quot;wald&quot;, &quot;Wald Test&quot;) %&gt;% 
+      str_replace_all(&quot;qlf&quot;, &quot;glmQLF Test&quot;) %&gt;% 
+      str_replace_all(&quot;lt&quot;, &quot;limma-trend&quot;),
+    up_all = map_int(all_sig, \(x) sum(x$logFC &gt; 0))[abbr],
+    down_all = map_int(all_sig, \(x) sum(x$logFC &lt; 0))[abbr],
+    abbr = paste0(quantro_flag, abbr) %&gt;% fct_inorder(),
+  ) %&gt;% 
+  ggplot(aes(y = abbr)) +
+  geom_col(aes(x = up_all),  fill = &quot;red4&quot;, alpha = 0.4) +
+  geom_col(aes(x = up),  fill = &quot;red4&quot;) +
+  geom_col(aes(x = -down_all), fill = &quot;steelblue3&quot;, alpha = 0.4) +
+  geom_col(aes(x = -down), fill = &quot;steelblue3&quot;) +
+  geom_label(
+    aes(x = up + 5, label = comma(up)), colour = &quot;red4&quot;, 
+    data = . %&gt;% dplyr::filter(up &gt; 0),
+    size = 3.5, hjust = 1
+  ) +
+  geom_label(
+    aes(x = -down - 5, label = comma(down)), colour = &quot;steelblue3&quot;, 
+    data = . %&gt;% dplyr::filter(down &gt; 0),
+    size = 3.5, hjust = 0
+  ) +
+  geom_label(
+    aes(x = up_all + 5, label = comma(up_all)), 
+    colour = do.call(
+      &quot;rgb&quot;, as.list(col2rgb(&quot;red4&quot;)[,1]/255) %&gt;% c(list(alpha = 0.4))
+    ),
+    data = . %&gt;% dplyr::filter(up_all &gt; 0), alpha = 0.5,
+    size = 3.5, hjust = 0
+  ) +
+  geom_label(
+    aes(x = -down_all - 5, label = comma(down_all)), 
+    colour = do.call(
+      &quot;rgb&quot;, as.list(col2rgb(&quot;steelblue3&quot;)[,1]/255) %&gt;% c(list(alpha = 0.4))
+    ),
+    data = . %&gt;% dplyr::filter(down_all &gt; 0), alpha = 0.5,
+    size = 3.5, hjust = 1
+  ) +
+  facet_grid(method + pkg ~ ., scales = &quot;free_y&quot;, space = &quot;free&quot;, switch = &quot;y&quot;) +
+  ggtitle(
+    glue(&quot;Summary of logFC Filtered Results for {params$target}&quot;),
+    glue(&quot;{params$treat} Vs. {params$ref}&quot;)
+  ) +
+  labs(x = &quot;Significant Ranges&quot;, y = &quot;Method&quot;) +
+  scale_x_continuous(expand = expansion(0.1)) +
+  scale_y_discrete(
+    labels = \(x) x %&gt;% 
+      str_remove_all(&quot;(ec|db)-&quot;) %&gt;% 
+      str_remove_all(&quot;-(ql|wt|lt)$&quot;) %&gt;% 
+      str_replace_all(&quot;sw-&quot;, &quot;Sliding: &quot;) %&gt;% 
+      str_replace_all(&quot;fw-&quot;, &quot;Fixed: &quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;) %&gt;% 
+      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) %&gt;% 
+      str_replace_all(&quot;rlg&quot;, &quot; RLE-Grouped&quot;) 
+  ) +
+  theme(
+    text = element_text(size = 12),
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
+  )</code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/plot-all-treat-1.png" alt="*Summary of ranges considered as significant in each analyis when incorporating a range-based H~0~ of 20% change. Results without filtering are shown as transparent bars, with restricted results shown as solid bars. If any concerns were raised during data checking with quantro, method names will be prefixed by a measure of significance. Any showing one or more asterisks are likely to contain large numbers of Type 1 errors.*" width="960" />
+<p class="caption">
+<em>Summary of ranges considered as significant in each analyis when
+incorporating a range-based H<sub>0</sub> of 20% change. Results without
+filtering are shown as transparent bars, with restricted results shown
+as solid bars. If any concerns were raised during data checking with
+quantro, method names will be prefixed by a measure of significance. Any
+showing one or more asterisks are likely to contain large numbers of
+Type 1 errors.</em>
+</p>
+</div>
+</div>
+<div id="upset-plot" class="section level3">
+<h3>UpSet Plot</h3>
+<pre class="r"><code>all_treat_sig %&gt;% 
+  lapply(plyranges::select, starts_with(&quot;log&quot;), PValue, FDR) %&gt;% 
+  GRangesList() %&gt;% 
+  setNames(
+    setNames(
+      paste0(all_tbl_params$quantro_flag, all_tbl_params$abbr),
+      all_tbl_params$abbr
+    )[names(.)]
+  ) %&gt;% 
+  setNames(
+    names(.) %&gt;% 
+      str_replace_all(&quot;db-fw-&quot;, &quot;DiffBind: &quot;) %&gt;% 
+      str_replace_all(&quot;ec-fw-&quot;, &quot;extraChIPs-Fixed: &quot;) %&gt;% 
+      str_replace_all(&quot;ec-sw-&quot;, &quot;extraChIPs-Sliding: &quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;) %&gt;% 
+      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) %&gt;% 
+      str_replace_all(&quot;rlg&quot;, &quot;RLE-Grouped&quot;) %&gt;% 
+      str_replace_all(&quot;-wt&quot;, &quot; + WaldTest&quot;) %&gt;% 
+      str_replace_all(&quot;-lt&quot;, &quot; + Limma&quot;) %&gt;% 
+      str_replace_all(&quot;-ql&quot;, &quot; + glmQLF&quot;) 
+  ) %&gt;% 
+  plotOverlaps(
+    var = &quot;logCPM&quot;, f = &quot;median&quot;, height_ratio = 1.5,
+    min_size = 5,
+    n_intersections = 12, 
+    set_col = case_when(
+      grepl(sprintf(&quot;^\u02D9&quot;), names(.)) ~ &quot;darkorange3&quot;,
+      grepl(&quot;^\\*{1}&quot;, names(.)) ~ &quot;red4&quot;,
+      grepl(&quot;^\\*{2}&quot;, names(.)) ~ &quot;red&quot;,
+      TRUE ~ &quot;grey40&quot;
+    )
+  ) </code></pre>
+<div class="figure">
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/upset-all-treat-1.png" alt="*Comparison of results from all methods under investigation when incorporating a range-based H~0~. The median logCPM values for each range are shown as a boxplot in the upper panel. Any sets from comparisons flagged as potentially problematic by quantro are coloured orange for caution, dark red for inappropriate and bright red for highly problematic. All remaining sets are shown in dark grey.*" width="960" />
+<p class="caption">
+<em>Comparison of results from all methods under investigation when
+incorporating a range-based H<sub>0</sub>. The median logCPM values for
+each range are shown as a boxplot in the upper panel. Any sets from
+comparisons flagged as potentially problematic by quantro are coloured
+orange for caution, dark red for inappropriate and bright red for highly
+problematic. All remaining sets are shown in dark grey.</em>
+</p>
+</div>
+</div>
+</div>
+<div id="method-ranks" class="section level2">
+<h2>Method Ranks</h2>
+<pre class="r"><code>cp &lt;- tags$caption(
+  tags$em(
+    glue(
+    &quot;Comparison of all {length(all_sig)} approaches investigated for this 
+    analysis. The status of the model as assessed using quantro is provided in 
+    the final column.&quot;
+    )
+  )
+)
+tbl &lt;- all_sig %&gt;% 
+  map_int(length) %&gt;% 
+  as_tibble(rownames = &quot;abbr&quot;) %&gt;% 
+  left_join(all_tbl_params, by = &quot;abbr&quot;) %&gt;% 
+  mutate(
+    package = ifelse(grepl(&quot;^ec&quot;, abbr), &quot;extraChIPs&quot;, &quot;DiffBind&quot;),
+    windows = ifelse(grepl(&quot;-sw&quot;, abbr), &quot;Sliding&quot;, &quot;Fixed-Width&quot;),
+    norm = case_when(
+      grepl(&quot;rlg&quot;, abbr) ~ &quot;RLE-Grouped&quot;,
+      grepl(&quot;sq&quot;, abbr) ~ &quot;Smooth Quantile&quot;,
+      norm == &quot;none&quot; ~ &quot;Library Size&quot;,
+      TRUE ~ norm
+    ),
+    method = c(lt = &quot;limma-trend&quot;, wald = &quot;Wald Test&quot;, qlf = &quot;glmQLF&quot;)[method],
+    assay = str_replace_all(assay, &quot;_RLE&quot;, &quot; (RLE)&quot;),
+    range_null = map_int(all_treat_sig, length)[abbr],
+    quantro_status = case_when(
+      grepl(sprintf(&quot;^\u02D9&quot;), quantro_flag ) ~ &quot;Caution&quot;,
+      grepl(&quot;^\\*&quot;, quantro_flag) ~ &quot;Inappropriate&quot;,
+      TRUE ~ &quot;Appropriate&quot;
+    )
+  ) %&gt;% 
+  arrange(desc(value)) %&gt;% 
+  mutate(rank = seq_along(abbr)) %&gt;% 
+  dplyr::select(
+    rank, package, windows, norm, method, assay, n_sig = value, range_null, quantro_status
+  ) %&gt;% 
+  reactable(
+    showPageSizeOptions = FALSE, pagination = FALSE,
+    sortable = TRUE, filterable = TRUE,
+    columns = list(
+      rank = colDef(&quot;Rank&quot;, maxWidth = 70, filterMethod = js_less),
+      package = colDef(&quot;R Package&quot;, maxWidth = 100),
+      windows = colDef(&quot;Window Type&quot;, maxWidth = 100),
+      norm = colDef(&quot;Normalisation&quot;, minWidth = 100),
+      method = colDef(&quot;Analytic Approach&quot;, minWidth = 100),
+      assay = colDef(&quot;Assay&quot;, maxWidth = 120),
+      n_sig = colDef(
+        &quot;Point H&lt;sub&gt;0&lt;/sub&gt;&quot;, format = colFormat(separators = TRUE),
+        maxWidth = 90, filterMethod = js_greater
+      ),
+      range_null = colDef(
+        &quot;Range H&lt;sub&gt;0&lt;/sub&gt;&quot;, format = colFormat(separators = TRUE),
+        maxWidth = 90, filterMethod = js_greater
+      ),
+      quantro_status = colDef(
+        &quot;Status&quot;, maxWidth = 100,
+        style = \(value) {
+          col &lt;- &quot;lightgreen&quot;
+          if (value == &quot;Caution&quot;) col &lt;- &quot;orange&quot;
+          if (value == &quot;Inappropriate&quot;) col &lt;- &quot;red&quot;
+          list(backgroundColor = col)
+        }
+      )
+    ),
+    defaultColDef = colDef(html = TRUE),
+    columnGroups = list(
+      colGroup(&quot;Significant Sites&quot;, c(&quot;n_sig&quot;, &quot;range_null&quot;))
+    ),
+    theme = reactableTheme(style = list(fontSize = 13)),
+    elementId = &quot;tbl-ranks&quot;
+  )
+browsable(tagList(cp, tbl))</code></pre>
+<caption>
+<em>Comparison of all 16 approaches investigated for this 
+analysis. The status of the model as assessed using quantro is provided in 
+the final column.</em>
+</caption>
+<div class="reactable html-widget html-fill-item" id="tbl-ranks" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="tbl-ranks">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"rank":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],"package":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","DiffBind","extraChIPs","extraChIPs","extraChIPs","extraChIPs"],"windows":["Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Sliding","Sliding","Fixed-Width","Sliding","Fixed-Width","Fixed-Width","Sliding","Sliding","Sliding","Sliding"],"norm":["RLE-Grouped","Library Size","RLE","RLE","Library Size","RLE","RLE","Library Size","Library Size","Smooth Quantile","RLE","Library Size","RLE","Library Size","RLE","Library Size"],"method":["glmQLF","glmQLF","glmQLF","limma-trend","limma-trend","Wald Test","glmQLF","glmQLF","Wald Test","limma-trend","Wald Test","Wald Test","limma-trend","limma-trend","Wald Test","Wald Test"],"assay":["counts","counts","counts","logCPM (RLE)","logCPM","counts","counts","counts","counts","qsmooth","counts","counts","logCPM (RLE)","logCPM","counts","counts"],"n_sig":[3020,2967,2961,2887,2863,1517,1472,1417,1338,1328,1325,1323,1320,1297,506,440],"range_null":[922,889,963,896,859,642,422,375,590,345,504,484,387,346,179,166],"quantro_status":["Appropriate","Appropriate","Caution","Caution","Appropriate","Caution","Appropriate","Appropriate","Appropriate","Appropriate","Caution","Appropriate","Appropriate","Appropriate","Appropriate","Appropriate"]},"columns":[{"id":"rank","name":"Rank","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] <= filterValue\n    })\n  }","maxWidth":70},{"id":"package","name":"R Package","type":"character","html":true,"maxWidth":100},{"id":"windows","name":"Window Type","type":"character","html":true,"maxWidth":100},{"id":"norm","name":"Normalisation","type":"character","html":true,"minWidth":100},{"id":"method","name":"Analytic Approach","type":"character","html":true,"minWidth":100},{"id":"assay","name":"Assay","type":"character","html":true,"maxWidth":120},{"id":"n_sig","name":"Point H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"range_null","name":"Range H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"quantro_status","name":"Status","type":"character","html":true,"maxWidth":100,"style":[{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"}]}],"columnGroups":[{"name":"Significant Sites","columns":["n_sig","range_null"]}],"filterable":true,"pagination":false,"showPageSizeOptions":false,"theme":{"style":{"fontSize":13}},"elementId":"tbl-ranks","dataKey":"a63ae5a8e965df52d289a4b3ea2f8b22"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.filterMethod","tag.attribs.columns.6.filterMethod","tag.attribs.columns.7.filterMethod"],"jsHooks":[]}</script>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
+<div id="ref-Anders2010-sd" class="csl-entry">
+Anders, Simon, and Wolfgang Huber. 2010. <span>“Differential Expression
+Analysis for Sequence Count Data.”</span> <em>Genome Biol.</em> 11 (10):
+R106.
+</div>
+<div id="ref-Hicks2015-ee" class="csl-entry">
+Hicks, Stephanie C, and Rafael A Irizarry. 2015. <span>“Quantro: A
+Data-Driven Approach to Guide the Choice of an Appropriate Normalization
+Method.”</span> <em>Genome Biol.</em> 16 (1): 117.
+</div>
+<div id="ref-Hicks2018-uw" class="csl-entry">
+Hicks, Stephanie C, Kwame Okrah, Joseph N Paulson, John Quackenbush,
+Rafael A Irizarry, and Héctor Corrada Bravo. 2018. <span>“Smooth
+Quantile Normalization.”</span> <em>Biostatistics</em> 19 (2): 185–98.
+</div>
+<div id="ref-Lun2016-yu" class="csl-entry">
+Lun, Aaron T L, and Gordon K Smyth. 2016. <span>“Csaw: A Bioconductor
+Package for Differential Binding Analysis of <span
+class="nocase">ChIP-seq</span> Data Using Sliding Windows.”</span>
+<em>Nucleic Acids Res.</em> 44 (5): e45.
+</div>
+<div id="ref-Phipson2010-qh" class="csl-entry">
+Phipson, Belinda, and Gordon K Smyth. 2010. <span>“Permutation p-Values
+Should Never Be Zero: Calculating Exact p-Values When Permutations Are
+Randomly Drawn.”</span> <em>Stat. Appl. Genet. Mol. Biol.</em> 9
+(October): Article39.
+</div>
+</div>
+<br>
+<button type="button" class="btn btn-default btn-sessioninfo" data-toggle="collapse" data-target="#sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+Session information </button>
+</p>
+<div id="sessioninfo" class="collapse">
+
+<p><strong>R version 4.4.0 (2024-04-24)</strong></p>
+<p><strong>Platform:</strong> x86_64-pc-linux-gnu</p>
+<p><strong>locale:</strong> <em>LC_CTYPE=en_AU.UTF-8</em>,
+<em>LC_NUMERIC=C</em>, <em>LC_TIME=en_AU.UTF-8</em>,
+<em>LC_COLLATE=en_AU.UTF-8</em>, <em>LC_MONETARY=en_AU.UTF-8</em>,
+<em>LC_MESSAGES=en_AU.UTF-8</em>, <em>LC_PAPER=en_AU.UTF-8</em>,
+<em>LC_NAME=C</em>, <em>LC_ADDRESS=C</em>, <em>LC_TELEPHONE=C</em>,
+<em>LC_MEASUREMENT=en_AU.UTF-8</em> and <em>LC_IDENTIFICATION=C</em></p>
+<p><strong>attached base packages:</strong> <em>parallel</em>,
+<em>stats4</em>, <em>stats</em>, <em>graphics</em>, <em>grDevices</em>,
+<em>utils</em>, <em>datasets</em>, <em>methods</em> and
+<em>base</em></p>
+<p><strong>other attached packages:</strong> <em>corrplot(v.0.92)</em>,
+<em>pander(v.0.6.5)</em>, <em>patchwork(v.1.2.0)</em>,
+<em>plyranges(v.1.24.0)</em>, <em>magrittr(v.2.0.3)</em>,
+<em>doParallel(v.1.0.17)</em>, <em>iterators(v.1.0.14)</em>,
+<em>foreach(v.1.5.2)</em>, <em>qsmooth(v.1.20.0)</em>,
+<em>quantro(v.1.38.0)</em>, <em>edgeR(v.4.2.0)</em>,
+<em>limma(v.3.60.3)</em>, <em>csaw(v.1.38.0)</em>,
+<em>Rsamtools(v.2.20.0)</em>, <em>Biostrings(v.2.72.1)</em>,
+<em>XVector(v.0.44.0)</em>, <em>glue(v.1.7.0)</em>,
+<em>scales(v.1.3.0)</em>, <em>htmltools(v.0.5.8.1)</em>,
+<em>reactable(v.0.4.4)</em>, <em>extraChIPs(v.1.8.1)</em>,
+<em>ggside(v.0.3.1)</em>, <em>BiocParallel(v.1.38.0)</em>,
+<em>DiffBind(v.3.14.0)</em>, <em>SummarizedExperiment(v.1.34.0)</em>,
+<em>Biobase(v.2.64.0)</em>, <em>MatrixGenerics(v.1.16.0)</em>,
+<em>matrixStats(v.1.3.0)</em>, <em>GenomicRanges(v.1.56.1)</em>,
+<em>GenomeInfoDb(v.1.40.1)</em>, <em>IRanges(v.2.38.1)</em>,
+<em>S4Vectors(v.0.42.1)</em>, <em>BiocGenerics(v.0.50.0)</em>,
+<em>lubridate(v.1.9.3)</em>, <em>forcats(v.1.0.0)</em>,
+<em>stringr(v.1.5.1)</em>, <em>dplyr(v.1.1.4)</em>,
+<em>purrr(v.1.0.2)</em>, <em>readr(v.2.1.5)</em>,
+<em>tidyr(v.1.3.1)</em>, <em>tibble(v.3.2.1)</em>,
+<em>ggplot2(v.3.5.1)</em> and <em>tidyverse(v.2.0.0)</em></p>
+<p><strong>loaded via a namespace (and not attached):</strong>
+<em>ProtGenerics(v.1.36.0)</em>, <em>bitops(v.1.0-7)</em>,
+<em>httr(v.1.4.7)</em>, <em>RColorBrewer(v.1.1-3)</em>,
+<em>InteractionSet(v.1.32.0)</em>, <em>numDeriv(v.2016.8-1.1)</em>,
+<em>doRNG(v.1.8.6)</em>, <em>tools(v.4.4.0)</em>,
+<em>backports(v.1.5.0)</em>, <em>utf8(v.1.2.4)</em>,
+<em>R6(v.2.5.1)</em>, <em>HDF5Array(v.1.32.0)</em>,
+<em>mgcv(v.1.9-1)</em>, <em>lazyeval(v.0.2.2)</em>,
+<em>Gviz(v.1.48.0)</em>, <em>rhdf5filters(v.1.16.0)</em>,
+<em>apeglm(v.1.26.1)</em>, <em>withr(v.3.0.0)</em>,
+<em>prettyunits(v.1.2.0)</em>, <em>gridExtra(v.2.3)</em>,
+<em>base64(v.2.0.1)</em>, <em>preprocessCore(v.1.66.0)</em>,
+<em>VennDiagram(v.1.7.3)</em>, <em>cli(v.3.6.3)</em>,
+<em>formatR(v.1.14)</em>, <em>labeling(v.0.4.3)</em>,
+<em>sass(v.0.4.9)</em>, <em>SQUAREM(v.2021.1)</em>,
+<em>mvtnorm(v.1.2-5)</em>, <em>genefilter(v.1.86.0)</em>,
+<em>askpass(v.1.2.0)</em>, <em>mixsqp(v.0.3-54)</em>,
+<em>foreign(v.0.8-87)</em>, <em>illuminaio(v.0.46.0)</em>,
+<em>siggenes(v.1.78.0)</em>, <em>dichromat(v.2.0-0.1)</em>,
+<em>scrime(v.1.3.5)</em>, <em>BSgenome(v.1.72.0)</em>,
+<em>invgamma(v.1.1)</em>, <em>bbmle(v.1.0.25.1)</em>,
+<em>rstudioapi(v.0.16.0)</em>, <em>RSQLite(v.2.3.7)</em>,
+<em>generics(v.0.1.3)</em>, <em>BiocIO(v.1.14.0)</em>,
+<em>hwriter(v.1.3.2.1)</em>, <em>crosstalk(v.1.2.1)</em>,
+<em>vroom(v.1.6.5)</em>, <em>gtools(v.3.9.5)</em>,
+<em>Matrix(v.1.6-5)</em>, <em>interp(v.1.1-6)</em>,
+<em>futile.logger(v.1.4.3)</em>, <em>fansi(v.1.0.6)</em>,
+<em>abind(v.1.4-5)</em>, <em>lifecycle(v.1.0.4)</em>,
+<em>yaml(v.2.3.8)</em>, <em>rhdf5(v.2.48.0)</em>,
+<em>gplots(v.3.1.3.1)</em>, <em>SparseArray(v.1.4.8)</em>,
+<em>BiocFileCache(v.2.12.0)</em>, <em>grid(v.4.4.0)</em>,
+<em>blob(v.1.2.4)</em>, <em>crayon(v.1.5.3)</em>,
+<em>bdsmatrix(v.1.3-7)</em>, <em>pwalign(v.1.0.0)</em>,
+<em>lattice(v.0.22-6)</em>, <em>ComplexUpset(v.1.3.3)</em>,
+<em>annotate(v.1.82.0)</em>, <em>GenomicFeatures(v.1.56.0)</em>,
+<em>KEGGREST(v.1.44.1)</em>, <em>beanplot(v.1.3.1)</em>,
+<em>pillar(v.1.9.0)</em>, <em>knitr(v.1.47)</em>,
+<em>metapod(v.1.12.0)</em>, <em>rjson(v.0.2.21)</em>,
+<em>systemPipeR(v.2.10.0)</em>, <em>codetools(v.0.2-20)</em>,
+<em>ShortRead(v.1.62.0)</em>, <em>GreyListChIP(v.1.36.0)</em>,
+<em>data.table(v.1.15.4)</em>, <em>vctrs(v.0.6.5)</em>,
+<em>png(v.0.1-8)</em>, <em>gtable(v.0.3.5)</em>,
+<em>reactR(v.0.6.0)</em>, <em>amap(v.0.8-19)</em>,
+<em>emdbook(v.1.3.13)</em>, <em>cachem(v.1.1.0)</em>,
+<em>xfun(v.0.45)</em>, <em>S4Arrays(v.1.4.1)</em>,
+<em>coda(v.0.19-4.1)</em>, <em>survival(v.3.7-0)</em>,
+<em>statmod(v.1.5.0)</em>, <em>GenomicInteractions(v.1.38.0)</em>,
+<em>nlme(v.3.1-165)</em>, <em>bit64(v.4.0.5)</em>,
+<em>progress(v.1.2.3)</em>, <em>filelock(v.1.0.3)</em>,
+<em>rprojroot(v.2.0.4)</em>, <em>nor1mix(v.1.3-3)</em>,
+<em>bslib(v.0.7.0)</em>, <em>irlba(v.2.3.5.1)</em>,
+<em>KernSmooth(v.2.23-24)</em>, <em>rpart(v.4.1.23)</em>,
+<em>colorspace(v.2.1-0)</em>, <em>DBI(v.1.2.3)</em>,
+<em>Hmisc(v.5.1-3)</em>, <em>nnet(v.7.3-19)</em>,
+<em>DESeq2(v.1.44.0)</em>, <em>tidyselect(v.1.2.1)</em>,
+<em>bit(v.4.0.5)</em>, <em>compiler(v.4.4.0)</em>,
+<em>curl(v.5.2.1)</em>, <em>httr2(v.1.0.1)</em>,
+<em>htmlTable(v.2.4.2)</em>, <em>xml2(v.1.3.6)</em>,
+<em>DelayedArray(v.0.30.1)</em>, <em>rtracklayer(v.1.64.0)</em>,
+<em>checkmate(v.2.3.1)</em>, <em>caTools(v.1.18.2)</em>,
+<em>quadprog(v.1.5-8)</em>, <em>rappdirs(v.0.3.3)</em>,
+<em>digest(v.0.6.36)</em>, <em>rmarkdown(v.2.27)</em>,
+<em>GEOquery(v.2.72.0)</em>, <em>pkgconfig(v.2.0.3)</em>,
+<em>jpeg(v.0.1-10)</em>, <em>base64enc(v.0.1-3)</em>,
+<em>sparseMatrixStats(v.1.16.0)</em>, <em>highr(v.0.11)</em>,
+<em>dbplyr(v.2.5.0)</em>, <em>fastmap(v.1.2.0)</em>,
+<em>ensembldb(v.2.28.0)</em>, <em>rlang(v.1.1.4)</em>,
+<em>htmlwidgets(v.1.6.4)</em>, <em>UCSC.utils(v.1.0.0)</em>,
+<em>DelayedMatrixStats(v.1.26.0)</em>, <em>farver(v.2.1.2)</em>,
+<em>jquerylib(v.0.1.4)</em>, <em>jsonlite(v.1.8.8)</em>,
+<em>mclust(v.6.1.1)</em>, <em>VariantAnnotation(v.1.50.0)</em>,
+<em>RCurl(v.1.98-1.14)</em>, <em>Formula(v.1.2-5)</em>,
+<em>GenomeInfoDbData(v.1.2.12)</em>, <em>Rhdf5lib(v.1.26.0)</em>,
+<em>munsell(v.0.5.1)</em>, <em>Rcpp(v.1.0.12)</em>,
+<em>stringi(v.1.8.4)</em>, <em>zlibbioc(v.1.50.0)</em>,
+<em>MASS(v.7.3-61)</em>, <em>bumphunter(v.1.46.0)</em>,
+<em>plyr(v.1.8.9)</em>, <em>minfi(v.1.50.0)</em>,
+<em>ggrepel(v.0.9.5)</em>, <em>deldir(v.2.0-4)</em>,
+<em>splines(v.4.4.0)</em>, <em>multtest(v.2.60.0)</em>,
+<em>hms(v.1.1.3)</em>, <em>locfit(v.1.5-9.10)</em>,
+<em>igraph(v.2.0.3)</em>, <em>rngtools(v.1.5.2)</em>,
+<em>biomaRt(v.2.60.1)</em>, <em>futile.options(v.1.0.1)</em>,
+<em>XML(v.3.99-0.17)</em>, <em>evaluate(v.0.24.0)</em>,
+<em>latticeExtra(v.0.6-30)</em>, <em>biovizBase(v.1.52.0)</em>,
+<em>lambda.r(v.1.2.4)</em>, <em>tzdb(v.0.4.0)</em>,
+<em>tweenr(v.2.0.3)</em>, <em>openssl(v.2.2.0)</em>,
+<em>polyclip(v.1.10-6)</em>, <em>reshape(v.0.8.9)</em>,
+<em>ashr(v.2.2-63)</em>, <em>ggforce(v.0.4.2)</em>,
+<em>xtable(v.1.8-4)</em>, <em>broom(v.1.0.6)</em>,
+<em>restfulr(v.0.0.15)</em>, <em>AnnotationFilter(v.1.28.0)</em>,
+<em>truncnorm(v.1.0-9)</em>, <em>memoise(v.2.0.1)</em>,
+<em>AnnotationDbi(v.1.66.0)</em>, <em>GenomicAlignments(v.1.40.0)</em>,
+<em>cluster(v.2.1.6)</em>, <em>sva(v.3.52.0)</em>,
+<em>timechange(v.0.3.0)</em> and <em>here(v.1.0.1)</em></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
