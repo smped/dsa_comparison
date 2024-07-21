@@ -27,8 +27,8 @@ library(plyranges)
 library(patchwork)
 library(pander)
 library(corrplot)
-# cores <- parallel::detectCores() - 2
-cores <- 4
+cores <- parallel::detectCores() - 2
+# cores <- 4
 register(MulticoreParam(cores))
 theme_set(theme_bw())
 format_p <- function(p){

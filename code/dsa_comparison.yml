@@ -1,0 +1,26 @@
+name: dsa_comparison
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pandoc>=1.12.3
+  - r-base>=4.3
+  - r-biocmanager
+  - r-broom
+  - r-corrplot
+  - r-doparallel
+  - r-ggrepel
+  - r-here
+  - r-pander
+  - r-patchwork
+  - r-reactable
+  - r-rmarkdown
+  - r-remotes
+  - r-tidyverse
+  - bioconductor-csaw
+  - bioconductor-diffbind
+  - bioconductor-extrachips
+  - bioconductor-plyranges
+  - bioconductor-quantro
+  - bioconductor-qsmooth

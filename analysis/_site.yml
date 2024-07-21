@@ -8,12 +8,20 @@ navbar:
     href: index.html
   - text: AR
     menu:
-    - text: "AR (ZR-75): E2DHT Vs E2"
+    - text: "ZR-75: E2DHT Vs E2"
       href: zr75_ar_e2_e2dht.html
   - text: ER
     menu:
-    - text: "ER (ZR-75): E2DHT Vs E2"
+    - text: "ZR-75: E2DHT Vs E2"
       href: zr75_er_e2_e2dht.html
+  - text: GATA3
+    menu:
+    - text: "ZR-75: E2DHT Vs E2"
+      href: zr75_gata3_e2_e2dht.html      
+  - text: H3K27ac
+    menu:
+    - text: "ZR-75: E2DHT Vs E2"
+      href: zr75_h3k27ac_e2_e2dht.html         
   right:
   - icon: fa-github
     href: https://github.com/smped/dsa_comparison
