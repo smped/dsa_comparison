@@ -242,6 +242,7 @@ ec_fw_params <- ec_fw_tbl_params %>%
       if (str_detect(x$abbr, "rlg")) x$groups <- "treat"
       x$design <- X
       x$asRanges <- TRUE
+      x$type <- "ashr"
       x[!names(x) %in% c("abbr", "quantro_flag")]
     }
   )
