@@ -1,6 +1,6 @@
 ```{r set-params, echo = FALSE, eval = FALSE}
 params <- list(
-  target = "AR",
+  target = "ER",
   ref = "E2",
   treat = "E2DHT",
   cell_type = "ZR-75"
@@ -27,6 +27,7 @@ library(plyranges)
 library(patchwork)
 library(pander)
 library(corrplot)
+library(GenomicAlignments)
 # cores <- parallel::detectCores() - 2
 cores <- 4
 register(MulticoreParam(cores))
@@ -133,7 +134,19 @@ f <- here::here(
 if (file.exists(f)) {
   se <- read_rds(f)
 } else{
-  se <- regionCounts(bfl, fw_peaks, BPPARAM = bpparam())
+  # se <- regionCounts(bfl, fw_peaks, BPPARAM = bpparam())
+  se <- summarizeOverlaps(
+    features = fw_peaks, reads = bfl, mode = "IntersectionNotEmpty", 
+    ignore.strand = TRUE, singleEnd = TRUE, fragments = FALSE,
+    param = ScanBamParam(mapqFilter = 0), BPPARAM = bpparam()
+  )
+  colData(se) <- DataFrame(
+    bam.files = path(bfl),
+    totals = bfl %>% 
+      lapply(idxstatsBam) %>% 
+      map_int(\(x) sum(x$mapped)),
+    row.names = colnames(se)
+  )
   rownames(se) <- se %>% rowRanges() %>% as.character()
   colData(se) <- colData(se) %>% 
     as_tibble(rownames = "id") %>% 
@@ -906,8 +919,15 @@ all_sig %>%
   GRangesList() %>% 
   .[str_detect(names(.), "lt")] %>% 
   setNames(
+    setNames(
+      paste0(all_tbl_params$quantro_flag, all_tbl_params$abbr),
+      all_tbl_params$abbr
+    )[names(.)]
+  ) %>% 
+  setNames(
     names(.) %>% 
-      str_extract("[fs]w-[lsreq]+") %>% 
+      str_extract(".*[fs]w-[lsreq]+") %>% 
+      str_remove_all("ec-") %>% 
       str_replace_all("fw-", "Fixed + ") %>% 
       str_replace_all("sw-", "Sliding + ") %>% 
       str_replace_all("rle", "RLE") %>% 
@@ -916,7 +936,13 @@ all_sig %>%
   ) %>% 
   plotOverlaps(
     min_size = 5, var = "logCPM", f = "median", height_ratio = 1.2,
-    n_intersections = 12
+    n_intersections = 12,
+    set_col = case_when(
+      grepl(sprintf("^\u02D9"), names(.)) ~ "darkorange3",
+      grepl("^\\*{1}", names(.)) ~ "red4",
+      grepl("^\\*{2}", names(.)) ~ "red",
+      TRUE ~ "grey40"
+    )
   ) +
   plot_annotation(title = "Limma-Trend Methods") &
   theme(plot.title = element_text(hjust = 0.7))
@@ -930,6 +956,12 @@ all_sig %>%
   GRangesList() %>% 
   .[str_detect(names(.), "wt$")] %>% 
   setNames(
+    setNames(
+      paste0(all_tbl_params$quantro_flag, all_tbl_params$abbr),
+      all_tbl_params$abbr
+    )[names(.)]
+  ) %>% 
+  setNames(
     str_remove_all(names(.), "-wt$") %>% 
       str_replace_all("db-fw-", "DiffBind: ") %>% 
       str_replace_all("ec-fw-", "extraChIPs-Fixed: ") %>% 
@@ -939,7 +971,13 @@ all_sig %>%
   ) %>%
   plotOverlaps(
     min_size = 5, var = "logCPM", f = "median", height_ratio = 1.2,
-    n_intersections = 12
+    n_intersections = 12,
+    set_col = case_when(
+      grepl(sprintf("^\u02D9"), names(.)) ~ "darkorange3",
+      grepl("^\\*{1}", names(.)) ~ "red4",
+      grepl("^\\*{2}", names(.)) ~ "red",
+      TRUE ~ "grey40"
+    )
   ) +
   plot_annotation(title = "Wald Test Methods") &
   theme(plot.title = element_text(hjust = 0.7))
@@ -953,8 +991,14 @@ all_sig %>%
   GRangesList() %>% 
   .[str_detect(names(.), "ql")] %>% 
   setNames(
+    setNames(
+      paste0(all_tbl_params$quantro_flag, all_tbl_params$abbr),
+      all_tbl_params$abbr
+    )[names(.)]
+  ) %>%   
+  setNames(
     str_remove_all(names(.), "-ql$") %>% 
-      str_remove("^ec-") %>% 
+      str_remove("ec-") %>% 
       str_replace_all("sw-", "Sliding: ") %>% 
       str_replace_all("fw-", "Fixed: ") %>% 
       str_replace_all("rle", "RLE") %>% 
@@ -963,7 +1007,13 @@ all_sig %>%
   ) %>%
   plotOverlaps(
     min_size = 5, var = "logCPM", f = "median", height_ratio = 1.2,
-    n_intersections = 12
+    n_intersections = 12,
+    set_col = case_when(
+      grepl(sprintf("^\u02D9"), names(.)) ~ "darkorange3",
+      grepl("^\\*{1}", names(.)) ~ "red4",
+      grepl("^\\*{2}", names(.)) ~ "red",
+      TRUE ~ "grey40"
+    )
   ) +
   plot_annotation(title = "glmQLF Methods") &
   theme(plot.title = element_text(hjust = 0.7))
@@ -979,7 +1029,7 @@ df <- names(all_sig) %>%
     \(x) {
       alt <- all_sig[!names(all_sig) %in% x] %>% lapply(granges) %>% GRangesList()
       gr <- all_sig[[x]]
-      ol <- lapply(all_sig, overlapsAny, gr) %>% lapply(mean)
+      ol <- lapply(all_sig, \(x) overlapsAny(gr, x)) %>% lapply(mean)
       tibble(
         abbr = x,
         n_sig = length(gr),
@@ -1096,7 +1146,7 @@ tbl <- df %>%
     ),
     defaultColDef = colDef(
       maxWidth = 65, format = colFormat(percent = TRUE, digits = 0), 
-      html = TRUE, filterMethod = js_greater,
+      html = TRUE, 
       style = \(value) {
         col <- rgb(0, 0.6, 0.1, 0)
         if (is.numeric(value) & value <= 1) col <- rgb(0, 0.6, 0.1, value)
