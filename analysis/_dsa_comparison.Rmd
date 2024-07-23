@@ -1,9 +1,12 @@
 ```{r set-params, echo = FALSE, eval = FALSE}
 params <- list(
-  target = "ER",
+  target = "H3K27ac",
   ref = "E2",
   treat = "E2DHT",
-  cell_type = "ZR-75"
+  cell_type = "ZR-75",
+  fixed_width = 400,
+  window_size = 180,
+  window_step = 60
 )
 ```
 
@@ -28,8 +31,8 @@ library(patchwork)
 library(pander)
 library(corrplot)
 library(GenomicAlignments)
-# cores <- parallel::detectCores() - 2
-cores <- 4
+cores <- parallel::detectCores() - 2
+# cores <- 4
 register(MulticoreParam(cores))
 theme_set(theme_bw())
 format_p <- function(p){
@@ -109,10 +112,6 @@ ip_bfl <- here::here("data", "bam", params$cell_type, samples$input) %>%
 ```
 
 ```{r centre-peaks}
-fixed_width <- peaks %>% 
-  width() %>% 
-  quantile(0.75) %>% 
-  round(-1)
 fw_peaks <- peaks %>% 
   mutate(peak = granges(.)) %>% 
   resize(width = fixed_width, fix = "center") %>% 
@@ -121,7 +120,8 @@ fw_peaks <- peaks %>%
 
 ## Fixed-Width Windows
 
-All `r comma(length(peaks))` consensus peaks were loaded and the 75^th^ percentile of peaks widths was found to be `r fixed_width`bp.
+All `r comma(length(peaks))` consensus peaks were loaded and peaks widths were set to be `r fixed_width`bp.
+This represents the `r percent(mean(width(peaks) < fixed_width)` percentile of the provided consensus peaks
 This was then set as the fixed width for all peaks and any resized peaks which overlapped black- or grey-listed regions were subsequently excluded, give a final set of `r comma(length(fw_peaks))` peaks fixed at `r fixed_width`bp.
 
 
@@ -484,8 +484,6 @@ f <- here::here(
   "{params$cell_type}_{params$target}_{params$ref}_{params$treat}_windows.rds"
 ) %>% 
   glue()
-window_size <- round(median(width(peaks)) / 2, -1)
-window_step <- round(window_size/3, -1)
 if (file.exists(f)) {
   wincounts <- read_rds(f)
 } else {
@@ -595,6 +593,7 @@ ec_sw_params <- ec_sw_tbl_params %>%
   lapply(
     \(x) {
       x$design <- X
+      x$type <- "ashr"
       x[!names(x) %in% c("abbr", "quantro_flag")]
     }
   )
@@ -603,7 +602,7 @@ ec_sw_res <- ec_sw_params %>%
     \(x) {
       x$x <- se_sliding
       fits <- do.call("fitAssayDiff", x)
-      merged <- mergeByHMP(fits, hm_pre = "")
+      merged <- mergeByHMP(fits, hm_pre = "", min_win = 3, keyval = "merged")
       plyranges::select(
         merged, keyval_range, logCPM, logFC, PValue, FDR = PValue_fdr
       )
@@ -1403,7 +1402,7 @@ tbl <- all_sig %>%
     quantro_status = case_when(
       grepl(sprintf("^\u02D9"), quantro_flag ) ~ "Caution",
       grepl("^\\*", quantro_flag) ~ "Inappropriate",
-      TRUE ~ "Appropriate"
+      TRUE ~ "Suitable"
     )
   ) %>% 
   arrange(desc(value)) %>% 

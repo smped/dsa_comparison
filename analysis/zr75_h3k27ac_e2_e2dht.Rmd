@@ -1,6 +1,5 @@
 ---
 title: "H3K27ac (ZR-75): E2DHT Vs. E2"
-subtitle: "Point Based H~0~"
 author: |
   | Dr Stevie Pederson
   | Black Ochre Data Labs
@@ -15,6 +14,9 @@ params:
   ref: "E2"
   treat: "E2DHT"
   cell_type: "ZR-75"
+  fixed_width: 1200
+  window_size: 300
+  window_step: 100    
 ---
 
 ```{r setup, echo=FALSE}
