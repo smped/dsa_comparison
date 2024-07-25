@@ -1,6 +1,6 @@
 ```{r set-params, echo = FALSE, eval = FALSE}
 params <- list(
-  target = "H3K27ac",
+  target = "ER",
   ref = "E2",
   treat = "E2DHT",
   cell_type = "ZR-75",
@@ -31,6 +31,7 @@ library(patchwork)
 library(pander)
 library(corrplot)
 library(GenomicAlignments)
+library(ggtext)
 cores <- parallel::detectCores() - 2
 # cores <- 4
 register(MulticoreParam(cores))
@@ -69,8 +70,10 @@ drop_filter <- function(values, name, id = NULL, sort = TRUE) {
     style = "width: 100%; height: 28px; font-size: 12px;"
   )
 }
-fig_path <- here::here("docs", "assets", params$target)
+fig_path <- here::here("docs", "assets", params$cell_type, params$target)
 if (!dir.exists(fig_path)) dir.create(fig_path, recursive = TRUE)
+rds_path <-  here::here("output", "rds", params$cell_type)
+if (!dir.exists(rds_path)) dir.create(rds_path, recursive = TRUE)
 ```
 
 
@@ -126,10 +129,7 @@ This was then set as the fixed width for all peaks and any resized peaks which o
 
 
 ```{r count-reads}
-f <- here::here(
-  "output", "rds", 
-  "{params$cell_type}_{params$target}_{params$ref}_{params$treat}_fixed.rds"
-) %>% 
+f <- file.path(rds_path, "{params$target}_{params$ref}_{params$treat}_fixed.rds") %>% 
   glue()
 if (file.exists(f)) {
   se <- read_rds(f)
@@ -346,10 +346,7 @@ db_fw_tbl_params <- tribble(
       TRUE ~ ""
     )
   )
-f <- here::here(
-  "output", "rds", 
-  "{params$cell_type}_{params$target}_{params$ref}_{params$treat}_dba.rds"
-) %>% 
+f <- file.path(rds_path, "{params$target}_{params$ref}_{params$treat}_dba.rds") %>% 
   glue()
 if (file.exists(f)) {
   dba <- read_rds(f)
@@ -479,10 +476,7 @@ tagList(
 ## Sliding Windows
 
 ```{r setup-sliding}
-f <- here::here(
-  "output", "rds", 
-  "{params$cell_type}_{params$target}_{params$ref}_{params$treat}_windows.rds"
-) %>% 
+f <- file.path(rds_path, "{params$target}_{params$ref}_{params$treat}_windows.rds") %>% 
   glue()
 if (file.exists(f)) {
   wincounts <- read_rds(f)
@@ -508,10 +502,7 @@ if (file.exists(f)) {
     as("DataFrame")
   write_rds(wincounts, f, compress = "gz")
 }
-f <- here::here(
-  "output", "rds", 
-  "{params$cell_type}_{params$target}_{params$ref}_{params$treat}_sliding.rds"
-) %>% 
+f <- file.path(rds_path, "{params$target}_{params$ref}_{params$treat}_sliding.rds") %>% 
   glue()
 if (file.exists(f)) {
   se_sliding <- read_rds(f)
@@ -821,7 +812,9 @@ all_sig %>%
   bind_rows(.id = "abbr") %>% 
   left_join(all_tbl_params) %>% 
   mutate(
-    pkg = ifelse(grepl("^ec", abbr), "extraChIPs", "DiffBind"),
+    pkg = ifelse(grepl("^ec", abbr), "extraChIPs", "DiffBind") %>% 
+      as.factor() %>% 
+      fct_rev(),
     win_type = ifelse(grepl("-sw-", abbr), "Sliding", "Fixed")
   ) %>% 
   arrange(up + down) %>% 
@@ -830,9 +823,26 @@ all_sig %>%
     method = method %>% 
       str_replace_all("wald", "Wald Test") %>% 
       str_replace_all("qlf", "glmQLF Test") %>% 
-      str_replace_all("lt", "limma-trend")
+      str_replace_all("lt", "limma-trend"),
+    ylab = abbr %>% 
+      str_remove_all("(ec|db)-") %>% 
+      str_remove_all("-(ql|wt|lt)$") %>% 
+      str_replace_all("sw-", "Sliding: ") %>% 
+      str_replace_all("fw-", "Fixed: ") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("ls", "Lib. Size") %>% 
+      str_replace_all("sq", "SQN") %>% 
+      str_replace_all("rlg", " RLE-Grouped"),
+    ylab_col = case_when(
+      quantro_flag == "˙" ~ "darkorange3",
+      grepl("^\\*", quantro_flag) ~ "red",
+      TRUE ~ "grey20"
+    ),
+    ylab = glue(
+      "<span style = 'color: {ylab_col};'>{ylab}</span>"
+    ) %>% fct_inorder()
   ) %>% 
-  ggplot(aes(y = abbr)) +
+  ggplot(aes(y = ylab)) +
   geom_col(aes(x = up),  fill = "red4") +
   geom_col(aes(x = -down), fill = "steelblue3") +
   geom_label(
@@ -853,18 +863,11 @@ all_sig %>%
   labs(x = "Significant Ranges", y = "Method") +
   scale_x_continuous(expand = expansion(0.1)) +
   scale_y_discrete(
-    labels = \(x) x %>% 
-      str_remove_all("(ec|db)-") %>% 
-      str_remove_all("-(ql|wt|lt)$") %>% 
-      str_replace_all("sw-", "Sliding: ") %>% 
-      str_replace_all("fw-", "Fixed: ") %>% 
-      str_replace_all("rle", "RLE") %>% 
-      str_replace_all("ls", "Lib. Size") %>% 
-      str_replace_all("sq", "SQN") %>% 
-      str_replace_all("rlg", " RLE-Grouped") 
+    labels = \(x) x 
   ) +
   theme(
     text = element_text(size = 12),
+    axis.text.y = ggtext::element_markdown(),
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5)
   )
@@ -1264,10 +1267,11 @@ all_treat_sig %>%
   bind_rows(.id = "abbr") %>% 
   left_join(all_tbl_params) %>% 
   mutate(
-    pkg = ifelse(grepl("^ec", abbr), "extraChIPs", "DiffBind"),
+    pkg = ifelse(grepl("^ec", abbr), "extraChIPs", "DiffBind") %>% 
+      as.factor() %>% 
+      fct_rev(),
     win_type = ifelse(grepl("-sw-", abbr), "Sliding", "Fixed")
   ) %>% 
-  arrange(up + down) %>% 
   mutate(
     method = method %>% 
       str_replace_all("wald", "Wald Test") %>% 
@@ -1276,8 +1280,28 @@ all_treat_sig %>%
     up_all = map_int(all_sig, \(x) sum(x$logFC > 0))[abbr],
     down_all = map_int(all_sig, \(x) sum(x$logFC < 0))[abbr],
     abbr = paste0(quantro_flag, abbr) %>% fct_inorder(),
+    ylab = abbr %>% 
+      str_remove_all("(ec|db)-") %>% 
+      str_remove_all("-(ql|wt|lt)$") %>% 
+      str_replace_all("sw-", "Sliding: ") %>% 
+      str_replace_all("fw-", "Fixed: ") %>% 
+      str_replace_all("rle", "RLE") %>% 
+      str_replace_all("ls", "Lib. Size") %>% 
+      str_replace_all("sq", "SQN") %>% 
+      str_replace_all("rlg", " RLE-Grouped"),
+    ylab_col = case_when(
+      quantro_flag == "˙" ~ "darkorange3",
+      grepl("^\\*", quantro_flag) ~ "red",
+      TRUE ~ "grey20"
+    ) 
   ) %>% 
-  ggplot(aes(y = abbr)) +
+  arrange(up_all + down_all) %>% 
+  mutate(
+    ylab = glue(
+      "<span style = 'color: {ylab_col};'>{ylab}</span>"
+    ) %>% fct_inorder()
+  ) %>% 
+  ggplot(aes(y = ylab)) +
   geom_col(aes(x = up_all),  fill = "red4", alpha = 0.4) +
   geom_col(aes(x = up),  fill = "red4") +
   geom_col(aes(x = -down_all), fill = "steelblue3", alpha = 0.4) +
@@ -1315,19 +1339,9 @@ all_treat_sig %>%
   ) +
   labs(x = "Significant Ranges", y = "Method") +
   scale_x_continuous(expand = expansion(0.1)) +
-  scale_y_discrete(
-    labels = \(x) x %>% 
-      str_remove_all("(ec|db)-") %>% 
-      str_remove_all("-(ql|wt|lt)$") %>% 
-      str_replace_all("sw-", "Sliding: ") %>% 
-      str_replace_all("fw-", "Fixed: ") %>% 
-      str_replace_all("rle", "RLE") %>% 
-      str_replace_all("ls", "Lib. Size") %>% 
-      str_replace_all("sq", "SQN") %>% 
-      str_replace_all("rlg", " RLE-Grouped") 
-  ) +
   theme(
     text = element_text(size = 12),
+    axis.text.y = ggtext::element_markdown(),
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5)
   )
