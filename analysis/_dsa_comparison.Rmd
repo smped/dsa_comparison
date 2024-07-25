@@ -114,15 +114,15 @@ ip_bfl <- here::here("data", "bam", params$cell_type, samples$input) %>%
 ```{r centre-peaks}
 fw_peaks <- peaks %>% 
   mutate(peak = granges(.)) %>% 
-  resize(width = fixed_width, fix = "center") %>% 
+  resize(width = params$fixed_width, fix = "center") %>% 
   filter_by_non_overlaps(c(bl, gl))
 ```
 
 ## Fixed-Width Windows
 
-All `r comma(length(peaks))` consensus peaks were loaded and peaks widths were set to be `r fixed_width`bp.
-This represents the `r percent(mean(width(peaks) < fixed_width)` percentile of the provided consensus peaks
-This was then set as the fixed width for all peaks and any resized peaks which overlapped black- or grey-listed regions were subsequently excluded, give a final set of `r comma(length(fw_peaks))` peaks fixed at `r fixed_width`bp.
+All `r comma(length(peaks))` consensus peaks were loaded and peaks widths were set to be `r params$fixed_width`bp.
+This represents the `r percent(mean(width(peaks) < params$fixed_width))` percentile of the provided consensus peaks
+This was then set as the fixed width for all peaks and any resized peaks which overlapped black- or grey-listed regions were subsequently excluded, give a final set of `r comma(length(fw_peaks))` peaks.
 
 
 ```{r count-reads}
@@ -376,7 +376,7 @@ if (file.exists(f)) {
     sampleSheet = db_sample_sheet, 
     config = data.frame(fragmentSize = 100, cores = cores)
   ) %>% 
-    dba.count(peaks = fw_peaks, summits = fixed_width / 2)  %>% 
+    dba.count(peaks = fw_peaks, summits = params$fixed_width / 2)  %>% 
     dba.blacklist(cores = cores, blacklist = bl, greylist = gl)
   write_rds(dba, f, compress = "gz")
 }
@@ -490,8 +490,8 @@ if (file.exists(f)) {
   gc()
   wincounts <- windowCounts(
     bam.files = c(bfl, ip_bfl),
-    spacing = window_step,
-    width = window_size,
+    spacing = params$window_step,
+    width = params$window_size,
     ext = 100,
     filter = length(bfl) * 2,
     param = readParam(restrict = seqnames(sq), discard = c(bl, gl)),
@@ -546,7 +546,7 @@ b <- sum(unique(qtest_sliding@quantroStatPerm) > qtest_sliding@quantroStat) + 1
 perm_p <- b/n_eff
 ```
 
-Alignments were counted for the set of sliding windows using windows of `r window_size`bp shifting in increments of `r window_step`bp.
+Alignments were counted for the set of sliding windows using windows of `r params$window_size`bp shifting in increments of `r params$window_step`bp.
 Windows were required to return a total of at least `r length(bfl) * 2` alignments to be included during counting.
 
 The complete set of sliding windows was then reduced using `dualFilter()` from `extraChIPs` with thresholds defined to return ~70% of sliding windows which overlap a consensus peak.
@@ -1373,7 +1373,7 @@ all_treat_sig %>%
 
 ## Method Ranks
 
-```{r}
+```{r tbl-ranks}
 cp <- tags$caption(
   tags$em(
     glue(

@@ -2,7 +2,7 @@
 #SBATCH -p icelake
 #SBATCH -N 1
 #SBATCH -n 16
-#SBATCH --time=01:00:00   
+#SBATCH --time=02:00:00   
 #SBATCH --mem=128GB       
 #SBATCH -o /hpcfs/users/a1018048/dsa_comparison/slurm/%x_%j.out
 # SBATCH -e /hpcfs/users/a1018048/dsa_comparison/slurm/%x_%j.err

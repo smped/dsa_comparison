@@ -436,12 +436,11 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">H3K27ac (ZR-75): E2DHT Vs. E2</h1>
-<h3 class="subtitle">Point Based H<sub>0</sub></h3>
 <h4 class="author"><div class="line-block">Dr Stevie Pederson<br />
 Black Ochre Data Labs<br />
 Telethon Kids Institute<br />
 Adelaide, Australia</div></h4>
-<h4 class="date">22 July, 2024</h4>
+<h4 class="date">24 July, 2024</h4>
 
 </div>
 
@@ -465,8 +464,9 @@ library(plyranges)
 library(patchwork)
 library(pander)
 library(corrplot)
-# cores &lt;- parallel::detectCores() - 2
-cores &lt;- 4
+library(GenomicAlignments)
+cores &lt;- parallel::detectCores() - 2
+# cores &lt;- 4
 register(MulticoreParam(cores))
 theme_set(theme_bw())
 format_p &lt;- function(p){
@@ -536,21 +536,17 @@ ip_bfl &lt;- here::here(&quot;data&quot;, &quot;bam&quot;, params$cell_type, sam
   paste0(&quot;.bam&quot;) %&gt;% 
   unique() %&gt;% 
   BamFileList()</code></pre>
-<pre class="r"><code>fixed_width &lt;- peaks %&gt;% 
-  width() %&gt;% 
-  quantile(0.75) %&gt;% 
-  round(-1)
-fw_peaks &lt;- peaks %&gt;% 
+<pre class="r"><code>fw_peaks &lt;- peaks %&gt;% 
   mutate(peak = granges(.)) %&gt;% 
-  resize(width = fixed_width, fix = &quot;center&quot;) %&gt;% 
+  resize(width = params$fixed_width, fix = &quot;center&quot;) %&gt;% 
   filter_by_non_overlaps(c(bl, gl))</code></pre>
 <div id="fixed-width-windows" class="section level2">
 <h2>Fixed-Width Windows</h2>
-<p>All 39,708 consensus peaks were loaded and the 75<sup>th</sup>
-percentile of peaks widths was found to be 2250bp. This was then set as
-the fixed width for all peaks and any resized peaks which overlapped
-black- or grey-listed regions were subsequently excluded, give a final
-set of 39,583 peaks fixed at 2250bp.</p>
+<p>All 39,708 consensus peaks were loaded and peaks widths were set to
+be 1200bp. This represents the 45% percentile of the provided consensus
+peaks This was then set as the fixed width for all peaks and any resized
+peaks which overlapped black- or grey-listed regions were subsequently
+excluded, give a final set of 39,663 peaks.</p>
 <pre class="r"><code>f &lt;- here::here(
   &quot;output&quot;, &quot;rds&quot;, 
   &quot;{params$cell_type}_{params$target}_{params$ref}_{params$treat}_fixed.rds&quot;
@@ -559,7 +555,19 @@ set of 39,583 peaks fixed at 2250bp.</p>
 if (file.exists(f)) {
   se &lt;- read_rds(f)
 } else{
-  se &lt;- regionCounts(bfl, fw_peaks, BPPARAM = bpparam())
+  # se &lt;- regionCounts(bfl, fw_peaks, BPPARAM = bpparam())
+  se &lt;- summarizeOverlaps(
+    features = fw_peaks, reads = bfl, mode = &quot;IntersectionNotEmpty&quot;, 
+    ignore.strand = TRUE, singleEnd = TRUE, fragments = FALSE,
+    param = ScanBamParam(mapqFilter = 0), BPPARAM = bpparam()
+  )
+  colData(se) &lt;- DataFrame(
+    bam.files = path(bfl),
+    totals = bfl %&gt;% 
+      lapply(idxstatsBam) %&gt;% 
+      map_int(\(x) sum(x$mapped)),
+    row.names = colnames(se)
+  )
   rownames(se) &lt;- se %&gt;% rowRanges() %&gt;% as.character()
   colData(se) &lt;- colData(se) %&gt;% 
     as_tibble(rownames = &quot;id&quot;) %&gt;% 
@@ -602,7 +610,7 @@ perm_p &lt;- b/n_eff</code></pre>
 <p>The quantro test <span class="citation">(Hicks and Irizarry
 2015)</span> for both equality of medians and equality of distributions
 was applied to logCPM values without normalisation. Distributions were
-found to have equal medians (ANOVA p = 0.481).</p>
+found to have equal medians (ANOVA p = 0.408).</p>
 <p>When checking for equality of distributions 1000 permutations were
 performed, acknowledging that for datasets with two groups and 6
 samples, this far exceeds the number of viable permutations. For these
@@ -632,10 +640,10 @@ caution</em>.</p>
   plot_layout(guides = &quot;collect&quot;, axes = &quot;collect&quot;) +
   plot_annotation(tag_levels = &quot;A&quot;)</code></pre>
 <div class="figure">
-<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/plot-densities-1.png" alt="*logCPM densities shown before (A) and after (B) RLE normalisation. This dataset returned a quantro ANOVA p-value of 0.481 and a permutation p-value of 0.091*" width="960" />
+<img src="zr75_h3k27ac_e2_e2dht_files/figure-html/plot-densities-1.png" alt="*logCPM densities shown before (A) and after (B) RLE normalisation. This dataset returned a quantro ANOVA p-value of 0.408 and a permutation p-value of 0.091*" width="960" />
 <p class="caption">
 <em>logCPM densities shown before (A) and after (B) RLE normalisation.
-This dataset returned a quantro ANOVA p-value of 0.481 and a permutation
+This dataset returned a quantro ANOVA p-value of 0.408 and a permutation
 p-value of 0.091</em>
 </p>
 </div>
@@ -667,6 +675,7 @@ ec_fw_params &lt;- ec_fw_tbl_params %&gt;%
       if (str_detect(x$abbr, &quot;rlg&quot;)) x$groups &lt;- &quot;treat&quot;
       x$design &lt;- X
       x$asRanges &lt;- TRUE
+      x$type &lt;- &quot;ashr&quot;
       x[!names(x) %in% c(&quot;abbr&quot;, &quot;quantro_flag&quot;)]
     }
   )
@@ -867,7 +876,7 @@ if (file.exists(f)) {
     sampleSheet = db_sample_sheet, 
     config = data.frame(fragmentSize = 100, cores = cores)
   ) %&gt;% 
-    dba.count(peaks = fw_peaks, summits = fixed_width / 2)  %&gt;% 
+    dba.count(peaks = fw_peaks, summits = params$fixed_width / 2)  %&gt;% 
     dba.blacklist(cores = cores, blacklist = bl, greylist = gl)
   write_rds(dba, f, compress = &quot;gz&quot;)
 }</code></pre>
@@ -992,16 +1001,14 @@ RLE normalisation and DSA results produced using Wald Test methods.</em>
   &quot;{params$cell_type}_{params$target}_{params$ref}_{params$treat}_windows.rds&quot;
 ) %&gt;% 
   glue()
-window_size &lt;- round(median(width(peaks)) / 2, -1)
-window_step &lt;- round(window_size/3, -1)
 if (file.exists(f)) {
   wincounts &lt;- read_rds(f)
 } else {
   gc()
   wincounts &lt;- windowCounts(
     bam.files = c(bfl, ip_bfl),
-    spacing = window_step,
-    width = window_size,
+    spacing = params$window_step,
+    width = params$window_size,
     ext = 100,
     filter = length(bfl) * 2,
     param = readParam(restrict = seqnames(sq), discard = c(bl, gl)),
@@ -1052,25 +1059,25 @@ n_eff &lt;- qtest_sliding@quantroStatPerm %&gt;%
 b &lt;- sum(unique(qtest_sliding@quantroStatPerm) &gt; qtest_sliding@quantroStat) + 1
 perm_p &lt;- b/n_eff</code></pre>
 <p>Alignments were counted for the set of sliding windows using windows
-of 670bp shifting in increments of 220bp. Windows were required to
+of 300bp shifting in increments of 100bp. Windows were required to
 return a total of at least 12 alignments to be included during
 counting.</p>
 <p>The complete set of sliding windows was then reduced using
 <code>dualFilter()</code> from <code>extraChIPs</code> with thresholds
 defined to return ~70% of sliding windows which overlap a consensus
-peak. As a result ranges were retained from the top 97.74% signal
-percentiles, where signal was beyond 2.57 times the level of signal in
-the input samples. This retained a total of 314,688 windows from the
-original set of 6,852,750 windows across the entire genome.</p>
+peak. As a result ranges were retained from the top 98.07% signal
+percentiles, where signal was beyond 2.31 times the level of signal in
+the input samples. This retained a total of 592,486 windows from the
+original set of 4,867,972 windows across the entire genome.</p>
 <div id="quantro-test-1" class="section level3">
 <h3>Quantro Test</h3>
 <p>The quantro test <span class="citation">(Hicks and Irizarry
 2015)</span> for both equality of medians and equality of distributions
 was again applied to logCPM values from sliding windows without
 normalisation. Distributions were found to have equal medians (ANOVA p =
-0.257).</p>
+0.325).</p>
 <p>Using the same strategy for permutation testing as above, a
-permutation p-value of 0.545 was returned suggesting that RLE
+permutation p-value of 0.455 was returned suggesting that RLE
 normalisation is appropriate. Importantly SQ-normalisation <span
 class="citation">(Hicks et al. 2018)</span> is expected to be robust to
 any results produced by this test.</p>
@@ -1100,6 +1107,7 @@ ec_sw_params &lt;- ec_sw_tbl_params %&gt;%
   lapply(
     \(x) {
       x$design &lt;- X
+      x$type &lt;- &quot;ashr&quot;
       x[!names(x) %in% c(&quot;abbr&quot;, &quot;quantro_flag&quot;)]
     }
   )
@@ -1108,7 +1116,7 @@ ec_sw_res &lt;- ec_sw_params %&gt;%
     \(x) {
       x$x &lt;- se_sliding
       fits &lt;- do.call(&quot;fitAssayDiff&quot;, x)
-      merged &lt;- mergeByHMP(fits, hm_pre = &quot;&quot;)
+      merged &lt;- mergeByHMP(fits, hm_pre = &quot;&quot;, min_win = 3, keyval = &quot;merged&quot;)
       plyranges::select(
         merged, keyval_range, logCPM, logFC, PValue, FDR = PValue_fdr
       )
@@ -1350,8 +1358,8 @@ browsable(tagList(cp, tbl))</code></pre>
 <caption>
 <em>Characteristics of ranges included for analysis using sliding or fixed-width windows. Ranges uniquely included in only one approach tended to be narrower with lower signal intensity,  comfirming that for ranges with strong signal, they are well-captured by either method.</em>
 </caption>
-<div class="reactable html-widget html-fill-item" id="htmlwidget-78972b9342552658ebee" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-78972b9342552658ebee">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"detected":["Both","Sliding Only","Fixed Only"],"n":[32229,580,7454],"sliding_total":[88735.01,1325.58,"NA"],"fixed_total":[68517.046,"NA",2990.322],"sliding_w":[2210,1550,"NA"],"fixed_w":[1644,"NA",344],"sliding_logCPM":[1.69343668973404,1.50054550851841,"NA"],"fixed_logCPM":[2.97665823328427,"NA",1.27071676570677]},"columns":[{"id":"detected","name":"Detected In","type":"character"},{"id":"n","name":"Total Ranges","type":"numeric"},{"id":"sliding_total","name":"Sliding","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"fixed_total","name":"Fixed","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"sliding_w","name":"Sliding","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"fixed_w","name":"Fixed","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"sliding_logCPM","name":"Sliding","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}},{"id":"fixed_logCPM","name":"Fixed","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}}],"columnGroups":[{"name":"Total Width (kb)","columns":["sliding_total","fixed_total"]},{"name":"Median Width (bp)","columns":["sliding_w","fixed_w"]},{"name":"Median logCPM","columns":["sliding_logCPM","fixed_logCPM"]}],"dataKey":"423a6368522a88381cae5b163709f4eb"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+<div class="reactable html-widget html-fill-item" id="htmlwidget-8b7d13b826123c83adce" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-8b7d13b826123c83adce">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"detected":["Both","Fixed Only","Sliding Only"],"n":[31270,9954,532],"sliding_total":[64628.9,"NA",1182.6],"fixed_total":[74456.43,4653.908,"NA"],"sliding_w":[1700,"NA",1400],"fixed_w":[1775,377.5,"NA"],"sliding_logCPM":[1.01096370632553,"NA",1.28762510855933],"fixed_logCPM":[2.60910962367562,0.804794058410367,"NA"]},"columns":[{"id":"detected","name":"Detected In","type":"character"},{"id":"n","name":"Total Ranges","type":"numeric"},{"id":"sliding_total","name":"Sliding","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"fixed_total","name":"Fixed","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"sliding_w","name":"Sliding","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"fixed_w","name":"Fixed","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"sliding_logCPM","name":"Sliding","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}},{"id":"fixed_logCPM","name":"Fixed","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}}],"columnGroups":[{"name":"Total Width (kb)","columns":["sliding_total","fixed_total"]},{"name":"Median Width (bp)","columns":["sliding_w","fixed_w"]},{"name":"Median logCPM","columns":["sliding_logCPM","fixed_logCPM"]}],"dataKey":"5fc2befcbb127a313af00d15e7e01d1d"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
 <div id="range-widths" class="section level4">
 <h4>Range Widths</h4>
 <pre class="r"><code>GRangesList(
@@ -1528,8 +1536,15 @@ grey.</em>
   GRangesList() %&gt;% 
   .[str_detect(names(.), &quot;lt&quot;)] %&gt;% 
   setNames(
+    setNames(
+      paste0(all_tbl_params$quantro_flag, all_tbl_params$abbr),
+      all_tbl_params$abbr
+    )[names(.)]
+  ) %&gt;% 
+  setNames(
     names(.) %&gt;% 
-      str_extract(&quot;[fs]w-[lsreq]+&quot;) %&gt;% 
+      str_extract(&quot;.*[fs]w-[lsreq]+&quot;) %&gt;% 
+      str_remove_all(&quot;ec-&quot;) %&gt;% 
       str_replace_all(&quot;fw-&quot;, &quot;Fixed + &quot;) %&gt;% 
       str_replace_all(&quot;sw-&quot;, &quot;Sliding + &quot;) %&gt;% 
       str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
@@ -1538,7 +1553,13 @@ grey.</em>
   ) %&gt;% 
   plotOverlaps(
     min_size = 5, var = &quot;logCPM&quot;, f = &quot;median&quot;, height_ratio = 1.2,
-    n_intersections = 12
+    n_intersections = 12,
+    set_col = case_when(
+      grepl(sprintf(&quot;^\u02D9&quot;), names(.)) ~ &quot;darkorange3&quot;,
+      grepl(&quot;^\\*{1}&quot;, names(.)) ~ &quot;red4&quot;,
+      grepl(&quot;^\\*{2}&quot;, names(.)) ~ &quot;red&quot;,
+      TRUE ~ &quot;grey40&quot;
+    )
   ) +
   plot_annotation(title = &quot;Limma-Trend Methods&quot;) &amp;
   theme(plot.title = element_text(hjust = 0.7))</code></pre>
@@ -1559,6 +1580,12 @@ panel</em>
   GRangesList() %&gt;% 
   .[str_detect(names(.), &quot;wt$&quot;)] %&gt;% 
   setNames(
+    setNames(
+      paste0(all_tbl_params$quantro_flag, all_tbl_params$abbr),
+      all_tbl_params$abbr
+    )[names(.)]
+  ) %&gt;% 
+  setNames(
     str_remove_all(names(.), &quot;-wt$&quot;) %&gt;% 
       str_replace_all(&quot;db-fw-&quot;, &quot;DiffBind: &quot;) %&gt;% 
       str_replace_all(&quot;ec-fw-&quot;, &quot;extraChIPs-Fixed: &quot;) %&gt;% 
@@ -1568,7 +1595,13 @@ panel</em>
   ) %&gt;%
   plotOverlaps(
     min_size = 5, var = &quot;logCPM&quot;, f = &quot;median&quot;, height_ratio = 1.2,
-    n_intersections = 12
+    n_intersections = 12,
+    set_col = case_when(
+      grepl(sprintf(&quot;^\u02D9&quot;), names(.)) ~ &quot;darkorange3&quot;,
+      grepl(&quot;^\\*{1}&quot;, names(.)) ~ &quot;red4&quot;,
+      grepl(&quot;^\\*{2}&quot;, names(.)) ~ &quot;red&quot;,
+      TRUE ~ &quot;grey40&quot;
+    )
   ) +
   plot_annotation(title = &quot;Wald Test Methods&quot;) &amp;
   theme(plot.title = element_text(hjust = 0.7))</code></pre>
@@ -1590,8 +1623,14 @@ panel</em>
   GRangesList() %&gt;% 
   .[str_detect(names(.), &quot;ql&quot;)] %&gt;% 
   setNames(
+    setNames(
+      paste0(all_tbl_params$quantro_flag, all_tbl_params$abbr),
+      all_tbl_params$abbr
+    )[names(.)]
+  ) %&gt;%   
+  setNames(
     str_remove_all(names(.), &quot;-ql$&quot;) %&gt;% 
-      str_remove(&quot;^ec-&quot;) %&gt;% 
+      str_remove(&quot;ec-&quot;) %&gt;% 
       str_replace_all(&quot;sw-&quot;, &quot;Sliding: &quot;) %&gt;% 
       str_replace_all(&quot;fw-&quot;, &quot;Fixed: &quot;) %&gt;% 
       str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
@@ -1600,7 +1639,13 @@ panel</em>
   ) %&gt;%
   plotOverlaps(
     min_size = 5, var = &quot;logCPM&quot;, f = &quot;median&quot;, height_ratio = 1.2,
-    n_intersections = 12
+    n_intersections = 12,
+    set_col = case_when(
+      grepl(sprintf(&quot;^\u02D9&quot;), names(.)) ~ &quot;darkorange3&quot;,
+      grepl(&quot;^\\*{1}&quot;, names(.)) ~ &quot;red4&quot;,
+      grepl(&quot;^\\*{2}&quot;, names(.)) ~ &quot;red&quot;,
+      TRUE ~ &quot;grey40&quot;
+    )
   ) +
   plot_annotation(title = &quot;glmQLF Methods&quot;) &amp;
   theme(plot.title = element_text(hjust = 0.7))</code></pre>
@@ -1623,7 +1668,7 @@ shown as a boxplot in the upper panel</em>
     \(x) {
       alt &lt;- all_sig[!names(all_sig) %in% x] %&gt;% lapply(granges) %&gt;% GRangesList()
       gr &lt;- all_sig[[x]]
-      ol &lt;- lapply(all_sig, overlapsAny, gr) %&gt;% lapply(mean)
+      ol &lt;- lapply(all_sig, \(x) overlapsAny(gr, x)) %&gt;% lapply(mean)
       tibble(
         abbr = x,
         n_sig = length(gr),
@@ -1690,7 +1735,7 @@ between sliding and fixed-width windows</em>
 <em>Summary of ranges considered significant under each method and compared to all other methods. Library-Size normalisation is referred to as 'none' and is the default method used when no normalisation is explicilty listed. Any methods where RLE has been flagged using quantro will have a suitable symbol prefacing RLE,  with a dot indicating caution and any asterisk indicating an inappropriate method.</em>
 </caption>
 <div class="reactable html-widget html-fill-item" id="tbl-all-comps" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="tbl-all-comps">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"pkg":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","DiffBind"],"windows":["Fixed","Fixed","Fixed","Fixed","Fixed","Fixed","Fixed","Sliding","Sliding","Sliding","Sliding","Sliding","Sliding","Sliding","Fixed","Fixed"],"norm":["none","none","none","˙RLE","˙RLE","˙RLE","RLE<br>(Grouped)","none","none","none","RLE","RLE","RLE","SQN","none","˙RLE"],"method":["limma-trend","glmQLF","Wald Test","limma-trend","glmQLF","Wald Test","glmQLF","limma-trend","glmQLF","Wald Test","limma-trend","glmQLF","Wald Test","limma-trend","Wald Test","Wald Test"],"n_sig":[2863,2967,1338,2887,2961,1517,3020,1297,1417,440,1320,1472,506,1328,1323,1325],"n_unique":[4,7,0,11,23,0,38,0,18,0,1,31,0,7,2,0],"DiffBind<br>":[0.993197278911565,0.99395313681028,0.813303099017385,0.993197278911565,0.993197278911565,0.848072562358277,0.993197278911565,0.630385487528345,0.656084656084656,0.308390022675737,0.63718820861678,0.656840513983371,0.347694633408919,0.637944066515495,1,0.949357520786092],"DiffBind<br>RLE ":[0.993962264150943,0.994716981132076,0.831698113207547,0.995471698113208,0.995471698113208,0.884528301886792,0.993207547169811,0.633962264150943,0.655094339622642,0.311698113207547,0.647547169811321,0.670188679245283,0.351698113207547,0.64377358490566,0.947924528301887,1],"Fixed<br>limma-trend":[1,0.991966468739085,0.477471184072651,0.957736639888229,0.96018162766329,0.540691582256374,0.98812434509256,0.413901501921062,0.442892071253929,0.166957736639888,0.416346489696123,0.448480614739783,0.18966119455117,0.418791477471184,0.516590988473629,0.519734544184422],"Fixed<br>glmQLF":[0.957532861476239,1,0.460734748904617,0.935962251432423,0.949106841927873,0.521739130434783,0.987192450286485,0.405123019885406,0.434782608695652,0.161105493764746,0.406808223795079,0.439838220424671,0.18335018537243,0.409841590832491,0.499494438827098,0.502190765082575],"Fixed<br>Wald":[1,1,1,1,1,0.999252615844544,1,0.588938714499253,0.603139013452915,0.342301943198804,0.60762331838565,0.621076233183857,0.384902840059791,0.598654708520179,0.900597907324365,0.920029895366218],"Fixed<br>RLE limma-trend":[0.951160374090752,0.962590924835469,0.474194665742986,1,0.98753030827849,0.537235885001732,0.963630065812262,0.413578108763422,0.441288534811223,0.166262556286803,0.420505715275372,0.452372705230343,0.189470038101836,0.420159334949775,0.512989262209906,0.517145826117077],"Fixed<br>RLE glmQLF":[0.931104356636272,0.95339412360689,0.462343802769335,0.964539007092199,1,0.523809523809524,0.959473150962513,0.405943937858831,0.43532590341101,0.162107396149949,0.412022965214455,0.446470786896319,0.184734886862546,0.412022965214455,0.500506585612969,0.504221546774738],"Fixed<br>RLE Wald":[1,1,0.887277521423863,1,1,1,0.998022412656559,0.570204350692156,0.588661832564272,0.308503625576796,0.600527356624918,0.618325642715887,0.347396176664469,0.586684245220831,0.827949901120633,0.862887277521424],"Fixed<br>RLE-Grouped glmQLF":[0.939072847682119,0.971854304635762,0.452980132450331,0.922516556291391,0.940397350993378,0.511920529801325,1,0.397019867549669,0.426490066225166,0.158278145695364,0.398013245033113,0.43112582781457,0.179801324503311,0.400993377483444,0.491059602649007,0.493377483443709],"Sliding<br>limma-trend":[0.838087895142637,0.851195065535852,0.560524286815729,0.843484965304549,0.848111025443331,0.61449498843485,0.8473400154202,1,0.988434849653046,0.339244410177332,0.931380107941403,0.966075558982267,0.390131071703932,0.959907478797224,0.64148033924441,0.646106399383192],"Sliding<br>glmQLF":[0.821453775582216,0.836979534227241,0.527170077628793,0.824982357092449,0.834156669019054,0.582921665490473,0.834156669019054,0.904728299223712,1,0.310515172900494,0.878616796047989,0.935074100211715,0.357092448835568,0.896259703599153,0.611856033874382,0.611856033874382],"Sliding<br>Wald":[0.965909090909091,0.968181818181818,0.936363636363636,0.970454545454545,0.970454545454545,0.95,0.965909090909091,1,1,1,1,1,0.997727272727273,1,0.920454545454545,0.931818181818182],"Sliding<br>RLE limma-trend":[0.827272727272727,0.838636363636364,0.570454545454545,0.842424242424242,0.845454545454545,0.639393939393939,0.833333333333333,0.915151515151515,0.943181818181818,0.333333333333333,1,0.99469696969697,0.383333333333333,0.953787878787879,0.637878787878788,0.649242424242424],"Sliding<br>RLE glmQLF":[0.802309782608696,0.817255434782609,0.52445652173913,0.816576086956522,0.826086956521739,0.592391304347826,0.813179347826087,0.851222826086957,0.900135869565217,0.298913043478261,0.891983695652174,1,0.34375,0.876358695652174,0.591032608695652,0.603940217391304],"Sliding<br>RLE Wald":[0.960474308300395,0.964426877470356,0.920948616600791,0.968379446640316,0.968379446640316,0.936758893280632,0.960474308300395,1,1,0.867588932806324,1,1,1,1,0.901185770750988,0.91304347826087],"Sliding<br>SQN limma-trend":[0.82605421686747,0.838855421686747,0.557228915662651,0.835843373493976,0.83960843373494,0.618975903614458,0.833584337349398,0.9375,0.956325301204819,0.331325301204819,0.948042168674699,0.971385542168675,0.381024096385542,1,0.634036144578313,0.640813253012048]},"columns":[{"id":"pkg","name":"R Package","type":"character","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":100,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}],"minWidth":80},{"id":"windows","name":"Window Type","type":"character","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":75,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}],"minWidth":75},{"id":"norm","name":"Norm","type":"character","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":70,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}]},{"id":"method","name":"Method","type":"character","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":100,"style":{"borderRight":"1px solid rgba(0, 0, 0, 0.1)"},"minWidth":80},{"id":"n_sig","name":"Sig","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"html":true,"maxWidth":55,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}]},{"id":"n_unique","name":"Unique","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"html":true,"maxWidth":65,"style":{"borderRight":"1px solid rgba(0, 0, 0, 0.1)"}},{"id":"DiffBind<br>","name":"DiffBind<br>","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991ACF","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AD8","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AA1","fontSize":12},{"backgroundColor":"#00991AA7","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991AA7","fontSize":12},{"backgroundColor":"#00991A59","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12}]},{"id":"DiffBind<br>RLE ","name":"DiffBind<br>RLE ","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AD4","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AE2","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991AA7","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991AA5","fontSize":12},{"backgroundColor":"#00991AAB","fontSize":12},{"backgroundColor":"#00991A5A","fontSize":12},{"backgroundColor":"#00991AA4","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12}]},{"id":"Fixed<br>limma-trend","name":"Fixed<br>limma-trend","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991A7A","fontSize":12},{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991A8A","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A6A","fontSize":12},{"backgroundColor":"#00991A71","fontSize":12},{"backgroundColor":"#00991A2B","fontSize":12},{"backgroundColor":"#00991A6A","fontSize":12},{"backgroundColor":"#00991A72","fontSize":12},{"backgroundColor":"#00991A30","fontSize":12},{"backgroundColor":"#00991A6B","fontSize":12},{"backgroundColor":"#00991A84","fontSize":12},{"backgroundColor":"#00991A85","fontSize":12}]},{"id":"Fixed<br>glmQLF","name":"Fixed<br>glmQLF","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A75","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12},{"backgroundColor":"#00991A85","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A67","fontSize":12},{"backgroundColor":"#00991A6F","fontSize":12},{"backgroundColor":"#00991A29","fontSize":12},{"backgroundColor":"#00991A68","fontSize":12},{"backgroundColor":"#00991A70","fontSize":12},{"backgroundColor":"#00991A2F","fontSize":12},{"backgroundColor":"#00991A69","fontSize":12},{"backgroundColor":"#00991A7F","fontSize":12},{"backgroundColor":"#00991A80","fontSize":12}]},{"id":"Fixed<br>Wald","name":"Fixed<br>Wald","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A96","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12},{"backgroundColor":"#00991A57","fontSize":12},{"backgroundColor":"#00991A9B","fontSize":12},{"backgroundColor":"#00991A9E","fontSize":12},{"backgroundColor":"#00991A62","fontSize":12},{"backgroundColor":"#00991A99","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12}]},{"id":"Fixed<br>RLE limma-trend","name":"Fixed<br>RLE limma-trend","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991A79","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A89","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991A69","fontSize":12},{"backgroundColor":"#00991A71","fontSize":12},{"backgroundColor":"#00991A2A","fontSize":12},{"backgroundColor":"#00991A6B","fontSize":12},{"backgroundColor":"#00991A73","fontSize":12},{"backgroundColor":"#00991A30","fontSize":12},{"backgroundColor":"#00991A6B","fontSize":12},{"backgroundColor":"#00991A83","fontSize":12},{"backgroundColor":"#00991A84","fontSize":12}]},{"id":"Fixed<br>RLE glmQLF","name":"Fixed<br>RLE glmQLF","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AED","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991A76","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A86","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991A68","fontSize":12},{"backgroundColor":"#00991A6F","fontSize":12},{"backgroundColor":"#00991A29","fontSize":12},{"backgroundColor":"#00991A69","fontSize":12},{"backgroundColor":"#00991A72","fontSize":12},{"backgroundColor":"#00991A2F","fontSize":12},{"backgroundColor":"#00991A69","fontSize":12},{"backgroundColor":"#00991A80","fontSize":12},{"backgroundColor":"#00991A81","fontSize":12}]},{"id":"Fixed<br>RLE Wald","name":"Fixed<br>RLE Wald","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AE2","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991A91","fontSize":12},{"backgroundColor":"#00991A96","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991A99","fontSize":12},{"backgroundColor":"#00991A9E","fontSize":12},{"backgroundColor":"#00991A59","fontSize":12},{"backgroundColor":"#00991A96","fontSize":12},{"backgroundColor":"#00991AD3","fontSize":12},{"backgroundColor":"#00991ADC","fontSize":12}]},{"id":"Fixed<br>RLE-Grouped glmQLF","name":"Fixed<br>RLE-Grouped glmQLF","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991A74","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991AF0","fontSize":12},{"backgroundColor":"#00991A83","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A65","fontSize":12},{"backgroundColor":"#00991A6D","fontSize":12},{"backgroundColor":"#00991A28","fontSize":12},{"backgroundColor":"#00991A65","fontSize":12},{"backgroundColor":"#00991A6E","fontSize":12},{"backgroundColor":"#00991A2E","fontSize":12},{"backgroundColor":"#00991A66","fontSize":12},{"backgroundColor":"#00991A7D","fontSize":12},{"backgroundColor":"#00991A7E","fontSize":12}]},{"id":"Sliding<br>limma-trend","name":"Sliding<br>limma-trend","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AD6","fontSize":12},{"backgroundColor":"#00991AD9","fontSize":12},{"backgroundColor":"#00991A8F","fontSize":12},{"backgroundColor":"#00991AD7","fontSize":12},{"backgroundColor":"#00991AD8","fontSize":12},{"backgroundColor":"#00991A9D","fontSize":12},{"backgroundColor":"#00991AD8","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A57","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991A63","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991AA4","fontSize":12},{"backgroundColor":"#00991AA5","fontSize":12}]},{"id":"Sliding<br>glmQLF","name":"Sliding<br>glmQLF","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AD1","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991A86","fontSize":12},{"backgroundColor":"#00991AD2","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991A95","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991AE7","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991AE0","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12},{"backgroundColor":"#00991A5B","fontSize":12},{"backgroundColor":"#00991AE5","fontSize":12},{"backgroundColor":"#00991A9C","fontSize":12},{"backgroundColor":"#00991A9C","fontSize":12}]},{"id":"Sliding<br>Wald","name":"Sliding<br>Wald","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12}]},{"id":"Sliding<br>RLE limma-trend","name":"Sliding<br>RLE limma-trend","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AD3","fontSize":12},{"backgroundColor":"#00991AD6","fontSize":12},{"backgroundColor":"#00991A91","fontSize":12},{"backgroundColor":"#00991AD7","fontSize":12},{"backgroundColor":"#00991AD8","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12},{"backgroundColor":"#00991AF1","fontSize":12},{"backgroundColor":"#00991A55","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991A62","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AA6","fontSize":12}]},{"id":"Sliding<br>RLE glmQLF","name":"Sliding<br>RLE glmQLF","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991ACD","fontSize":12},{"backgroundColor":"#00991AD0","fontSize":12},{"backgroundColor":"#00991A86","fontSize":12},{"backgroundColor":"#00991AD0","fontSize":12},{"backgroundColor":"#00991AD3","fontSize":12},{"backgroundColor":"#00991A97","fontSize":12},{"backgroundColor":"#00991ACF","fontSize":12},{"backgroundColor":"#00991AD9","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12},{"backgroundColor":"#00991A4C","fontSize":12},{"backgroundColor":"#00991AE3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A58","fontSize":12},{"backgroundColor":"#00991ADF","fontSize":12},{"backgroundColor":"#00991A97","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12}]},{"id":"Sliding<br>RLE Wald","name":"Sliding<br>RLE Wald","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991ADD","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12}]},{"id":"Sliding<br>SQN limma-trend","name":"Sliding<br>SQN limma-trend","type":"numeric","filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AD3","fontSize":12},{"backgroundColor":"#00991AD6","fontSize":12},{"backgroundColor":"#00991A8E","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991AD6","fontSize":12},{"backgroundColor":"#00991A9E","fontSize":12},{"backgroundColor":"#00991AD5","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991A54","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991A61","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12}]}],"columnGroups":[{"name":"DiffBind (Wald Test)","columns":["DiffBind<br>","DiffBind<br>RLE "]},{"name":"extraChIPs Fixed","columns":["Fixed<br>limma-trend","Fixed<br>glmQLF","Fixed<br>Wald","Fixed<br>RLE limma-trend","Fixed<br>RLE glmQLF","Fixed<br>RLE Wald","Fixed<br>RLE-Grouped glmQLF"]},{"name":"extraChIPs Sliding","columns":["Sliding<br>limma-trend","Sliding<br>glmQLF","Sliding<br>Wald","Sliding<br>RLE limma-trend","Sliding<br>RLE glmQLF","Sliding<br>RLE Wald","Sliding<br>SQN limma-trend"]}],"filterable":true,"pagination":false,"highlight":true,"theme":{"style":{"fontSize":12}},"elementId":"tbl-all-comps","dataKey":"5f7f6ff5a38182e18e38b47aa59029b8"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.filterMethod","tag.attribs.columns.1.filterMethod","tag.attribs.columns.2.filterMethod","tag.attribs.columns.3.filterMethod","tag.attribs.columns.4.filterMethod","tag.attribs.columns.5.filterMethod","tag.attribs.columns.6.filterMethod","tag.attribs.columns.7.filterMethod","tag.attribs.columns.8.filterMethod","tag.attribs.columns.9.filterMethod","tag.attribs.columns.10.filterMethod","tag.attribs.columns.11.filterMethod","tag.attribs.columns.12.filterMethod","tag.attribs.columns.13.filterMethod","tag.attribs.columns.14.filterMethod","tag.attribs.columns.15.filterMethod","tag.attribs.columns.16.filterMethod","tag.attribs.columns.17.filterMethod","tag.attribs.columns.18.filterMethod","tag.attribs.columns.19.filterMethod","tag.attribs.columns.20.filterMethod","tag.attribs.columns.21.filterMethod"],"jsHooks":[]}</script>
+<script type="application/json" data-for="tbl-all-comps">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"pkg":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","DiffBind"],"windows":["Fixed","Fixed","Fixed","Fixed","Fixed","Fixed","Fixed","Sliding","Sliding","Sliding","Sliding","Sliding","Sliding","Sliding","Fixed","Fixed"],"norm":["none","none","none","˙RLE","˙RLE","˙RLE","RLE<br>(Grouped)","none","none","none","RLE","RLE","RLE","SQN","none","˙RLE"],"method":["limma-trend","glmQLF","Wald Test","limma-trend","glmQLF","Wald Test","glmQLF","limma-trend","glmQLF","Wald Test","limma-trend","glmQLF","Wald Test","limma-trend","Wald Test","Wald Test"],"n_sig":[1934,2036,861,1946,2035,941,2088,859,977,244,899,1030,278,885,789,835],"n_unique":[3,7,0,12,18,0,26,1,24,0,1,34,0,2,0,1],"DiffBind<br>":[0.436918304033092,0.416994106090373,0.866434378629501,0.435251798561151,0.417199017199017,0.807651434643996,0.406130268199234,0.532013969732247,0.475946775844422,0.877049180327869,0.510567296996663,0.456310679611651,0.848920863309353,0.51864406779661,1,0.931736526946108],"DiffBind<br>RLE ":[0.459152016546019,0.43860510805501,0.897793263646922,0.457348406988695,0.438820638820639,0.843783209351753,0.426724137931034,0.550640279394645,0.494370522006141,0.897540983606557,0.53615127919911,0.476699029126214,0.866906474820144,0.541242937853107,0.986058301647655,1],"Fixed<br>limma-trend":[1,0.93614931237721,1,0.952209660842754,0.91990171990172,0.99893730074389,0.919061302681992,0.743888242142026,0.690890481064483,0.938524590163934,0.731924360400445,0.684466019417476,0.920863309352518,0.734463276836158,0.989860583016477,0.986826347305389],"Fixed<br>glmQLF":[0.982936918304033,1,1,0.959403905447071,0.952334152334152,0.99893730074389,0.964080459770115,0.747380675203725,0.703172978505629,0.942622950819672,0.741935483870968,0.694174757281553,0.924460431654676,0.742372881355932,0.993662864385298,0.990419161676647],"Fixed<br>Wald":[0.455015511892451,0.432711198428291,1,0.452723535457348,0.432923832923833,0.913921360255048,0.422413793103448,0.525029103608847,0.470829068577277,0.897540983606557,0.511679644048943,0.458252427184466,0.87410071942446,0.517514124293785,0.893536121673004,0.877844311377246],"Fixed<br>RLE limma-trend":[0.958117890382627,0.919941060903733,1,1,0.945454545454545,1,0.902298850574713,0.749708963911525,0.701125895598772,0.942622950819672,0.747497219132369,0.7,0.924460431654676,0.746892655367232,0.992395437262357,0.989221556886228],"Fixed<br>RLE glmQLF":[0.96535677352637,0.951866404715128,1,0.985611510791367,1,1,0.940134099616858,0.750873108265425,0.706243602865916,0.942622950819672,0.75083426028921,0.704854368932039,0.924460431654676,0.748022598870057,0.993662864385298,0.990419161676647],"Fixed<br>RLE Wald":[0.496897621509824,0.473477406679764,0.99883855981417,0.49486125385406,0.474201474201474,1,0.461206896551724,0.554132712456345,0.497441146366428,0.918032786885246,0.541713014460512,0.488349514563107,0.89568345323741,0.548022598870056,0.91128010139417,0.902994011976048],"Fixed<br>RLE-Grouped glmQLF":[0.989141675284385,0.988212180746562,1,0.964542651593011,0.964127764127764,0.996811902231668,1,0.746216530849825,0.703172978505629,0.934426229508197,0.737486095661847,0.693203883495146,0.91726618705036,0.738983050847458,0.991128010139417,0.986826347305389],"Sliding<br>limma-trend":[0.327300930713547,0.31237721021611,0.507549361207898,0.327852004110997,0.314004914004914,0.490967056323061,0.30411877394636,1,0.867963152507677,1,0.913236929922136,0.815533980582524,1,0.944632768361582,0.566539923954373,0.554491017964072],"Sliding<br>glmQLF":[0.345915201654602,0.334479371316307,0.518002322880372,0.348920863309353,0.336117936117936,0.501594048884166,0.326149425287356,0.987194412107101,1,1,0.959955506117909,0.900970873786408,1,0.968361581920904,0.576679340937896,0.566467065868263],"Sliding<br>Wald":[0.119958634953464,0.114440078585462,0.252032520325203,0.119732785200411,0.114496314496314,0.235919234856536,0.110632183908046,0.284051222351572,0.249744114636643,1,0.271412680756396,0.236893203883495,0.877697841726619,0.275706214689266,0.26615969581749,0.25748502994012],"Sliding<br>RLE limma-trend":[0.336608066184074,0.324165029469548,0.516840882694541,0.341726618705036,0.328255528255528,0.501594048884166,0.314176245210728,0.955762514551804,0.88331627430911,1,1,0.867961165048544,1,0.972881355932203,0.567807351077313,0.564071856287425],"Sliding<br>RLE glmQLF":[0.359358841778697,0.346267190569745,0.527293844367015,0.365364850976362,0.351842751842752,0.515409139213603,0.337164750957854,0.977881257275902,0.949846468781986,1,0.994438264738598,1,1,0.988700564971751,0.579214195183777,0.572455089820359],"Sliding<br>RLE Wald":[0.134436401240951,0.128192534381139,0.281068524970964,0.134121274409044,0.128255528255528,0.263549415515409,0.12404214559387,0.323632130384168,0.284544524053224,1,0.309232480533927,0.269902912621359,1,0.314124293785311,0.29404309252218,0.283832335329341],"Sliding<br>SQN limma-trend":[0.332988624612203,0.319744597249509,0.515679442508711,0.336587872559096,0.322358722358722,0.500531349628055,0.310344827586207,0.973224679860303,0.877175025588536,1,0.957730812013348,0.849514563106796,1,1,0.569074778200254,0.561676646706587]},"columns":[{"id":"pkg","name":"R Package","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":100,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}],"minWidth":80},{"id":"windows","name":"Window Type","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":75,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}],"minWidth":75},{"id":"norm","name":"Norm","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":70,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}]},{"id":"method","name":"Method","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":100,"style":{"borderRight":"1px solid rgba(0, 0, 0, 0.1)"},"minWidth":80},{"id":"n_sig","name":"Sig","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"html":true,"maxWidth":55,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}]},{"id":"n_unique","name":"Unique","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"html":true,"maxWidth":65,"style":{"borderRight":"1px solid rgba(0, 0, 0, 0.1)"}},{"id":"DiffBind<br>","name":"DiffBind<br>","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A6F","fontSize":12},{"backgroundColor":"#00991A6A","fontSize":12},{"backgroundColor":"#00991ADD","fontSize":12},{"backgroundColor":"#00991A6F","fontSize":12},{"backgroundColor":"#00991A6A","fontSize":12},{"backgroundColor":"#00991ACE","fontSize":12},{"backgroundColor":"#00991A68","fontSize":12},{"backgroundColor":"#00991A88","fontSize":12},{"backgroundColor":"#00991A79","fontSize":12},{"backgroundColor":"#00991AE0","fontSize":12},{"backgroundColor":"#00991A82","fontSize":12},{"backgroundColor":"#00991A74","fontSize":12},{"backgroundColor":"#00991AD8","fontSize":12},{"backgroundColor":"#00991A84","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12}]},{"id":"DiffBind<br>RLE ","name":"DiffBind<br>RLE ","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A75","fontSize":12},{"backgroundColor":"#00991A70","fontSize":12},{"backgroundColor":"#00991AE5","fontSize":12},{"backgroundColor":"#00991A75","fontSize":12},{"backgroundColor":"#00991A70","fontSize":12},{"backgroundColor":"#00991AD7","fontSize":12},{"backgroundColor":"#00991A6D","fontSize":12},{"backgroundColor":"#00991A8C","fontSize":12},{"backgroundColor":"#00991A7E","fontSize":12},{"backgroundColor":"#00991AE5","fontSize":12},{"backgroundColor":"#00991A89","fontSize":12},{"backgroundColor":"#00991A7A","fontSize":12},{"backgroundColor":"#00991ADD","fontSize":12},{"backgroundColor":"#00991A8A","fontSize":12},{"backgroundColor":"#00991AFB","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12}]},{"id":"Fixed<br>limma-trend","name":"Fixed<br>limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AEA","fontSize":12},{"backgroundColor":"#00991ABE","fontSize":12},{"backgroundColor":"#00991AB0","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991ABB","fontSize":12},{"backgroundColor":"#00991AAF","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991ABB","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12}]},{"id":"Fixed<br>glmQLF","name":"Fixed<br>glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFB","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991ABF","fontSize":12},{"backgroundColor":"#00991AB3","fontSize":12},{"backgroundColor":"#00991AF0","fontSize":12},{"backgroundColor":"#00991ABD","fontSize":12},{"backgroundColor":"#00991AB1","fontSize":12},{"backgroundColor":"#00991AEC","fontSize":12},{"backgroundColor":"#00991ABD","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12}]},{"id":"Fixed<br>Wald","name":"Fixed<br>Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A74","fontSize":12},{"backgroundColor":"#00991A6E","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A73","fontSize":12},{"backgroundColor":"#00991A6E","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12},{"backgroundColor":"#00991A6C","fontSize":12},{"backgroundColor":"#00991A86","fontSize":12},{"backgroundColor":"#00991A78","fontSize":12},{"backgroundColor":"#00991AE5","fontSize":12},{"backgroundColor":"#00991A82","fontSize":12},{"backgroundColor":"#00991A75","fontSize":12},{"backgroundColor":"#00991ADF","fontSize":12},{"backgroundColor":"#00991A84","fontSize":12},{"backgroundColor":"#00991AE4","fontSize":12},{"backgroundColor":"#00991AE0","fontSize":12}]},{"id":"Fixed<br>RLE limma-trend","name":"Fixed<br>RLE limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF1","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12},{"backgroundColor":"#00991ABF","fontSize":12},{"backgroundColor":"#00991AB3","fontSize":12},{"backgroundColor":"#00991AF0","fontSize":12},{"backgroundColor":"#00991ABF","fontSize":12},{"backgroundColor":"#00991AB3","fontSize":12},{"backgroundColor":"#00991AEC","fontSize":12},{"backgroundColor":"#00991ABE","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12}]},{"id":"Fixed<br>RLE glmQLF","name":"Fixed<br>RLE glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFB","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF0","fontSize":12},{"backgroundColor":"#00991ABF","fontSize":12},{"backgroundColor":"#00991AB4","fontSize":12},{"backgroundColor":"#00991AF0","fontSize":12},{"backgroundColor":"#00991ABF","fontSize":12},{"backgroundColor":"#00991AB4","fontSize":12},{"backgroundColor":"#00991AEC","fontSize":12},{"backgroundColor":"#00991ABF","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12}]},{"id":"Fixed<br>RLE Wald","name":"Fixed<br>RLE Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A7F","fontSize":12},{"backgroundColor":"#00991A79","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A7E","fontSize":12},{"backgroundColor":"#00991A79","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A76","fontSize":12},{"backgroundColor":"#00991A8D","fontSize":12},{"backgroundColor":"#00991A7F","fontSize":12},{"backgroundColor":"#00991AEA","fontSize":12},{"backgroundColor":"#00991A8A","fontSize":12},{"backgroundColor":"#00991A7D","fontSize":12},{"backgroundColor":"#00991AE4","fontSize":12},{"backgroundColor":"#00991A8C","fontSize":12},{"backgroundColor":"#00991AE8","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12}]},{"id":"Fixed<br>RLE-Grouped glmQLF","name":"Fixed<br>RLE-Grouped glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991ABE","fontSize":12},{"backgroundColor":"#00991AB3","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12},{"backgroundColor":"#00991ABC","fontSize":12},{"backgroundColor":"#00991AB1","fontSize":12},{"backgroundColor":"#00991AEA","fontSize":12},{"backgroundColor":"#00991ABC","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12}]},{"id":"Sliding<br>limma-trend","name":"Sliding<br>limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A53","fontSize":12},{"backgroundColor":"#00991A50","fontSize":12},{"backgroundColor":"#00991A81","fontSize":12},{"backgroundColor":"#00991A54","fontSize":12},{"backgroundColor":"#00991A50","fontSize":12},{"backgroundColor":"#00991A7D","fontSize":12},{"backgroundColor":"#00991A4E","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991ADD","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12},{"backgroundColor":"#00991AD0","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF1","fontSize":12},{"backgroundColor":"#00991A90","fontSize":12},{"backgroundColor":"#00991A8D","fontSize":12}]},{"id":"Sliding<br>glmQLF","name":"Sliding<br>glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A58","fontSize":12},{"backgroundColor":"#00991A55","fontSize":12},{"backgroundColor":"#00991A84","fontSize":12},{"backgroundColor":"#00991A59","fontSize":12},{"backgroundColor":"#00991A56","fontSize":12},{"backgroundColor":"#00991A80","fontSize":12},{"backgroundColor":"#00991A53","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991A93","fontSize":12},{"backgroundColor":"#00991A90","fontSize":12}]},{"id":"Sliding<br>Wald","name":"Sliding<br>Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A1F","fontSize":12},{"backgroundColor":"#00991A1D","fontSize":12},{"backgroundColor":"#00991A40","fontSize":12},{"backgroundColor":"#00991A1F","fontSize":12},{"backgroundColor":"#00991A1D","fontSize":12},{"backgroundColor":"#00991A3C","fontSize":12},{"backgroundColor":"#00991A1C","fontSize":12},{"backgroundColor":"#00991A48","fontSize":12},{"backgroundColor":"#00991A40","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A45","fontSize":12},{"backgroundColor":"#00991A3C","fontSize":12},{"backgroundColor":"#00991AE0","fontSize":12},{"backgroundColor":"#00991A46","fontSize":12},{"backgroundColor":"#00991A44","fontSize":12},{"backgroundColor":"#00991A42","fontSize":12}]},{"id":"Sliding<br>RLE limma-trend","name":"Sliding<br>RLE limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A56","fontSize":12},{"backgroundColor":"#00991A53","fontSize":12},{"backgroundColor":"#00991A84","fontSize":12},{"backgroundColor":"#00991A57","fontSize":12},{"backgroundColor":"#00991A54","fontSize":12},{"backgroundColor":"#00991A80","fontSize":12},{"backgroundColor":"#00991A50","fontSize":12},{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991AE1","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991ADD","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991A91","fontSize":12},{"backgroundColor":"#00991A90","fontSize":12}]},{"id":"Sliding<br>RLE glmQLF","name":"Sliding<br>RLE glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A5C","fontSize":12},{"backgroundColor":"#00991A58","fontSize":12},{"backgroundColor":"#00991A86","fontSize":12},{"backgroundColor":"#00991A5D","fontSize":12},{"backgroundColor":"#00991A5A","fontSize":12},{"backgroundColor":"#00991A83","fontSize":12},{"backgroundColor":"#00991A56","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A94","fontSize":12},{"backgroundColor":"#00991A92","fontSize":12}]},{"id":"Sliding<br>RLE Wald","name":"Sliding<br>RLE Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A22","fontSize":12},{"backgroundColor":"#00991A21","fontSize":12},{"backgroundColor":"#00991A48","fontSize":12},{"backgroundColor":"#00991A22","fontSize":12},{"backgroundColor":"#00991A21","fontSize":12},{"backgroundColor":"#00991A43","fontSize":12},{"backgroundColor":"#00991A20","fontSize":12},{"backgroundColor":"#00991A53","fontSize":12},{"backgroundColor":"#00991A49","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991A45","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A50","fontSize":12},{"backgroundColor":"#00991A4B","fontSize":12},{"backgroundColor":"#00991A48","fontSize":12}]},{"id":"Sliding<br>SQN limma-trend","name":"Sliding<br>SQN limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A55","fontSize":12},{"backgroundColor":"#00991A52","fontSize":12},{"backgroundColor":"#00991A83","fontSize":12},{"backgroundColor":"#00991A56","fontSize":12},{"backgroundColor":"#00991A52","fontSize":12},{"backgroundColor":"#00991A80","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991AE0","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991AD9","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A91","fontSize":12},{"backgroundColor":"#00991A8F","fontSize":12}]}],"columnGroups":[{"name":"DiffBind (Wald Test)","columns":["DiffBind<br>","DiffBind<br>RLE "]},{"name":"extraChIPs Fixed","columns":["Fixed<br>limma-trend","Fixed<br>glmQLF","Fixed<br>Wald","Fixed<br>RLE limma-trend","Fixed<br>RLE glmQLF","Fixed<br>RLE Wald","Fixed<br>RLE-Grouped glmQLF"]},{"name":"extraChIPs Sliding","columns":["Sliding<br>limma-trend","Sliding<br>glmQLF","Sliding<br>Wald","Sliding<br>RLE limma-trend","Sliding<br>RLE glmQLF","Sliding<br>RLE Wald","Sliding<br>SQN limma-trend"]}],"filterable":true,"pagination":false,"highlight":true,"theme":{"style":{"fontSize":12}},"elementId":"tbl-all-comps","dataKey":"142df192b01db64ac34f08be81057835"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div id="range-based-h0" class="section level2">
@@ -1778,7 +1823,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <col width="11%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th align="left">abbr</th>
 <th align="left">Package</th>
 <th align="left">norm</th>
@@ -1790,165 +1835,165 @@ when switching to a range-based H<sub>0</sub></caption>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">ec-fw-ls-lt</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
 <td align="left">lt</td>
-<td align="right">39,583</td>
-<td align="right">39,583</td>
+<td align="right">39,663</td>
+<td align="right">39,663</td>
 <td align="right">0</td>
 <td align="right">0.000%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">ec-fw-ls-ql</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
 <td align="left">qlf</td>
-<td align="right">39,583</td>
-<td align="right">39,583</td>
+<td align="right">39,663</td>
+<td align="right">39,663</td>
 <td align="right">0</td>
 <td align="right">0.000%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">ec-fw-ls-wt</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
 <td align="left">wald</td>
-<td align="right">39,583</td>
-<td align="right">39,583</td>
+<td align="right">39,663</td>
+<td align="right">39,663</td>
 <td align="right">0</td>
 <td align="right">0.000%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">ec-fw-rle-lt</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
 <td align="left">lt</td>
-<td align="right">39,583</td>
-<td align="right">39,583</td>
+<td align="right">39,663</td>
+<td align="right">39,663</td>
 <td align="right">0</td>
 <td align="right">0.000%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">ec-fw-rle-ql</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
 <td align="left">qlf</td>
-<td align="right">39,583</td>
-<td align="right">39,583</td>
+<td align="right">39,663</td>
+<td align="right">39,663</td>
 <td align="right">0</td>
 <td align="right">0.000%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">ec-fw-rle-wt</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
 <td align="left">wald</td>
-<td align="right">39,583</td>
-<td align="right">39,583</td>
+<td align="right">39,663</td>
+<td align="right">39,663</td>
 <td align="right">0</td>
 <td align="right">0.000%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">ec-fw-rlg-ql</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE-Grouped</td>
 <td align="left">qlf</td>
-<td align="right">39,583</td>
-<td align="right">39,583</td>
+<td align="right">39,663</td>
+<td align="right">39,663</td>
 <td align="right">0</td>
 <td align="right">0.000%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">ec-sw-ls-lt</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
 <td align="left">lt</td>
-<td align="right">31,460</td>
-<td align="right">31,460</td>
-<td align="right">0</td>
-<td align="right">0.000%</td>
+<td align="right">31,742</td>
+<td align="right">34,999</td>
+<td align="right">3,257</td>
+<td align="right">10.261%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">ec-sw-ls-ql</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
 <td align="left">qlf</td>
-<td align="right">31,460</td>
-<td align="right">31,460</td>
-<td align="right">0</td>
-<td align="right">0.000%</td>
+<td align="right">31,742</td>
+<td align="right">34,999</td>
+<td align="right">3,257</td>
+<td align="right">10.261%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">ec-sw-ls-wt</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
 <td align="left">wald</td>
-<td align="right">31,460</td>
-<td align="right">31,460</td>
-<td align="right">0</td>
-<td align="right">0.000%</td>
+<td align="right">31,742</td>
+<td align="right">34,999</td>
+<td align="right">3,257</td>
+<td align="right">10.261%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">ec-sw-rle-lt</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
 <td align="left">lt</td>
-<td align="right">31,460</td>
-<td align="right">31,460</td>
-<td align="right">0</td>
-<td align="right">0.000%</td>
+<td align="right">31,742</td>
+<td align="right">34,999</td>
+<td align="right">3,257</td>
+<td align="right">10.261%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">ec-sw-rle-ql</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
 <td align="left">qlf</td>
-<td align="right">31,460</td>
-<td align="right">31,460</td>
-<td align="right">0</td>
-<td align="right">0.000%</td>
+<td align="right">31,742</td>
+<td align="right">34,999</td>
+<td align="right">3,257</td>
+<td align="right">10.261%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">ec-sw-rle-wt</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
 <td align="left">wald</td>
-<td align="right">31,460</td>
-<td align="right">31,460</td>
-<td align="right">0</td>
-<td align="right">0.000%</td>
+<td align="right">31,742</td>
+<td align="right">34,999</td>
+<td align="right">3,257</td>
+<td align="right">10.261%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">ec-sw-sq-lt</td>
 <td align="left">extraChIPs</td>
 <td align="left">SQN</td>
 <td align="left">lt</td>
-<td align="right">31,460</td>
-<td align="right">31,460</td>
-<td align="right">0</td>
-<td align="right">0.000%</td>
+<td align="right">31,742</td>
+<td align="right">34,999</td>
+<td align="right">3,257</td>
+<td align="right">10.261%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">db-fw-ls-wt</td>
 <td align="left">DiffBind</td>
 <td align="left">none</td>
 <td align="left">wald</td>
-<td align="right">35,515</td>
-<td align="right">1,437</td>
-<td align="right">-34,078</td>
-<td align="right">-95.954%</td>
+<td align="right">38,204</td>
+<td align="right">1,044</td>
+<td align="right">-37,160</td>
+<td align="right">-97.267%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">db-fw-rle-wt</td>
 <td align="left">DiffBind</td>
 <td align="left">RLE</td>
 <td align="left">wald</td>
-<td align="right">35,515</td>
-<td align="right">1,459</td>
-<td align="right">-34,056</td>
-<td align="right">-95.892%</td>
+<td align="right">38,204</td>
+<td align="right">1,071</td>
+<td align="right">-37,133</td>
+<td align="right">-97.197%</td>
 </tr>
 </tbody>
 </table>
@@ -2117,7 +2162,7 @@ tbl &lt;- all_sig %&gt;%
     quantro_status = case_when(
       grepl(sprintf(&quot;^\u02D9&quot;), quantro_flag ) ~ &quot;Caution&quot;,
       grepl(&quot;^\\*&quot;, quantro_flag) ~ &quot;Inappropriate&quot;,
-      TRUE ~ &quot;Appropriate&quot;
+      TRUE ~ &quot;Suitable&quot;
     )
   ) %&gt;% 
   arrange(desc(value)) %&gt;% 
@@ -2167,7 +2212,7 @@ analysis. The status of the model as assessed using quantro is provided in
 the final column.</em>
 </caption>
 <div class="reactable html-widget html-fill-item" id="tbl-ranks" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="tbl-ranks">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"rank":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],"package":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","DiffBind","extraChIPs","extraChIPs","extraChIPs","extraChIPs"],"windows":["Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Sliding","Sliding","Fixed-Width","Sliding","Fixed-Width","Fixed-Width","Sliding","Sliding","Sliding","Sliding"],"norm":["RLE-Grouped","Library Size","RLE","RLE","Library Size","RLE","RLE","Library Size","Library Size","Smooth Quantile","RLE","Library Size","RLE","Library Size","RLE","Library Size"],"method":["glmQLF","glmQLF","glmQLF","limma-trend","limma-trend","Wald Test","glmQLF","glmQLF","Wald Test","limma-trend","Wald Test","Wald Test","limma-trend","limma-trend","Wald Test","Wald Test"],"assay":["counts","counts","counts","logCPM (RLE)","logCPM","counts","counts","counts","counts","qsmooth","counts","counts","logCPM (RLE)","logCPM","counts","counts"],"n_sig":[3020,2967,2961,2887,2863,1517,1472,1417,1338,1328,1325,1323,1320,1297,506,440],"range_null":[922,889,963,896,859,642,422,375,590,345,504,484,387,346,179,166],"quantro_status":["Appropriate","Appropriate","Caution","Caution","Appropriate","Caution","Appropriate","Appropriate","Appropriate","Appropriate","Caution","Appropriate","Appropriate","Appropriate","Appropriate","Appropriate"]},"columns":[{"id":"rank","name":"Rank","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] <= filterValue\n    })\n  }","maxWidth":70},{"id":"package","name":"R Package","type":"character","html":true,"maxWidth":100},{"id":"windows","name":"Window Type","type":"character","html":true,"maxWidth":100},{"id":"norm","name":"Normalisation","type":"character","html":true,"minWidth":100},{"id":"method","name":"Analytic Approach","type":"character","html":true,"minWidth":100},{"id":"assay","name":"Assay","type":"character","html":true,"maxWidth":120},{"id":"n_sig","name":"Point H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"range_null","name":"Range H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"quantro_status","name":"Status","type":"character","html":true,"maxWidth":100,"style":[{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"}]}],"columnGroups":[{"name":"Significant Sites","columns":["n_sig","range_null"]}],"filterable":true,"pagination":false,"showPageSizeOptions":false,"theme":{"style":{"fontSize":13}},"elementId":"tbl-ranks","dataKey":"a63ae5a8e965df52d289a4b3ea2f8b22"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.filterMethod","tag.attribs.columns.6.filterMethod","tag.attribs.columns.7.filterMethod"],"jsHooks":[]}</script>
+<script type="application/json" data-for="tbl-ranks">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"rank":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],"package":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","DiffBind","extraChIPs","extraChIPs"],"windows":["Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Sliding","Sliding","Fixed-Width","Sliding","Sliding","Fixed-Width","Sliding","Fixed-Width","Fixed-Width","Sliding","Sliding"],"norm":["RLE-Grouped","Library Size","RLE","RLE","Library Size","RLE","Library Size","RLE","RLE","Smooth Quantile","Library Size","Library Size","RLE","Library Size","RLE","Library Size"],"method":["glmQLF","glmQLF","glmQLF","limma-trend","limma-trend","glmQLF","glmQLF","Wald Test","limma-trend","limma-trend","Wald Test","limma-trend","Wald Test","Wald Test","Wald Test","Wald Test"],"assay":["counts","counts","counts","logCPM (RLE)","logCPM","counts","counts","counts","logCPM (RLE)","qsmooth","counts","logCPM","counts","counts","counts","counts"],"n_sig":[2088,2036,2035,1946,1934,1030,977,941,899,885,861,859,835,789,278,244],"range_null":[706,690,717,674,647,373,333,319,319,289,303,280,281,271,100,94],"quantro_status":["Suitable","Suitable","Caution","Caution","Suitable","Suitable","Suitable","Caution","Suitable","Suitable","Suitable","Suitable","Caution","Suitable","Suitable","Suitable"]},"columns":[{"id":"rank","name":"Rank","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] <= filterValue\n    })\n  }","maxWidth":70},{"id":"package","name":"R Package","type":"character","html":true,"maxWidth":100},{"id":"windows","name":"Window Type","type":"character","html":true,"maxWidth":100},{"id":"norm","name":"Normalisation","type":"character","html":true,"minWidth":100},{"id":"method","name":"Analytic Approach","type":"character","html":true,"minWidth":100},{"id":"assay","name":"Assay","type":"character","html":true,"maxWidth":120},{"id":"n_sig","name":"Point H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"range_null","name":"Range H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"quantro_status","name":"Status","type":"character","html":true,"maxWidth":100,"style":[{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"}]}],"columnGroups":[{"name":"Significant Sites","columns":["n_sig","range_null"]}],"filterable":true,"pagination":false,"showPageSizeOptions":false,"theme":{"style":{"fontSize":13}},"elementId":"tbl-ranks","dataKey":"3b9ff6911878a9e62ba0981d9e5f4c76"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.filterMethod","tag.attribs.columns.6.filterMethod","tag.attribs.columns.7.filterMethod"],"jsHooks":[]}</script>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
@@ -2207,9 +2252,8 @@ Randomly Drawn.”</span> <em>Stat. Appl. Genet. Mol. Biol.</em> 9
 Session information </button>
 </p>
 <div id="sessioninfo" class="collapse">
-
-<p><strong>R version 4.4.0 (2024-04-24)</strong></p>
-<p><strong>Platform:</strong> x86_64-pc-linux-gnu</p>
+<p><strong>R version 4.3.3 (2024-02-29)</strong></p>
+<p><strong>Platform:</strong> x86_64-conda-linux-gnu (64-bit)</p>
 <p><strong>locale:</strong> <em>LC_CTYPE=en_AU.UTF-8</em>,
 <em>LC_NUMERIC=C</em>, <em>LC_TIME=en_AU.UTF-8</em>,
 <em>LC_COLLATE=en_AU.UTF-8</em>, <em>LC_MONETARY=en_AU.UTF-8</em>,
@@ -2220,75 +2264,75 @@ Session information </button>
 <em>stats4</em>, <em>stats</em>, <em>graphics</em>, <em>grDevices</em>,
 <em>utils</em>, <em>datasets</em>, <em>methods</em> and
 <em>base</em></p>
-<p><strong>other attached packages:</strong> <em>corrplot(v.0.92)</em>,
+<p><strong>other attached packages:</strong>
+<em>GenomicAlignments(v.1.38.2)</em>, <em>corrplot(v.0.92)</em>,
 <em>pander(v.0.6.5)</em>, <em>patchwork(v.1.2.0)</em>,
-<em>plyranges(v.1.24.0)</em>, <em>magrittr(v.2.0.3)</em>,
+<em>plyranges(v.1.22.0)</em>, <em>magrittr(v.2.0.3)</em>,
 <em>doParallel(v.1.0.17)</em>, <em>iterators(v.1.0.14)</em>,
-<em>foreach(v.1.5.2)</em>, <em>qsmooth(v.1.20.0)</em>,
-<em>quantro(v.1.38.0)</em>, <em>edgeR(v.4.2.0)</em>,
-<em>limma(v.3.60.3)</em>, <em>csaw(v.1.38.0)</em>,
-<em>Rsamtools(v.2.20.0)</em>, <em>Biostrings(v.2.72.1)</em>,
-<em>XVector(v.0.44.0)</em>, <em>glue(v.1.7.0)</em>,
+<em>foreach(v.1.5.2)</em>, <em>qsmooth(v.1.18.0)</em>,
+<em>quantro(v.1.36.0)</em>, <em>edgeR(v.4.0.16)</em>,
+<em>limma(v.3.58.1)</em>, <em>csaw(v.1.36.1)</em>,
+<em>Rsamtools(v.2.18.0)</em>, <em>Biostrings(v.2.70.3)</em>,
+<em>XVector(v.0.42.0)</em>, <em>glue(v.1.7.0)</em>,
 <em>scales(v.1.3.0)</em>, <em>htmltools(v.0.5.8.1)</em>,
-<em>reactable(v.0.4.4)</em>, <em>extraChIPs(v.1.8.1)</em>,
-<em>ggside(v.0.3.1)</em>, <em>BiocParallel(v.1.38.0)</em>,
-<em>DiffBind(v.3.14.0)</em>, <em>SummarizedExperiment(v.1.34.0)</em>,
-<em>Biobase(v.2.64.0)</em>, <em>MatrixGenerics(v.1.16.0)</em>,
-<em>matrixStats(v.1.3.0)</em>, <em>GenomicRanges(v.1.56.1)</em>,
-<em>GenomeInfoDb(v.1.40.1)</em>, <em>IRanges(v.2.38.1)</em>,
-<em>S4Vectors(v.0.42.1)</em>, <em>BiocGenerics(v.0.50.0)</em>,
+<em>reactable(v.0.4.4)</em>, <em>extraChIPs(v.1.9.4)</em>,
+<em>ggside(v.0.3.1)</em>, <em>BiocParallel(v.1.36.0)</em>,
+<em>DiffBind(v.3.12.0)</em>, <em>SummarizedExperiment(v.1.32.0)</em>,
+<em>Biobase(v.2.62.0)</em>, <em>MatrixGenerics(v.1.14.0)</em>,
+<em>matrixStats(v.1.3.0)</em>, <em>GenomicRanges(v.1.54.1)</em>,
+<em>GenomeInfoDb(v.1.38.8)</em>, <em>IRanges(v.2.36.0)</em>,
+<em>S4Vectors(v.0.40.2)</em>, <em>BiocGenerics(v.0.48.1)</em>,
 <em>lubridate(v.1.9.3)</em>, <em>forcats(v.1.0.0)</em>,
 <em>stringr(v.1.5.1)</em>, <em>dplyr(v.1.1.4)</em>,
 <em>purrr(v.1.0.2)</em>, <em>readr(v.2.1.5)</em>,
 <em>tidyr(v.1.3.1)</em>, <em>tibble(v.3.2.1)</em>,
 <em>ggplot2(v.3.5.1)</em> and <em>tidyverse(v.2.0.0)</em></p>
 <p><strong>loaded via a namespace (and not attached):</strong>
-<em>ProtGenerics(v.1.36.0)</em>, <em>bitops(v.1.0-7)</em>,
+<em>ProtGenerics(v.1.34.0)</em>, <em>bitops(v.1.0-7)</em>,
 <em>httr(v.1.4.7)</em>, <em>RColorBrewer(v.1.1-3)</em>,
-<em>InteractionSet(v.1.32.0)</em>, <em>numDeriv(v.2016.8-1.1)</em>,
-<em>doRNG(v.1.8.6)</em>, <em>tools(v.4.4.0)</em>,
+<em>InteractionSet(v.1.30.0)</em>, <em>numDeriv(v.2016.8-1.1)</em>,
+<em>doRNG(v.1.8.6)</em>, <em>tools(v.4.3.3)</em>,
 <em>backports(v.1.5.0)</em>, <em>utf8(v.1.2.4)</em>,
-<em>R6(v.2.5.1)</em>, <em>HDF5Array(v.1.32.0)</em>,
+<em>R6(v.2.5.1)</em>, <em>HDF5Array(v.1.30.1)</em>,
 <em>mgcv(v.1.9-1)</em>, <em>lazyeval(v.0.2.2)</em>,
-<em>Gviz(v.1.48.0)</em>, <em>rhdf5filters(v.1.16.0)</em>,
-<em>apeglm(v.1.26.1)</em>, <em>withr(v.3.0.0)</em>,
+<em>Gviz(v.1.46.1)</em>, <em>rhdf5filters(v.1.14.1)</em>,
+<em>apeglm(v.1.24.0)</em>, <em>withr(v.3.0.0)</em>,
 <em>prettyunits(v.1.2.0)</em>, <em>gridExtra(v.2.3)</em>,
-<em>base64(v.2.0.1)</em>, <em>preprocessCore(v.1.66.0)</em>,
+<em>base64(v.2.0.1)</em>, <em>preprocessCore(v.1.64.0)</em>,
 <em>VennDiagram(v.1.7.3)</em>, <em>cli(v.3.6.3)</em>,
 <em>formatR(v.1.14)</em>, <em>labeling(v.0.4.3)</em>,
 <em>sass(v.0.4.9)</em>, <em>SQUAREM(v.2021.1)</em>,
-<em>mvtnorm(v.1.2-5)</em>, <em>genefilter(v.1.86.0)</em>,
+<em>mvtnorm(v.1.2-5)</em>, <em>genefilter(v.1.84.0)</em>,
 <em>askpass(v.1.2.0)</em>, <em>mixsqp(v.0.3-54)</em>,
-<em>foreign(v.0.8-87)</em>, <em>illuminaio(v.0.46.0)</em>,
-<em>siggenes(v.1.78.0)</em>, <em>dichromat(v.2.0-0.1)</em>,
-<em>scrime(v.1.3.5)</em>, <em>BSgenome(v.1.72.0)</em>,
+<em>foreign(v.0.8-87)</em>, <em>illuminaio(v.0.44.0)</em>,
+<em>siggenes(v.1.76.0)</em>, <em>dichromat(v.2.0-0.1)</em>,
+<em>scrime(v.1.3.5)</em>, <em>BSgenome(v.1.70.2)</em>,
 <em>invgamma(v.1.1)</em>, <em>bbmle(v.1.0.25.1)</em>,
 <em>rstudioapi(v.0.16.0)</em>, <em>RSQLite(v.2.3.7)</em>,
-<em>generics(v.0.1.3)</em>, <em>BiocIO(v.1.14.0)</em>,
-<em>hwriter(v.1.3.2.1)</em>, <em>crosstalk(v.1.2.1)</em>,
-<em>vroom(v.1.6.5)</em>, <em>gtools(v.3.9.5)</em>,
-<em>Matrix(v.1.6-5)</em>, <em>interp(v.1.1-6)</em>,
-<em>futile.logger(v.1.4.3)</em>, <em>fansi(v.1.0.6)</em>,
-<em>abind(v.1.4-5)</em>, <em>lifecycle(v.1.0.4)</em>,
-<em>yaml(v.2.3.8)</em>, <em>rhdf5(v.2.48.0)</em>,
-<em>gplots(v.3.1.3.1)</em>, <em>SparseArray(v.1.4.8)</em>,
-<em>BiocFileCache(v.2.12.0)</em>, <em>grid(v.4.4.0)</em>,
-<em>blob(v.1.2.4)</em>, <em>crayon(v.1.5.3)</em>,
-<em>bdsmatrix(v.1.3-7)</em>, <em>pwalign(v.1.0.0)</em>,
+<em>generics(v.0.1.3)</em>, <em>BiocIO(v.1.12.0)</em>,
+<em>hwriter(v.1.3.2.1)</em>, <em>vroom(v.1.6.5)</em>,
+<em>gtools(v.3.9.5)</em>, <em>Matrix(v.1.6-5)</em>,
+<em>interp(v.1.1-6)</em>, <em>futile.logger(v.1.4.3)</em>,
+<em>fansi(v.1.0.6)</em>, <em>abind(v.1.4-5)</em>,
+<em>lifecycle(v.1.0.4)</em>, <em>yaml(v.2.3.9)</em>,
+<em>rhdf5(v.2.46.1)</em>, <em>gplots(v.3.1.3.1)</em>,
+<em>SparseArray(v.1.2.4)</em>, <em>BiocFileCache(v.2.10.2)</em>,
+<em>grid(v.4.3.3)</em>, <em>blob(v.1.2.4)</em>,
+<em>crayon(v.1.5.3)</em>, <em>bdsmatrix(v.1.3-7)</em>,
 <em>lattice(v.0.22-6)</em>, <em>ComplexUpset(v.1.3.3)</em>,
-<em>annotate(v.1.82.0)</em>, <em>GenomicFeatures(v.1.56.0)</em>,
-<em>KEGGREST(v.1.44.1)</em>, <em>beanplot(v.1.3.1)</em>,
-<em>pillar(v.1.9.0)</em>, <em>knitr(v.1.47)</em>,
-<em>metapod(v.1.12.0)</em>, <em>rjson(v.0.2.21)</em>,
-<em>systemPipeR(v.2.10.0)</em>, <em>codetools(v.0.2-20)</em>,
-<em>ShortRead(v.1.62.0)</em>, <em>GreyListChIP(v.1.36.0)</em>,
+<em>annotate(v.1.80.0)</em>, <em>GenomicFeatures(v.1.54.4)</em>,
+<em>KEGGREST(v.1.42.0)</em>, <em>beanplot(v.1.3.1)</em>,
+<em>pillar(v.1.9.0)</em>, <em>knitr(v.1.48)</em>,
+<em>metapod(v.1.10.1)</em>, <em>rjson(v.0.2.21)</em>,
+<em>systemPipeR(v.2.8.0)</em>, <em>codetools(v.0.2-20)</em>,
+<em>ShortRead(v.1.60.0)</em>, <em>GreyListChIP(v.1.34.0)</em>,
 <em>data.table(v.1.15.4)</em>, <em>vctrs(v.0.6.5)</em>,
 <em>png(v.0.1-8)</em>, <em>gtable(v.0.3.5)</em>,
 <em>reactR(v.0.6.0)</em>, <em>amap(v.0.8-19)</em>,
 <em>emdbook(v.1.3.13)</em>, <em>cachem(v.1.1.0)</em>,
-<em>xfun(v.0.45)</em>, <em>S4Arrays(v.1.4.1)</em>,
+<em>xfun(v.0.46)</em>, <em>S4Arrays(v.1.2.1)</em>,
 <em>coda(v.0.19-4.1)</em>, <em>survival(v.3.7-0)</em>,
-<em>statmod(v.1.5.0)</em>, <em>GenomicInteractions(v.1.38.0)</em>,
+<em>statmod(v.1.5.0)</em>, <em>GenomicInteractions(v.1.36.0)</em>,
 <em>nlme(v.3.1-165)</em>, <em>bit64(v.4.0.5)</em>,
 <em>progress(v.1.2.3)</em>, <em>filelock(v.1.0.3)</em>,
 <em>rprojroot(v.2.0.4)</em>, <em>nor1mix(v.1.3-3)</em>,
@@ -2296,46 +2340,46 @@ Session information </button>
 <em>KernSmooth(v.2.23-24)</em>, <em>rpart(v.4.1.23)</em>,
 <em>colorspace(v.2.1-0)</em>, <em>DBI(v.1.2.3)</em>,
 <em>Hmisc(v.5.1-3)</em>, <em>nnet(v.7.3-19)</em>,
-<em>DESeq2(v.1.44.0)</em>, <em>tidyselect(v.1.2.1)</em>,
-<em>bit(v.4.0.5)</em>, <em>compiler(v.4.4.0)</em>,
-<em>curl(v.5.2.1)</em>, <em>httr2(v.1.0.1)</em>,
-<em>htmlTable(v.2.4.2)</em>, <em>xml2(v.1.3.6)</em>,
-<em>DelayedArray(v.0.30.1)</em>, <em>rtracklayer(v.1.64.0)</em>,
-<em>checkmate(v.2.3.1)</em>, <em>caTools(v.1.18.2)</em>,
-<em>quadprog(v.1.5-8)</em>, <em>rappdirs(v.0.3.3)</em>,
-<em>digest(v.0.6.36)</em>, <em>rmarkdown(v.2.27)</em>,
-<em>GEOquery(v.2.72.0)</em>, <em>pkgconfig(v.2.0.3)</em>,
-<em>jpeg(v.0.1-10)</em>, <em>base64enc(v.0.1-3)</em>,
-<em>sparseMatrixStats(v.1.16.0)</em>, <em>highr(v.0.11)</em>,
-<em>dbplyr(v.2.5.0)</em>, <em>fastmap(v.1.2.0)</em>,
-<em>ensembldb(v.2.28.0)</em>, <em>rlang(v.1.1.4)</em>,
-<em>htmlwidgets(v.1.6.4)</em>, <em>UCSC.utils(v.1.0.0)</em>,
-<em>DelayedMatrixStats(v.1.26.0)</em>, <em>farver(v.2.1.2)</em>,
+<em>DESeq2(v.1.42.1)</em>, <em>tidyselect(v.1.2.1)</em>,
+<em>bit(v.4.0.5)</em>, <em>compiler(v.4.3.3)</em>,
+<em>curl(v.5.2.1)</em>, <em>htmlTable(v.2.4.3)</em>,
+<em>xml2(v.1.3.6)</em>, <em>DelayedArray(v.0.28.0)</em>,
+<em>rtracklayer(v.1.62.0)</em>, <em>checkmate(v.2.3.1)</em>,
+<em>caTools(v.1.18.2)</em>, <em>quadprog(v.1.5-8)</em>,
+<em>rappdirs(v.0.3.3)</em>, <em>digest(v.0.6.36)</em>,
+<em>rmarkdown(v.2.27)</em>, <em>GEOquery(v.2.70.0)</em>,
+<em>pkgconfig(v.2.0.3)</em>, <em>jpeg(v.0.1-10)</em>,
+<em>base64enc(v.0.1-3)</em>, <em>sparseMatrixStats(v.1.14.0)</em>,
+<em>highr(v.0.11)</em>, <em>dbplyr(v.2.5.0)</em>,
+<em>fastmap(v.1.2.0)</em>, <em>ensembldb(v.2.26.0)</em>,
+<em>rlang(v.1.1.4)</em>, <em>htmlwidgets(v.1.6.4)</em>,
+<em>DelayedMatrixStats(v.1.24.0)</em>, <em>farver(v.2.1.2)</em>,
 <em>jquerylib(v.0.1.4)</em>, <em>jsonlite(v.1.8.8)</em>,
-<em>mclust(v.6.1.1)</em>, <em>VariantAnnotation(v.1.50.0)</em>,
-<em>RCurl(v.1.98-1.14)</em>, <em>Formula(v.1.2-5)</em>,
-<em>GenomeInfoDbData(v.1.2.12)</em>, <em>Rhdf5lib(v.1.26.0)</em>,
-<em>munsell(v.0.5.1)</em>, <em>Rcpp(v.1.0.12)</em>,
-<em>stringi(v.1.8.4)</em>, <em>zlibbioc(v.1.50.0)</em>,
-<em>MASS(v.7.3-61)</em>, <em>bumphunter(v.1.46.0)</em>,
-<em>plyr(v.1.8.9)</em>, <em>minfi(v.1.50.0)</em>,
+<em>mclust(v.6.1.1)</em>, <em>VariantAnnotation(v.1.48.1)</em>,
+<em>RCurl(v.1.98-1.16)</em>, <em>Formula(v.1.2-5)</em>,
+<em>GenomeInfoDbData(v.1.2.11)</em>, <em>Rhdf5lib(v.1.24.2)</em>,
+<em>munsell(v.0.5.1)</em>, <em>Rcpp(v.1.0.13)</em>,
+<em>stringi(v.1.8.4)</em>, <em>zlibbioc(v.1.48.2)</em>,
+<em>MASS(v.7.3-60.0.1)</em>, <em>bumphunter(v.1.44.0)</em>,
+<em>plyr(v.1.8.9)</em>, <em>minfi(v.1.48.0)</em>,
 <em>ggrepel(v.0.9.5)</em>, <em>deldir(v.2.0-4)</em>,
-<em>splines(v.4.4.0)</em>, <em>multtest(v.2.60.0)</em>,
+<em>splines(v.4.3.3)</em>, <em>multtest(v.2.58.0)</em>,
 <em>hms(v.1.1.3)</em>, <em>locfit(v.1.5-9.10)</em>,
 <em>igraph(v.2.0.3)</em>, <em>rngtools(v.1.5.2)</em>,
-<em>biomaRt(v.2.60.1)</em>, <em>futile.options(v.1.0.1)</em>,
+<em>biomaRt(v.2.58.2)</em>, <em>futile.options(v.1.0.1)</em>,
 <em>XML(v.3.99-0.17)</em>, <em>evaluate(v.0.24.0)</em>,
-<em>latticeExtra(v.0.6-30)</em>, <em>biovizBase(v.1.52.0)</em>,
+<em>latticeExtra(v.0.6-30)</em>, <em>biovizBase(v.1.50.0)</em>,
 <em>lambda.r(v.1.2.4)</em>, <em>tzdb(v.0.4.0)</em>,
 <em>tweenr(v.2.0.3)</em>, <em>openssl(v.2.2.0)</em>,
 <em>polyclip(v.1.10-6)</em>, <em>reshape(v.0.8.9)</em>,
 <em>ashr(v.2.2-63)</em>, <em>ggforce(v.0.4.2)</em>,
 <em>xtable(v.1.8-4)</em>, <em>broom(v.1.0.6)</em>,
-<em>restfulr(v.0.0.15)</em>, <em>AnnotationFilter(v.1.28.0)</em>,
+<em>restfulr(v.0.0.15)</em>, <em>AnnotationFilter(v.1.26.0)</em>,
 <em>truncnorm(v.1.0-9)</em>, <em>memoise(v.2.0.1)</em>,
-<em>AnnotationDbi(v.1.66.0)</em>, <em>GenomicAlignments(v.1.40.0)</em>,
-<em>cluster(v.2.1.6)</em>, <em>sva(v.3.52.0)</em>,
-<em>timechange(v.0.3.0)</em> and <em>here(v.1.0.1)</em></p>
+<em>AnnotationDbi(v.1.64.1)</em>, <em>cluster(v.2.1.6)</em>,
+<em>sva(v.3.50.0)</em>, <em>timechange(v.0.3.0)</em> and
+<em>here(v.1.0.1)</em></p>
+</div>
 </div>
 
 
