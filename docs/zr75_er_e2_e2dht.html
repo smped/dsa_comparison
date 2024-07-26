@@ -440,7 +440,7 @@ div.tocify {
 Black Ochre Data Labs<br />
 Telethon Kids Institute<br />
 Adelaide, Australia</div></h4>
-<h4 class="date">24 July, 2024</h4>
+<h4 class="date">26 July, 2024</h4>
 
 </div>
 
@@ -465,6 +465,7 @@ library(patchwork)
 library(pander)
 library(corrplot)
 library(GenomicAlignments)
+library(ggtext)
 cores &lt;- parallel::detectCores() - 2
 # cores &lt;- 4
 register(MulticoreParam(cores))
@@ -503,8 +504,10 @@ drop_filter &lt;- function(values, name, id = NULL, sort = TRUE) {
     style = &quot;width: 100%; height: 28px; font-size: 12px;&quot;
   )
 }
-fig_path &lt;- here::here(&quot;docs&quot;, &quot;assets&quot;, params$target)
-if (!dir.exists(fig_path)) dir.create(fig_path, recursive = TRUE)</code></pre>
+fig_path &lt;- here::here(&quot;docs&quot;, &quot;assets&quot;, params$cell_type, params$target)
+if (!dir.exists(fig_path)) dir.create(fig_path, recursive = TRUE)
+rds_path &lt;-  here::here(&quot;output&quot;, &quot;rds&quot;, params$cell_type)
+if (!dir.exists(rds_path)) dir.create(rds_path, recursive = TRUE)</code></pre>
 <pre class="r"><code>samples &lt;- here::here(&quot;config&quot;, &quot;samples.tsv&quot;) %&gt;% 
   read_tsv() %&gt;% 
   dplyr::filter(
@@ -547,10 +550,7 @@ ip_bfl &lt;- here::here(&quot;data&quot;, &quot;bam&quot;, params$cell_type, sam
 peaks This was then set as the fixed width for all peaks and any resized
 peaks which overlapped black- or grey-listed regions were subsequently
 excluded, give a final set of 6,908 peaks.</p>
-<pre class="r"><code>f &lt;- here::here(
-  &quot;output&quot;, &quot;rds&quot;, 
-  &quot;{params$cell_type}_{params$target}_{params$ref}_{params$treat}_fixed.rds&quot;
-) %&gt;% 
+<pre class="r"><code>f &lt;- file.path(rds_path, &quot;{params$target}_{params$ref}_{params$treat}_fixed.rds&quot;) %&gt;% 
   glue()
 if (file.exists(f)) {
   se &lt;- read_rds(f)
@@ -761,7 +761,7 @@ each individual approach.</p>
 <div id="e2-e2dht-ec-fw-ls-lt" class="section level4">
 <h4>Library Size + Limma Trend</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-fw-ls-lt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-fw-ls-lt.png" width="100%"/>
 <caption>
 <em>MA-plot for fixed-width windows analysed using extraChIPs with 
 Library Size normalisation and DSA results produced using Limma Trend methods.</em>
@@ -771,7 +771,7 @@ Library Size normalisation and DSA results produced using Limma Trend methods.</
 <div id="e2-e2dht-ec-fw-ls-ql" class="section level4">
 <h4>Library Size + glmQLF</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-fw-ls-ql.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-fw-ls-ql.png" width="100%"/>
 <caption>
 <em>MA-plot for fixed-width windows analysed using extraChIPs with 
 Library Size normalisation and DSA results produced using glmQLF methods.</em>
@@ -781,7 +781,7 @@ Library Size normalisation and DSA results produced using glmQLF methods.</em>
 <div id="e2-e2dht-ec-fw-ls-wt" class="section level4">
 <h4>Library Size + Wald Test</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-fw-ls-wt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-fw-ls-wt.png" width="100%"/>
 <caption>
 <em>MA-plot for fixed-width windows analysed using extraChIPs with 
 Library Size normalisation and DSA results produced using Wald Test methods.</em>
@@ -791,7 +791,7 @@ Library Size normalisation and DSA results produced using Wald Test methods.</em
 <div id="e2-e2dht-ec-fw-rle-lt" class="section level4">
 <h4>RLE + Limma Trend</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-fw-rle-lt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-fw-rle-lt.png" width="100%"/>
 <caption>
 <em>MA-plot for fixed-width windows analysed using extraChIPs with 
 RLE normalisation and DSA results produced using Limma Trend methods.</em>
@@ -801,7 +801,7 @@ RLE normalisation and DSA results produced using Limma Trend methods.</em>
 <div id="e2-e2dht-ec-fw-rle-ql" class="section level4">
 <h4>RLE + glmQLF</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-fw-rle-ql.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-fw-rle-ql.png" width="100%"/>
 <caption>
 <em>MA-plot for fixed-width windows analysed using extraChIPs with 
 RLE normalisation and DSA results produced using glmQLF methods.</em>
@@ -811,7 +811,7 @@ RLE normalisation and DSA results produced using glmQLF methods.</em>
 <div id="e2-e2dht-ec-fw-rle-wt" class="section level4">
 <h4>RLE + Wald Test</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-fw-rle-wt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-fw-rle-wt.png" width="100%"/>
 <caption>
 <em>MA-plot for fixed-width windows analysed using extraChIPs with 
 RLE normalisation and DSA results produced using Wald Test methods.</em>
@@ -821,7 +821,7 @@ RLE normalisation and DSA results produced using Wald Test methods.</em>
 <div id="e2-e2dht-ec-fw-rlg-ql" class="section level4">
 <h4>RLE-Grouped + glmQLF</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-fw-rlg-ql.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-fw-rlg-ql.png" width="100%"/>
 <caption>
 <em>MA-plot for fixed-width windows analysed using extraChIPs with 
 RLE-Grouped normalisation and DSA results produced using glmQLF methods.</em>
@@ -846,10 +846,7 @@ RLE-Grouped normalisation and DSA results produced using glmQLF methods.</em>
       TRUE ~ &quot;&quot;
     )
   )
-f &lt;- here::here(
-  &quot;output&quot;, &quot;rds&quot;, 
-  &quot;{params$cell_type}_{params$target}_{params$ref}_{params$treat}_dba.rds&quot;
-) %&gt;% 
+f &lt;- file.path(rds_path, &quot;{params$target}_{params$ref}_{params$treat}_dba.rds&quot;) %&gt;% 
   glue()
 if (file.exists(f)) {
   dba &lt;- read_rds(f)
@@ -975,7 +972,7 @@ individual approach.</p>
 <div id="e2-e2dht-db-fw-ls-wt" class="section level4">
 <h4>Library Size + Wald Test</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_db-fw-ls-wt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_db-fw-ls-wt.png" width="100%"/>
 <caption>
 <em>MA-plot for fixed-width windows analysed using DiffBind with
 Library Size normalisation and DSA results produced using Wald Test methods.</em>
@@ -985,7 +982,7 @@ Library Size normalisation and DSA results produced using Wald Test methods.</em
 <div id="e2-e2dht-db-fw-rle-wt" class="section level4">
 <h4>RLE + Wald Test</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_db-fw-rle-wt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_db-fw-rle-wt.png" width="100%"/>
 <caption>
 <em>MA-plot for fixed-width windows analysed using DiffBind with
 RLE normalisation and DSA results produced using Wald Test methods.</em>
@@ -996,10 +993,7 @@ RLE normalisation and DSA results produced using Wald Test methods.</em>
 </div>
 <div id="sliding-windows" class="section level2">
 <h2>Sliding Windows</h2>
-<pre class="r"><code>f &lt;- here::here(
-  &quot;output&quot;, &quot;rds&quot;, 
-  &quot;{params$cell_type}_{params$target}_{params$ref}_{params$treat}_windows.rds&quot;
-) %&gt;% 
+<pre class="r"><code>f &lt;- file.path(rds_path, &quot;{params$target}_{params$ref}_{params$treat}_windows.rds&quot;) %&gt;% 
   glue()
 if (file.exists(f)) {
   wincounts &lt;- read_rds(f)
@@ -1025,10 +1019,7 @@ if (file.exists(f)) {
     as(&quot;DataFrame&quot;)
   write_rds(wincounts, f, compress = &quot;gz&quot;)
 }
-f &lt;- here::here(
-  &quot;output&quot;, &quot;rds&quot;, 
-  &quot;{params$cell_type}_{params$target}_{params$ref}_{params$treat}_sliding.rds&quot;
-) %&gt;% 
+f &lt;- file.path(rds_path, &quot;{params$target}_{params$ref}_{params$treat}_sliding.rds&quot;) %&gt;% 
   glue()
 if (file.exists(f)) {
   se_sliding &lt;- read_rds(f)
@@ -1229,7 +1220,7 @@ figures represent a poor strategy for assessing bias</p>
 <div id="e2-e2dht-ec-sw-ls-lt" class="section level4">
 <h4>Library Size + Limma Trend</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-sw-ls-lt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-sw-ls-lt.png" width="100%"/>
 <caption>
 <em>MA-plot for sliding windows analysed using extraChIPs with
 Library Size normalisation and DSA results produced using Limma Trend methods.</em>
@@ -1239,7 +1230,7 @@ Library Size normalisation and DSA results produced using Limma Trend methods.</
 <div id="e2-e2dht-ec-sw-ls-ql" class="section level4">
 <h4>Library Size + glmQLF</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-sw-ls-ql.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-sw-ls-ql.png" width="100%"/>
 <caption>
 <em>MA-plot for sliding windows analysed using extraChIPs with
 Library Size normalisation and DSA results produced using glmQLF methods.</em>
@@ -1249,7 +1240,7 @@ Library Size normalisation and DSA results produced using glmQLF methods.</em>
 <div id="e2-e2dht-ec-sw-ls-wt" class="section level4">
 <h4>Library Size + Wald Test</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-sw-ls-wt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-sw-ls-wt.png" width="100%"/>
 <caption>
 <em>MA-plot for sliding windows analysed using extraChIPs with
 Library Size normalisation and DSA results produced using Wald Test methods.</em>
@@ -1259,7 +1250,7 @@ Library Size normalisation and DSA results produced using Wald Test methods.</em
 <div id="e2-e2dht-ec-sw-rle-lt" class="section level4">
 <h4>RLE + Limma Trend</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-sw-rle-lt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-sw-rle-lt.png" width="100%"/>
 <caption>
 <em>MA-plot for sliding windows analysed using extraChIPs with
 RLE normalisation and DSA results produced using Limma Trend methods.</em>
@@ -1269,7 +1260,7 @@ RLE normalisation and DSA results produced using Limma Trend methods.</em>
 <div id="e2-e2dht-ec-sw-rle-ql" class="section level4">
 <h4>RLE + glmQLF</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-sw-rle-ql.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-sw-rle-ql.png" width="100%"/>
 <caption>
 <em>MA-plot for sliding windows analysed using extraChIPs with
 RLE normalisation and DSA results produced using glmQLF methods.</em>
@@ -1279,7 +1270,7 @@ RLE normalisation and DSA results produced using glmQLF methods.</em>
 <div id="e2-e2dht-ec-sw-rle-wt" class="section level4">
 <h4>RLE + Wald Test</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-sw-rle-wt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-sw-rle-wt.png" width="100%"/>
 <caption>
 <em>MA-plot for sliding windows analysed using extraChIPs with
 RLE normalisation and DSA results produced using Wald Test methods.</em>
@@ -1289,7 +1280,7 @@ RLE normalisation and DSA results produced using Wald Test methods.</em>
 <div id="e2-e2dht-ec-sw-sq-lt" class="section level4">
 <h4>Smooth Quantile + Limma Trend</h4>
 <div class="figure" style="text-align: center">
-<img src="assets/ER/E2_E2DHT_ec-sw-sq-lt.png" width="100%"/>
+<img src="assets/ZR-75/ER/E2_E2DHT_ec-sw-sq-lt.png" width="100%"/>
 <caption>
 <em>MA-plot for sliding windows analysed using extraChIPs with
 Smooth Quantile normalisation and DSA results produced using Limma Trend methods.</em>
@@ -1357,8 +1348,8 @@ browsable(tagList(cp, tbl))</code></pre>
 <caption>
 <em>Characteristics of ranges included for analysis using sliding or fixed-width windows. Ranges uniquely included in only one approach tended to be narrower with lower signal intensity,  comfirming that for ranges with strong signal, they are well-captured by either method.</em>
 </caption>
-<div class="reactable html-widget html-fill-item" id="htmlwidget-a87df7fcaca6018c3664" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-a87df7fcaca6018c3664">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"detected":["Both","Fixed Only","Sliding Only"],"n":[6216,692,395],"sliding_total":[3308.04,"NA",132.9],"fixed_total":[2223.283,144.318,"NA"],"sliding_w":[480,"NA",300],"fixed_w":[317,200,"NA"],"sliding_logCPM":[0.472420241864013,"NA",-0.0711457579417964],"fixed_logCPM":[0.94644277219037,-0.0412941954868277,"NA"]},"columns":[{"id":"detected","name":"Detected In","type":"character"},{"id":"n","name":"Total Ranges","type":"numeric"},{"id":"sliding_total","name":"Sliding","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"fixed_total","name":"Fixed","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"sliding_w","name":"Sliding","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"fixed_w","name":"Fixed","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"sliding_logCPM","name":"Sliding","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}},{"id":"fixed_logCPM","name":"Fixed","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}}],"columnGroups":[{"name":"Total Width (kb)","columns":["sliding_total","fixed_total"]},{"name":"Median Width (bp)","columns":["sliding_w","fixed_w"]},{"name":"Median logCPM","columns":["sliding_logCPM","fixed_logCPM"]}],"dataKey":"90eae93610583844aba05fd931a2b2f0"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+<div class="reactable html-widget html-fill-item" id="htmlwidget-bf6556d99c0c9edd8022" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-bf6556d99c0c9edd8022">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"detected":["Both","Fixed Only","Sliding Only"],"n":[6216,692,395],"sliding_total":[3308.04,"NA",132.9],"fixed_total":[2223.283,144.318,"NA"],"sliding_w":[480,"NA",300],"fixed_w":[317,200,"NA"],"sliding_logCPM":[0.472420241864013,"NA",-0.0711457579417964],"fixed_logCPM":[0.94644277219037,-0.0412941954868277,"NA"]},"columns":[{"id":"detected","name":"Detected In","type":"character"},{"id":"n","name":"Total Ranges","type":"numeric"},{"id":"sliding_total","name":"Sliding","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"fixed_total","name":"Fixed","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"sliding_w","name":"Sliding","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"fixed_w","name":"Fixed","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"sliding_logCPM","name":"Sliding","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}},{"id":"fixed_logCPM","name":"Fixed","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}}],"columnGroups":[{"name":"Total Width (kb)","columns":["sliding_total","fixed_total"]},{"name":"Median Width (bp)","columns":["sliding_w","fixed_w"]},{"name":"Median logCPM","columns":["sliding_logCPM","fixed_logCPM"]}],"dataKey":"90eae93610583844aba05fd931a2b2f0"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
 <div id="range-widths" class="section level4">
 <h4>Range Widths</h4>
 <pre class="r"><code>GRangesList(
@@ -1422,7 +1413,9 @@ all_tbl_params &lt;- bind_rows(
   bind_rows(.id = &quot;abbr&quot;) %&gt;% 
   left_join(all_tbl_params) %&gt;% 
   mutate(
-    pkg = ifelse(grepl(&quot;^ec&quot;, abbr), &quot;extraChIPs&quot;, &quot;DiffBind&quot;),
+    pkg = ifelse(grepl(&quot;^ec&quot;, abbr), &quot;extraChIPs&quot;, &quot;DiffBind&quot;) %&gt;% 
+      as.factor() %&gt;% 
+      fct_rev(),
     win_type = ifelse(grepl(&quot;-sw-&quot;, abbr), &quot;Sliding&quot;, &quot;Fixed&quot;)
   ) %&gt;% 
   arrange(up + down) %&gt;% 
@@ -1431,9 +1424,26 @@ all_tbl_params &lt;- bind_rows(
     method = method %&gt;% 
       str_replace_all(&quot;wald&quot;, &quot;Wald Test&quot;) %&gt;% 
       str_replace_all(&quot;qlf&quot;, &quot;glmQLF Test&quot;) %&gt;% 
-      str_replace_all(&quot;lt&quot;, &quot;limma-trend&quot;)
+      str_replace_all(&quot;lt&quot;, &quot;limma-trend&quot;),
+    ylab = abbr %&gt;% 
+      str_remove_all(&quot;(ec|db)-&quot;) %&gt;% 
+      str_remove_all(&quot;-(ql|wt|lt)$&quot;) %&gt;% 
+      str_replace_all(&quot;sw-&quot;, &quot;Sliding: &quot;) %&gt;% 
+      str_replace_all(&quot;fw-&quot;, &quot;Fixed: &quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;) %&gt;% 
+      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) %&gt;% 
+      str_replace_all(&quot;rlg&quot;, &quot; RLE-Grouped&quot;),
+    ylab_col = case_when(
+      quantro_flag == &quot;˙&quot; ~ &quot;darkorange3&quot;,
+      grepl(&quot;^\\*&quot;, quantro_flag) ~ &quot;red&quot;,
+      TRUE ~ &quot;grey20&quot;
+    ),
+    ylab = glue(
+      &quot;&lt;span style = &#39;color: {ylab_col};&#39;&gt;{ylab}&lt;/span&gt;&quot;
+    ) %&gt;% fct_inorder()
   ) %&gt;% 
-  ggplot(aes(y = abbr)) +
+  ggplot(aes(y = ylab)) +
   geom_col(aes(x = up),  fill = &quot;red4&quot;) +
   geom_col(aes(x = -down), fill = &quot;steelblue3&quot;) +
   geom_label(
@@ -1454,18 +1464,11 @@ all_tbl_params &lt;- bind_rows(
   labs(x = &quot;Significant Ranges&quot;, y = &quot;Method&quot;) +
   scale_x_continuous(expand = expansion(0.1)) +
   scale_y_discrete(
-    labels = \(x) x %&gt;% 
-      str_remove_all(&quot;(ec|db)-&quot;) %&gt;% 
-      str_remove_all(&quot;-(ql|wt|lt)$&quot;) %&gt;% 
-      str_replace_all(&quot;sw-&quot;, &quot;Sliding: &quot;) %&gt;% 
-      str_replace_all(&quot;fw-&quot;, &quot;Fixed: &quot;) %&gt;% 
-      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
-      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;) %&gt;% 
-      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) %&gt;% 
-      str_replace_all(&quot;rlg&quot;, &quot; RLE-Grouped&quot;) 
+    labels = \(x) x 
   ) +
   theme(
     text = element_text(size = 12),
+    axis.text.y = ggtext::element_markdown(),
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5)
   )</code></pre>
@@ -2003,10 +2006,11 @@ when switching to a range-based H<sub>0</sub></caption>
   bind_rows(.id = &quot;abbr&quot;) %&gt;% 
   left_join(all_tbl_params) %&gt;% 
   mutate(
-    pkg = ifelse(grepl(&quot;^ec&quot;, abbr), &quot;extraChIPs&quot;, &quot;DiffBind&quot;),
+    pkg = ifelse(grepl(&quot;^ec&quot;, abbr), &quot;extraChIPs&quot;, &quot;DiffBind&quot;) %&gt;% 
+      as.factor() %&gt;% 
+      fct_rev(),
     win_type = ifelse(grepl(&quot;-sw-&quot;, abbr), &quot;Sliding&quot;, &quot;Fixed&quot;)
   ) %&gt;% 
-  arrange(up + down) %&gt;% 
   mutate(
     method = method %&gt;% 
       str_replace_all(&quot;wald&quot;, &quot;Wald Test&quot;) %&gt;% 
@@ -2015,8 +2019,28 @@ when switching to a range-based H<sub>0</sub></caption>
     up_all = map_int(all_sig, \(x) sum(x$logFC &gt; 0))[abbr],
     down_all = map_int(all_sig, \(x) sum(x$logFC &lt; 0))[abbr],
     abbr = paste0(quantro_flag, abbr) %&gt;% fct_inorder(),
+    ylab = abbr %&gt;% 
+      str_remove_all(&quot;(ec|db)-&quot;) %&gt;% 
+      str_remove_all(&quot;-(ql|wt|lt)$&quot;) %&gt;% 
+      str_replace_all(&quot;sw-&quot;, &quot;Sliding: &quot;) %&gt;% 
+      str_replace_all(&quot;fw-&quot;, &quot;Fixed: &quot;) %&gt;% 
+      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
+      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;) %&gt;% 
+      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) %&gt;% 
+      str_replace_all(&quot;rlg&quot;, &quot; RLE-Grouped&quot;),
+    ylab_col = case_when(
+      quantro_flag == &quot;˙&quot; ~ &quot;darkorange3&quot;,
+      grepl(&quot;^\\*&quot;, quantro_flag) ~ &quot;red&quot;,
+      TRUE ~ &quot;grey20&quot;
+    ) 
   ) %&gt;% 
-  ggplot(aes(y = abbr)) +
+  arrange(up_all + down_all) %&gt;% 
+  mutate(
+    ylab = glue(
+      &quot;&lt;span style = &#39;color: {ylab_col};&#39;&gt;{ylab}&lt;/span&gt;&quot;
+    ) %&gt;% fct_inorder()
+  ) %&gt;% 
+  ggplot(aes(y = ylab)) +
   geom_col(aes(x = up_all),  fill = &quot;red4&quot;, alpha = 0.4) +
   geom_col(aes(x = up),  fill = &quot;red4&quot;) +
   geom_col(aes(x = -down_all), fill = &quot;steelblue3&quot;, alpha = 0.4) +
@@ -2054,19 +2078,9 @@ when switching to a range-based H<sub>0</sub></caption>
   ) +
   labs(x = &quot;Significant Ranges&quot;, y = &quot;Method&quot;) +
   scale_x_continuous(expand = expansion(0.1)) +
-  scale_y_discrete(
-    labels = \(x) x %&gt;% 
-      str_remove_all(&quot;(ec|db)-&quot;) %&gt;% 
-      str_remove_all(&quot;-(ql|wt|lt)$&quot;) %&gt;% 
-      str_replace_all(&quot;sw-&quot;, &quot;Sliding: &quot;) %&gt;% 
-      str_replace_all(&quot;fw-&quot;, &quot;Fixed: &quot;) %&gt;% 
-      str_replace_all(&quot;rle&quot;, &quot;RLE&quot;) %&gt;% 
-      str_replace_all(&quot;ls&quot;, &quot;Lib. Size&quot;) %&gt;% 
-      str_replace_all(&quot;sq&quot;, &quot;SQN&quot;) %&gt;% 
-      str_replace_all(&quot;rlg&quot;, &quot; RLE-Grouped&quot;) 
-  ) +
   theme(
     text = element_text(size = 12),
+    axis.text.y = ggtext::element_markdown(),
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5)
   )</code></pre>
@@ -2263,7 +2277,7 @@ Session information </button>
 <em>stats4</em>, <em>stats</em>, <em>graphics</em>, <em>grDevices</em>,
 <em>utils</em>, <em>datasets</em>, <em>methods</em> and
 <em>base</em></p>
-<p><strong>other attached packages:</strong>
+<p><strong>other attached packages:</strong> <em>ggtext(v.0.1.2)</em>,
 <em>GenomicAlignments(v.1.38.2)</em>, <em>corrplot(v.0.92)</em>,
 <em>pander(v.0.6.5)</em>, <em>patchwork(v.1.2.0)</em>,
 <em>plyranges(v.1.22.0)</em>, <em>magrittr(v.2.0.3)</em>,
@@ -2303,42 +2317,42 @@ Session information </button>
 <em>sass(v.0.4.9)</em>, <em>SQUAREM(v.2021.1)</em>,
 <em>mvtnorm(v.1.2-5)</em>, <em>genefilter(v.1.84.0)</em>,
 <em>askpass(v.1.2.0)</em>, <em>mixsqp(v.0.3-54)</em>,
-<em>foreign(v.0.8-87)</em>, <em>illuminaio(v.0.44.0)</em>,
-<em>siggenes(v.1.76.0)</em>, <em>dichromat(v.2.0-0.1)</em>,
-<em>scrime(v.1.3.5)</em>, <em>BSgenome(v.1.70.2)</em>,
-<em>invgamma(v.1.1)</em>, <em>bbmle(v.1.0.25.1)</em>,
-<em>rstudioapi(v.0.16.0)</em>, <em>RSQLite(v.2.3.7)</em>,
-<em>generics(v.0.1.3)</em>, <em>BiocIO(v.1.12.0)</em>,
-<em>hwriter(v.1.3.2.1)</em>, <em>vroom(v.1.6.5)</em>,
-<em>gtools(v.3.9.5)</em>, <em>Matrix(v.1.6-5)</em>,
-<em>interp(v.1.1-6)</em>, <em>futile.logger(v.1.4.3)</em>,
-<em>fansi(v.1.0.6)</em>, <em>abind(v.1.4-5)</em>,
-<em>lifecycle(v.1.0.4)</em>, <em>yaml(v.2.3.9)</em>,
-<em>rhdf5(v.2.46.1)</em>, <em>gplots(v.3.1.3.1)</em>,
-<em>SparseArray(v.1.2.4)</em>, <em>BiocFileCache(v.2.10.2)</em>,
-<em>grid(v.4.3.3)</em>, <em>blob(v.1.2.4)</em>,
-<em>crayon(v.1.5.3)</em>, <em>bdsmatrix(v.1.3-7)</em>,
-<em>lattice(v.0.22-6)</em>, <em>ComplexUpset(v.1.3.3)</em>,
-<em>annotate(v.1.80.0)</em>, <em>GenomicFeatures(v.1.54.4)</em>,
-<em>KEGGREST(v.1.42.0)</em>, <em>beanplot(v.1.3.1)</em>,
-<em>pillar(v.1.9.0)</em>, <em>knitr(v.1.48)</em>,
-<em>metapod(v.1.10.1)</em>, <em>rjson(v.0.2.21)</em>,
-<em>systemPipeR(v.2.8.0)</em>, <em>codetools(v.0.2-20)</em>,
-<em>ShortRead(v.1.60.0)</em>, <em>GreyListChIP(v.1.34.0)</em>,
-<em>data.table(v.1.15.4)</em>, <em>vctrs(v.0.6.5)</em>,
-<em>png(v.0.1-8)</em>, <em>gtable(v.0.3.5)</em>,
-<em>reactR(v.0.6.0)</em>, <em>amap(v.0.8-19)</em>,
-<em>emdbook(v.1.3.13)</em>, <em>cachem(v.1.1.0)</em>,
-<em>xfun(v.0.46)</em>, <em>S4Arrays(v.1.2.1)</em>,
-<em>coda(v.0.19-4.1)</em>, <em>survival(v.3.7-0)</em>,
-<em>statmod(v.1.5.0)</em>, <em>GenomicInteractions(v.1.36.0)</em>,
-<em>nlme(v.3.1-165)</em>, <em>bit64(v.4.0.5)</em>,
-<em>progress(v.1.2.3)</em>, <em>filelock(v.1.0.3)</em>,
-<em>rprojroot(v.2.0.4)</em>, <em>nor1mix(v.1.3-3)</em>,
-<em>bslib(v.0.7.0)</em>, <em>irlba(v.2.3.5.1)</em>,
-<em>KernSmooth(v.2.23-24)</em>, <em>rpart(v.4.1.23)</em>,
-<em>colorspace(v.2.1-0)</em>, <em>DBI(v.1.2.3)</em>,
-<em>Hmisc(v.5.1-3)</em>, <em>nnet(v.7.3-19)</em>,
+<em>commonmark(v.1.9.1)</em>, <em>foreign(v.0.8-87)</em>,
+<em>illuminaio(v.0.44.0)</em>, <em>siggenes(v.1.76.0)</em>,
+<em>dichromat(v.2.0-0.1)</em>, <em>scrime(v.1.3.5)</em>,
+<em>BSgenome(v.1.70.2)</em>, <em>invgamma(v.1.1)</em>,
+<em>bbmle(v.1.0.25.1)</em>, <em>rstudioapi(v.0.16.0)</em>,
+<em>RSQLite(v.2.3.7)</em>, <em>generics(v.0.1.3)</em>,
+<em>BiocIO(v.1.12.0)</em>, <em>hwriter(v.1.3.2.1)</em>,
+<em>vroom(v.1.6.5)</em>, <em>gtools(v.3.9.5)</em>,
+<em>Matrix(v.1.6-5)</em>, <em>interp(v.1.1-6)</em>,
+<em>futile.logger(v.1.4.3)</em>, <em>fansi(v.1.0.6)</em>,
+<em>abind(v.1.4-5)</em>, <em>lifecycle(v.1.0.4)</em>,
+<em>yaml(v.2.3.9)</em>, <em>rhdf5(v.2.46.1)</em>,
+<em>gplots(v.3.1.3.1)</em>, <em>SparseArray(v.1.2.4)</em>,
+<em>BiocFileCache(v.2.10.2)</em>, <em>grid(v.4.3.3)</em>,
+<em>blob(v.1.2.4)</em>, <em>crayon(v.1.5.3)</em>,
+<em>bdsmatrix(v.1.3-7)</em>, <em>lattice(v.0.22-6)</em>,
+<em>ComplexUpset(v.1.3.3)</em>, <em>annotate(v.1.80.0)</em>,
+<em>GenomicFeatures(v.1.54.4)</em>, <em>KEGGREST(v.1.42.0)</em>,
+<em>beanplot(v.1.3.1)</em>, <em>pillar(v.1.9.0)</em>,
+<em>knitr(v.1.48)</em>, <em>metapod(v.1.10.1)</em>,
+<em>rjson(v.0.2.21)</em>, <em>systemPipeR(v.2.8.0)</em>,
+<em>codetools(v.0.2-20)</em>, <em>ShortRead(v.1.60.0)</em>,
+<em>GreyListChIP(v.1.34.0)</em>, <em>data.table(v.1.15.4)</em>,
+<em>vctrs(v.0.6.5)</em>, <em>png(v.0.1-8)</em>,
+<em>gtable(v.0.3.5)</em>, <em>reactR(v.0.6.0)</em>,
+<em>amap(v.0.8-19)</em>, <em>emdbook(v.1.3.13)</em>,
+<em>cachem(v.1.1.0)</em>, <em>xfun(v.0.46)</em>,
+<em>S4Arrays(v.1.2.1)</em>, <em>coda(v.0.19-4.1)</em>,
+<em>survival(v.3.7-0)</em>, <em>statmod(v.1.5.0)</em>,
+<em>GenomicInteractions(v.1.36.0)</em>, <em>nlme(v.3.1-165)</em>,
+<em>bit64(v.4.0.5)</em>, <em>progress(v.1.2.3)</em>,
+<em>filelock(v.1.0.3)</em>, <em>rprojroot(v.2.0.4)</em>,
+<em>nor1mix(v.1.3-3)</em>, <em>bslib(v.0.7.0)</em>,
+<em>irlba(v.2.3.5.1)</em>, <em>KernSmooth(v.2.23-24)</em>,
+<em>rpart(v.4.1.23)</em>, <em>colorspace(v.2.1-0)</em>,
+<em>DBI(v.1.2.3)</em>, <em>Hmisc(v.5.1-3)</em>, <em>nnet(v.7.3-19)</em>,
 <em>DESeq2(v.1.42.1)</em>, <em>tidyselect(v.1.2.1)</em>,
 <em>bit(v.4.0.5)</em>, <em>compiler(v.4.3.3)</em>,
 <em>curl(v.5.2.1)</em>, <em>htmlTable(v.2.4.3)</em>,
@@ -2362,9 +2376,10 @@ Session information </button>
 <em>MASS(v.7.3-60.0.1)</em>, <em>bumphunter(v.1.44.0)</em>,
 <em>plyr(v.1.8.9)</em>, <em>minfi(v.1.48.0)</em>,
 <em>ggrepel(v.0.9.5)</em>, <em>deldir(v.2.0-4)</em>,
-<em>splines(v.4.3.3)</em>, <em>multtest(v.2.58.0)</em>,
-<em>hms(v.1.1.3)</em>, <em>locfit(v.1.5-9.10)</em>,
-<em>igraph(v.2.0.3)</em>, <em>rngtools(v.1.5.2)</em>,
+<em>splines(v.4.3.3)</em>, <em>gridtext(v.0.1.5)</em>,
+<em>multtest(v.2.58.0)</em>, <em>hms(v.1.1.3)</em>,
+<em>locfit(v.1.5-9.10)</em>, <em>igraph(v.2.0.3)</em>,
+<em>markdown(v.1.13)</em>, <em>rngtools(v.1.5.2)</em>,
 <em>biomaRt(v.2.58.2)</em>, <em>futile.options(v.1.0.1)</em>,
 <em>XML(v.3.99-0.17)</em>, <em>evaluate(v.0.24.0)</em>,
 <em>latticeExtra(v.0.6-30)</em>, <em>biovizBase(v.1.50.0)</em>,
