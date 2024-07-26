@@ -1,6 +1,6 @@
 ```{r set-params, echo = FALSE, eval = FALSE}
 params <- list(
-  target = "ER",
+  target = "GATA3",
   ref = "E2",
   treat = "E2DHT",
   cell_type = "ZR-75",
