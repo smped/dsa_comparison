@@ -31,6 +31,11 @@ F=${WD}/analysis/zr75_h3k27ac_e2_e2dht.Rmd
 echo -e "Compiling ${F}"
 R -e "rmarkdown::render_site('${F}')" 
 
+## GATA3
+F=${WD}/analysis/zr75_gata3_e2_e2dht.Rmd
+echo -e "Compiling ${F}"
+R -e "rmarkdown::render_site('${F}')" 
+
 F=${WD}/analysis/index.Rmd
 echo -e "Compiling ${F}"
 R -e "rmarkdown::render_site('${F}')" 
