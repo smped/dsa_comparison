@@ -14,9 +14,9 @@ params:
   ref: "E2"
   treat: "E2DHT"
   cell_type: "ZR-75"
-  fixed_width: 1200
-  window_size: 300
-  window_step: 100   
+  fixed_width: 400
+  window_size: 180
+  window_step: 60   
 ---
 
 ```{r setup, echo=FALSE}
