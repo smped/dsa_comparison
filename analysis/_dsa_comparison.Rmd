@@ -1,6 +1,6 @@
 ```{r set-params, echo = FALSE, eval = FALSE}
 params <- list(
-  target = "GATA3",
+  target = "ER",
   ref = "E2",
   treat = "E2DHT",
   cell_type = "ZR-75",
@@ -807,6 +807,25 @@ all_tbl_params <- bind_rows(
 
 
 ```{r plot-all-sig, fig.cap = "*Summary of ranges considered as significant in each analyis, separated by direction of change. If any concerns were raised during data checking with quantro, method names will be prefixed by a measure of significance. Any showing one or more asterisks are likely to contain large numbers of Type 1 errors.*"}
+html_labs <- \(x) {
+  labs <- x %>% 
+    str_remove_all("(ec|db)-") %>% 
+    str_remove_all("-(ql|wt|lt)$") %>% 
+    str_replace_all("sw-", "Sliding: ") %>% 
+    str_replace_all("fw-", "Fixed: ") %>% 
+    str_replace_all("rle", "RLE") %>% 
+    str_replace_all("ls", "Lib. Size") %>% 
+    str_replace_all("sq", "SQN") %>% 
+    str_replace_all("rlg", " RLE-Grouped")
+  col <- case_when(
+    grepl("^\\*", x) ~ "red",
+    grepl("^[a-z]", x) ~ "grey20",
+    TRUE ~ "darkorange3"
+  )
+  glue(
+    "<span style = 'color: {col};'>{labs}</span>"
+  ) 
+}
 all_sig %>% 
   lapply(\(x) tibble(up = sum(x$logFC > 0), down = sum(x$logFC < 0))) %>% 
   bind_rows(.id = "abbr") %>% 
@@ -823,26 +842,9 @@ all_sig %>%
     method = method %>% 
       str_replace_all("wald", "Wald Test") %>% 
       str_replace_all("qlf", "glmQLF Test") %>% 
-      str_replace_all("lt", "limma-trend"),
-    ylab = abbr %>% 
-      str_remove_all("(ec|db)-") %>% 
-      str_remove_all("-(ql|wt|lt)$") %>% 
-      str_replace_all("sw-", "Sliding: ") %>% 
-      str_replace_all("fw-", "Fixed: ") %>% 
-      str_replace_all("rle", "RLE") %>% 
-      str_replace_all("ls", "Lib. Size") %>% 
-      str_replace_all("sq", "SQN") %>% 
-      str_replace_all("rlg", " RLE-Grouped"),
-    ylab_col = case_when(
-      quantro_flag == "˙" ~ "darkorange3",
-      grepl("^\\*", quantro_flag) ~ "red",
-      TRUE ~ "grey20"
-    ),
-    ylab = glue(
-      "<span style = 'color: {ylab_col};'>{ylab}</span>"
-    ) %>% fct_inorder()
+      str_replace_all("lt", "limma-trend")
   ) %>% 
-  ggplot(aes(y = ylab)) +
+  ggplot(aes(y = abbr)) +
   geom_col(aes(x = up),  fill = "red4") +
   geom_col(aes(x = -down), fill = "steelblue3") +
   geom_label(
@@ -862,9 +864,7 @@ all_sig %>%
   ) +
   labs(x = "Significant Ranges", y = "Method") +
   scale_x_continuous(expand = expansion(0.1)) +
-  scale_y_discrete(
-    labels = \(x) x 
-  ) +
+  scale_y_discrete(labels = html_labs) +
   theme(
     text = element_text(size = 12),
     axis.text.y = ggtext::element_markdown(),
@@ -1279,29 +1279,10 @@ all_treat_sig %>%
       str_replace_all("lt", "limma-trend"),
     up_all = map_int(all_sig, \(x) sum(x$logFC > 0))[abbr],
     down_all = map_int(all_sig, \(x) sum(x$logFC < 0))[abbr],
-    abbr = paste0(quantro_flag, abbr) %>% fct_inorder(),
-    ylab = abbr %>% 
-      str_remove_all("(ec|db)-") %>% 
-      str_remove_all("-(ql|wt|lt)$") %>% 
-      str_replace_all("sw-", "Sliding: ") %>% 
-      str_replace_all("fw-", "Fixed: ") %>% 
-      str_replace_all("rle", "RLE") %>% 
-      str_replace_all("ls", "Lib. Size") %>% 
-      str_replace_all("sq", "SQN") %>% 
-      str_replace_all("rlg", " RLE-Grouped"),
-    ylab_col = case_when(
-      quantro_flag == "˙" ~ "darkorange3",
-      grepl("^\\*", quantro_flag) ~ "red",
-      TRUE ~ "grey20"
-    ) 
   ) %>% 
   arrange(up_all + down_all) %>% 
-  mutate(
-    ylab = glue(
-      "<span style = 'color: {ylab_col};'>{ylab}</span>"
-    ) %>% fct_inorder()
-  ) %>% 
-  ggplot(aes(y = ylab)) +
+  mutate(abbr = paste0(quantro_flag, abbr) %>% fct_inorder()) %>% 
+  ggplot(aes(y = abbr)) +
   geom_col(aes(x = up_all),  fill = "red4", alpha = 0.4) +
   geom_col(aes(x = up),  fill = "red4") +
   geom_col(aes(x = -down_all), fill = "steelblue3", alpha = 0.4) +
@@ -1339,6 +1320,7 @@ all_treat_sig %>%
   ) +
   labs(x = "Significant Ranges", y = "Method") +
   scale_x_continuous(expand = expansion(0.1)) +
+  scale_y_discrete(labels = html_labs) +
   theme(
     text = element_text(size = 12),
     axis.text.y = ggtext::element_markdown(),
