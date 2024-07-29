@@ -117,8 +117,9 @@ ip_bfl <- here::here("data", "bam", params$cell_type, samples$input) %>%
 ```{r centre-peaks}
 fw_peaks <- peaks %>% 
   mutate(peak = granges(.)) %>% 
+  centrePeaks(bfl) %>% 
   resize(width = params$fixed_width, fix = "center") %>% 
-  filter_by_non_overlaps(c(bl, gl))
+  filter_by_non_overlaps(c(bl, gl)) 
 ```
 
 ## Fixed-Width Windows
@@ -819,7 +820,7 @@ html_labs <- \(x) {
     str_replace_all("rlg", " RLE-Grouped")
   col <- case_when(
     grepl("^\\*", x) ~ "red",
-    grepl("^[a-z]", x) ~ "grey20",
+    grepl("^[A-Za-z]", x) ~ "grey20",
     TRUE ~ "darkorange3"
   )
   glue(
@@ -1176,6 +1177,144 @@ cp <- tags$caption(
 )
 browsable(tagList(cp, tbl))
 ```
+
+## DiffBind Vs extraChIPs 
+
+The two most directly comparable methods, i.e. the fixed-width Wald Test as implemented in either DiffBind or extraChIPs, were compared to each other using both Library Size and RLE normalisation, as a check for consistency.
+Given the different peak centering approaches, the distances between peak centres were also calculated.
+
+### Library-Size Normalisation {.tabset}
+
+#### logFC
+
+```{r db-ec-ls-compare-logfc, fig.cap = "*Comparison of logFC values between DiffBind and extraChIPs, using the Wald Test with Library Size normalisation*"}
+GRangesList(
+  DiffBind = db_fw_res$`db-fw-ls-wt`, 
+  extraChIPs = select(ec_fw_res$`ec-fw-ls-wt`, -peak)
+) %>% 
+  plotPairwise("logFC", xside = "none", yside = "none") +
+  labs(x = "DiffBind (logFC)", y = "extraChIPs (logFC)")
+```
+
+
+#### P-Values
+
+```{r db-ec-ls-compare-p, fig.cap = "*Comparison of -log10 p-values between DiffBind and extraChIPs, using the Wald Test with Library Size normalisation. Peaks with centres beyond 10% apart are highlighted in dark red, whilst the dashed lines indicate the significance cutoffs in each analysis.*"}
+GRangesList(
+  DiffBind = db_fw_res$`db-fw-ls-wt`, 
+  extraChIPs = select(ec_fw_res$`ec-fw-ls-wt`, -peak)
+) %>% 
+  endoapply(
+    \(x) mutate(x, centre = start(resize(x, width = 1, fix = 'center')))
+  ) %>% 
+  mapGrlCols(var = c("PValue", "centre")) %>% 
+  as_tibble() %>% 
+  mutate(d = abs(DiffBind_centre - extraChIPs_centre) > params$fixed_width / 10) %>% 
+  dplyr::filter(!is.na(d)) %>% 
+  ggplot(aes(-log10(DiffBind_PValue), -log10(extraChIPs_PValue))) +
+  geom_point(aes(colour = d), alpha = 0.7) +
+  geom_abline(slope = 1) +
+  geom_hline(
+    yintercept = dplyr::filter(ec_fw_res$`ec-fw-ls-wt`, FDR < 0.05)$PValue %>% 
+      max() %>% 
+      log10() %>% 
+      multiply_by(-1),
+    linetype = 2
+  ) +
+  geom_vline(
+    xintercept = dplyr::filter(db_fw_res$`db-fw-ls-wt`, FDR < 0.05)$PValue %>% 
+      max() %>% 
+      log10() %>% 
+      multiply_by(-1),
+    linetype = 2
+  ) +
+  labs(
+    x = "DiffBind (-log10p)", y = "extraChIPs (-log10p)",
+    colour = glue("centres > {params$fixed_width / 10}bp apart")
+  ) +
+  scale_colour_manual(values = c("grey70", "red4"))
+```
+
+### P-Value Vs Distance
+
+```{r db-ec-p-by-dist, fig.cap = "log~2~-transformed ratio of p-values shown as a function of the distance between peak centres, identifying divergent peak locations as a key source of diference in the results"}
+GRangesList(
+  DiffBind = db_fw_res$`db-fw-ls-wt`, 
+  extraChIPs = select(ec_fw_res$`ec-fw-ls-wt`, -peak)
+) %>% 
+  endoapply(
+    \(x) mutate(x, centre = start(resize(x, width = 1, fix = 'center')))
+  ) %>% 
+  mapGrlCols(var = c("PValue", "centre")) %>% 
+  as_tibble() %>% 
+  mutate(
+    d = abs(DiffBind_centre - extraChIPs_centre),
+    r = log2(extraChIPs_PValue / DiffBind_PValue)
+  ) %>% 
+  dplyr::filter(!is.na(d)) %>% 
+  ggplot(aes(d, r)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Distance Between Peak Centres", y = "log2 (p_extraChIPs / p_DiffBind)") +
+  scale_x_sqrt() +
+  scale_y_continuous(breaks = seq(-6, 6, by = 2))
+```
+
+
+### RLE Normalisation {.tabset}
+
+#### logFC
+
+```{r db-ec-rle-compare-logfc, fig.cap = "*Comparison of logFC values between DiffBind and extraChIPs, using the Wald Test with RLE normalisation*"}
+GRangesList(
+  DiffBind = db_fw_res$`db-fw-rle-wt`, 
+  extraChIPs = select(ec_fw_res$`ec-fw-rle-wt`, -peak)
+) %>% 
+  plotPairwise("logFC", xside = "none", yside = "none") +
+  labs(x = "DiffBind (logFC)", y = "extraChIPs (logFC)")
+```
+
+
+#### P-Values
+
+```{r db-ec-rle-compare-p, fig.cap = "*Comparison of -log10 p-values between DiffBind and extraChIPs, using the Wald Test with RLE normalisation. Peaks with centres beyond 10% apart are highlighted in dark red, whilst the dashed lines indicate the significance cutoffs in each analysis.*"}
+GRangesList(
+  DiffBind = db_fw_res$`db-fw-rle-wt`, 
+  extraChIPs = select(ec_fw_res$`ec-fw-rle-wt`, -peak)
+) %>% 
+  endoapply(
+    \(x) mutate(x, centre = start(resize(x, width = 1, fix = 'center')))
+  ) %>% 
+  mapGrlCols(var = c("PValue", "centre")) %>% 
+  as_tibble() %>% 
+  mutate(d = abs(DiffBind_centre - extraChIPs_centre) > params$fixed_width / 10) %>% 
+  dplyr::filter(!is.na(d)) %>% 
+  # arrange(d) %>% 
+  ggplot(aes(-log10(DiffBind_PValue), -log10(extraChIPs_PValue))) +
+  geom_point(aes(colour = d), alpha = 0.7) +
+  geom_abline(slope = 1) +
+  geom_hline(
+    yintercept = dplyr::filter(ec_fw_res$`ec-fw-rle-wt`, FDR < 0.05)$PValue %>% 
+      max() %>% 
+      log10() %>% 
+      multiply_by(-1),
+    linetype = 2
+  ) +
+  geom_vline(
+    xintercept = dplyr::filter(db_fw_res$`db-fw-rle-wt`, FDR < 0.05)$PValue %>% 
+      max() %>% 
+      log10() %>% 
+      multiply_by(-1),
+    linetype = 2
+  ) +
+  labs(
+    x = "DiffBind (-log10p)", y = "extraChIPs (-log10p)",
+    colour = glue("centres > {params$fixed_width / 10}bp apart")
+  ) +
+  scale_colour_manual(values = c("grey70", "red4"))
+```
+
+
 
 ## Range Based H~0~
 
