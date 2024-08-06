@@ -32,8 +32,8 @@ library(pander)
 library(corrplot)
 library(GenomicAlignments)
 library(ggtext)
-cores <- parallel::detectCores() - 2
-# cores <- 4
+# cores <- parallel::detectCores() - 2
+cores <- 4
 register(MulticoreParam(cores))
 theme_set(theme_bw())
 format_p <- function(p){
@@ -1312,6 +1312,56 @@ GRangesList(
     colour = glue("centres > {params$fixed_width / 10}bp apart")
   ) +
   scale_colour_manual(values = c("grey70", "red4"))
+```
+
+### Comparison of Identical Counts {.tabset}
+
+In order to confirm there were no algorithmic differences between `DiffBind` and the Wald-Test as implemented in `extraChIPs`, the counts returned by DiffBind for the re-centred peaks were analysed using the `extraChIPs` implementation of the Wald Test.
+
+#### Library Size
+
+```{r compare-db-ec-ls, fig.cap = "*Exact comparison between p-values obtained using the same set of counts when using the DiffBind implementation of the Wald Test and the extraChIPs implementation. Library Size normalisation was used for both analyses.*"}
+db_ec_ls_wt <- dba_ls %>% 
+  dba(bSummarizedExperiment = TRUE) %>% 
+  fitAssayDiff(
+    assay = "Reads", 
+    design = model.matrix(~Treatment, data = colData(.)),
+    lib.size = "Reads", norm = "none", method = "wald", asRanges = TRUE
+  )
+db_ec_ls_wt %>% 
+  select(ec = PValue) %>% 
+  join_overlap_inner(db_fw_res$`db-fw-ls-wt`) %>% 
+  as_tibble() %>% 
+  ggplot(aes(-log10(PValue), -log10(ec))) +
+  geom_point() +
+  geom_abline(slope = 1) +
+  labs(
+    x = expr(paste(-log[10], "p (DiffBind)")),
+    y = expr(paste(-log[10], "p (extraChIPs)"))
+  )
+```
+
+#### RLE Normalisation
+
+```{r compare-db-ec-rle, fig.cap = "*Exact comparison between p-values obtained using the same set of counts when using the DiffBind implementation of the Wald Test and the extraChIPs implementation. RLE normalisation was used for both analyses.*"}
+db_ec_rle_wt <- dba_rle %>% 
+  dba(bSummarizedExperiment = TRUE) %>% 
+  fitAssayDiff(
+    assay = "Reads", 
+    design = model.matrix(~Treatment, data = colData(.)),
+    lib.size = "Reads", norm = "RLE", method = "wald", asRanges = TRUE
+  )
+db_ec_rle_wt %>% 
+  select(ec = PValue) %>% 
+  join_overlap_inner(db_fw_res$`db-fw-rle-wt`) %>% 
+  as_tibble() %>% 
+  ggplot(aes(-log10(PValue), -log10(ec))) +
+  geom_point() +
+  geom_abline(slope = 1) +
+  labs(
+    x = expr(paste(-log[10], "p (DiffBind)")),
+    y = expr(paste(-log[10], "p (extraChIPs)"))
+  )
 ```
 
 

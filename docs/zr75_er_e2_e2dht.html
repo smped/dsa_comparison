@@ -440,7 +440,7 @@ div.tocify {
 Black Ochre Data Labs<br />
 Telethon Kids Institute<br />
 Adelaide, Australia</div></h4>
-<h4 class="date">27 July, 2024</h4>
+<h4 class="date">06 August, 2024</h4>
 
 </div>
 
@@ -466,8 +466,8 @@ library(pander)
 library(corrplot)
 library(GenomicAlignments)
 library(ggtext)
-cores &lt;- parallel::detectCores() - 2
-# cores &lt;- 4
+# cores &lt;- parallel::detectCores() - 2
+cores &lt;- 4
 register(MulticoreParam(cores))
 theme_set(theme_bw())
 format_p &lt;- function(p){
@@ -541,15 +541,16 @@ ip_bfl &lt;- here::here(&quot;data&quot;, &quot;bam&quot;, params$cell_type, sam
   BamFileList()</code></pre>
 <pre class="r"><code>fw_peaks &lt;- peaks %&gt;% 
   mutate(peak = granges(.)) %&gt;% 
+  centrePeaks(bfl) %&gt;% 
   resize(width = params$fixed_width, fix = &quot;center&quot;) %&gt;% 
-  filter_by_non_overlaps(c(bl, gl))</code></pre>
+  filter_by_non_overlaps(c(bl, gl)) </code></pre>
 <div id="fixed-width-windows" class="section level2">
 <h2>Fixed-Width Windows</h2>
 <p>All 6,914 consensus peaks were loaded and peaks widths were set to be
 400bp. This represents the 74% percentile of the provided consensus
 peaks This was then set as the fixed width for all peaks and any resized
 peaks which overlapped black- or grey-listed regions were subsequently
-excluded, give a final set of 6,908 peaks.</p>
+excluded, give a final set of 6,907 peaks.</p>
 <pre class="r"><code>f &lt;- file.path(rds_path, &quot;{params$target}_{params$ref}_{params$treat}_fixed.rds&quot;) %&gt;% 
   glue()
 if (file.exists(f)) {
@@ -1348,8 +1349,8 @@ browsable(tagList(cp, tbl))</code></pre>
 <caption>
 <em>Characteristics of ranges included for analysis using sliding or fixed-width windows. Ranges uniquely included in only one approach tended to be narrower with lower signal intensity,  comfirming that for ranges with strong signal, they are well-captured by either method.</em>
 </caption>
-<div class="reactable html-widget html-fill-item" id="htmlwidget-87a8b4cb7777a026ec0e" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-87a8b4cb7777a026ec0e">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"detected":["Both","Fixed Only","Sliding Only"],"n":[6216,692,395],"sliding_total":[3308.04,"NA",132.9],"fixed_total":[2223.283,144.318,"NA"],"sliding_w":[480,"NA",300],"fixed_w":[317,200,"NA"],"sliding_logCPM":[0.472420241864013,"NA",-0.0711457579417964],"fixed_logCPM":[0.94644277219037,-0.0412941954868277,"NA"]},"columns":[{"id":"detected","name":"Detected In","type":"character"},{"id":"n","name":"Total Ranges","type":"numeric"},{"id":"sliding_total","name":"Sliding","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"fixed_total","name":"Fixed","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"sliding_w","name":"Sliding","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"fixed_w","name":"Fixed","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"sliding_logCPM","name":"Sliding","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}},{"id":"fixed_logCPM","name":"Fixed","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}}],"columnGroups":[{"name":"Total Width (kb)","columns":["sliding_total","fixed_total"]},{"name":"Median Width (bp)","columns":["sliding_w","fixed_w"]},{"name":"Median logCPM","columns":["sliding_logCPM","fixed_logCPM"]}],"dataKey":"90eae93610583844aba05fd931a2b2f0"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+<div class="reactable html-widget html-fill-item" id="htmlwidget-0e6bdbf2cb0ae5c8be8d" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-0e6bdbf2cb0ae5c8be8d">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"detected":["Both","Fixed Only","Sliding Only"],"n":[6216,692,395],"sliding_total":[3308.04,"NA",132.9],"fixed_total":[2223.283,144.318,"NA"],"sliding_w":[480,"NA",300],"fixed_w":[317,200,"NA"],"sliding_logCPM":[0.472420241864013,"NA",-0.0711457579417964],"fixed_logCPM":[0.94644277219037,-0.0412941954868277,"NA"]},"columns":[{"id":"detected","name":"Detected In","type":"character"},{"id":"n","name":"Total Ranges","type":"numeric"},{"id":"sliding_total","name":"Sliding","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"fixed_total","name":"Fixed","type":"numeric","format":{"cell":{"digits":1,"separators":true},"aggregated":{"digits":1,"separators":true}}},{"id":"sliding_w","name":"Sliding","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"fixed_w","name":"Fixed","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}}},{"id":"sliding_logCPM","name":"Sliding","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}},{"id":"fixed_logCPM","name":"Fixed","type":"numeric","format":{"cell":{"digits":3},"aggregated":{"digits":3}}}],"columnGroups":[{"name":"Total Width (kb)","columns":["sliding_total","fixed_total"]},{"name":"Median Width (bp)","columns":["sliding_w","fixed_w"]},{"name":"Median logCPM","columns":["sliding_logCPM","fixed_logCPM"]}],"dataKey":"90eae93610583844aba05fd931a2b2f0"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
 <div id="range-widths" class="section level4">
 <h4>Range Widths</h4>
 <pre class="r"><code>GRangesList(
@@ -1420,7 +1421,7 @@ all_tbl_params &lt;- bind_rows(
     str_replace_all(&quot;rlg&quot;, &quot; RLE-Grouped&quot;)
   col &lt;- case_when(
     grepl(&quot;^\\*&quot;, x) ~ &quot;red&quot;,
-    grepl(&quot;^[a-z]&quot;, x) ~ &quot;grey20&quot;,
+    grepl(&quot;^[A-Za-z]&quot;, x) ~ &quot;grey20&quot;,
     TRUE ~ &quot;darkorange3&quot;
   )
   glue(
@@ -1737,7 +1738,243 @@ between sliding and fixed-width windows</em>
 <em>Summary of ranges considered significant under each method and compared to all other methods. Library-Size normalisation is referred to as 'none' and is the default method used when no normalisation is explicilty listed. Any methods where RLE has been flagged using quantro will have a suitable symbol prefacing RLE,  with a dot indicating caution and any asterisk indicating an inappropriate method.</em>
 </caption>
 <div class="reactable html-widget html-fill-item" id="tbl-all-comps" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="tbl-all-comps">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"pkg":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","DiffBind"],"windows":["Fixed","Fixed","Fixed","Fixed","Fixed","Fixed","Fixed","Sliding","Sliding","Sliding","Sliding","Sliding","Sliding","Sliding","Fixed","Fixed"],"norm":["none","none","none","˙RLE","˙RLE","˙RLE","RLE<br>(Grouped)","none","none","none","RLE","RLE","RLE","SQN","none","˙RLE"],"method":["limma-trend","glmQLF","Wald Test","limma-trend","glmQLF","Wald Test","glmQLF","limma-trend","glmQLF","Wald Test","limma-trend","glmQLF","Wald Test","limma-trend","Wald Test","Wald Test"],"n_sig":[196,191,166,525,571,303,210,110,98,92,322,370,182,361,164,297],"n_unique":[0,0,0,14,43,0,0,0,0,0,1,7,0,12,0,0],"DiffBind<br>":[0.795918367346939,0.801047120418848,0.963855421686747,0.312380952380952,0.287215411558669,0.534653465346535,0.757142857142857,0.890909090909091,0.938775510204082,0.978260869565217,0.363354037267081,0.316216216216216,0.637362637362637,0.32409972299169,1,0.545454545454545],"DiffBind<br>RLE ":[0.974489795918367,0.947643979057592,0.987951807228916,0.565714285714286,0.520140105078809,0.953795379537954,0.933333333333333,0.972727272727273,0.979591836734694,0.989130434782609,0.704968944099379,0.621621621621622,0.978021978021978,0.637119113573407,0.98780487804878,1],"Fixed<br>limma-trend":[1,0.952879581151832,0.927710843373494,0.373333333333333,0.343257443082312,0.633663366336634,0.914285714285714,0.963636363636364,0.969387755102041,0.967391304347826,0.403726708074534,0.351351351351351,0.675824175824176,0.3601108033241,0.951219512195122,0.643097643097643],"Fixed<br>glmQLF":[0.928571428571429,1,0.921686746987952,0.363809523809524,0.334500875656743,0.610561056105611,0.90952380952381,0.9,0.928571428571429,0.945652173913043,0.366459627329193,0.318918918918919,0.615384615384615,0.326869806094183,0.932926829268293,0.609427609427609],"Fixed<br>Wald":[0.785714285714286,0.801047120418848,1,0.316190476190476,0.290718038528897,0.541254125412541,0.752380952380952,0.881818181818182,0.928571428571429,0.978260869565217,0.369565217391304,0.321621621621622,0.653846153846154,0.329639889196676,0.975609756097561,0.552188552188552],"Fixed<br>RLE limma-trend":[1,1,1,1,0.891418563922942,1,1,0.981818181818182,0.989795918367347,0.989130434782609,0.940993788819876,0.891891891891892,0.989010989010989,0.897506925207756,1,1],"Fixed<br>RLE glmQLF":[1,1,1,0.96952380952381,1,1,1,0.981818181818182,0.989795918367347,0.989130434782609,0.953416149068323,0.937837837837838,0.989010989010989,0.925207756232687,1,1],"Fixed<br>RLE Wald":[0.979591836734694,0.968586387434555,0.987951807228916,0.577142857142857,0.530647985989492,1,0.952380952380952,0.972727272727273,0.969387755102041,0.989130434782609,0.711180124223602,0.624324324324324,0.967032967032967,0.64819944598338,0.98780487804878,0.973063973063973],"Fixed<br>RLE-Grouped glmQLF":[0.979591836734694,1,0.951807228915663,0.4,0.367775831873905,0.66006600660066,1,0.945454545454545,0.959183673469388,0.978260869565217,0.41304347826087,0.359459459459459,0.686813186813187,0.368421052631579,0.969512195121951,0.65993265993266],"Sliding<br>limma-trend":[0.545918367346939,0.523560209424084,0.590361445783133,0.207619047619048,0.190893169877408,0.356435643564356,0.5,1,0.969387755102041,0.956521739130435,0.341614906832298,0.297297297297297,0.598901098901099,0.304709141274238,0.603658536585366,0.363636363636364],"Sliding<br>glmQLF":[0.489795918367347,0.481675392670157,0.55421686746988,0.186666666666667,0.171628721541156,0.316831683168317,0.452380952380952,0.863636363636364,1,0.923913043478261,0.304347826086957,0.264864864864865,0.532967032967033,0.271468144044321,0.567073170731707,0.326599326599327],"Sliding<br>Wald":[0.459183673469388,0.460732984293194,0.548192771084337,0.175238095238095,0.161120840630473,0.303630363036304,0.433333333333333,0.8,0.86734693877551,1,0.285714285714286,0.248648648648649,0.505494505494505,0.254847645429363,0.554878048780488,0.30976430976431],"Sliding<br>RLE limma-trend":[0.668367346938776,0.62303664921466,0.72289156626506,0.580952380952381,0.541155866900175,0.759075907590759,0.638095238095238,1,1,1,1,0.862162162162162,1,0.867036011080332,0.719512195121951,0.767676767676768],"Sliding<br>RLE glmQLF":[0.668367346938776,0.62303664921466,0.72289156626506,0.632380952380952,0.611208406304729,0.765676567656766,0.638095238095238,1,1,1,0.990683229813665,1,1,0.922437673130194,0.719512195121951,0.777777777777778],"Sliding<br>RLE Wald":[0.63265306122449,0.591623036649215,0.72289156626506,0.344761904761905,0.316987740805604,0.584158415841584,0.6,0.990909090909091,0.989795918367347,1,0.565217391304348,0.491891891891892,1,0.50415512465374,0.713414634146341,0.602693602693603],"Sliding<br>SQN limma-trend":[0.668367346938776,0.62303664921466,0.72289156626506,0.620952380952381,0.588441330998249,0.775577557755776,0.638095238095238,1,1,1,0.972049689440994,0.9,1,1,0.719512195121951,0.777777777777778]},"columns":[{"id":"pkg","name":"R Package","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":100,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}],"minWidth":80},{"id":"windows","name":"Window Type","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":75,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}],"minWidth":75},{"id":"norm","name":"Norm","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":70,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}]},{"id":"method","name":"Method","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":100,"style":{"borderRight":"1px solid rgba(0, 0, 0, 0.1)"},"minWidth":80},{"id":"n_sig","name":"Sig","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"html":true,"maxWidth":55,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}]},{"id":"n_unique","name":"Unique","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"html":true,"maxWidth":65,"style":{"borderRight":"1px solid rgba(0, 0, 0, 0.1)"}},{"id":"DiffBind<br>","name":"DiffBind<br>","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991ACB","fontSize":12},{"backgroundColor":"#00991ACC","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991A50","fontSize":12},{"backgroundColor":"#00991A49","fontSize":12},{"backgroundColor":"#00991A88","fontSize":12},{"backgroundColor":"#00991AC1","fontSize":12},{"backgroundColor":"#00991AE3","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991A5D","fontSize":12},{"backgroundColor":"#00991A51","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991A53","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A8B","fontSize":12}]},{"id":"DiffBind<br>RLE ","name":"DiffBind<br>RLE ","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991AF2","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A90","fontSize":12},{"backgroundColor":"#00991A85","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991AFA","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AB4","fontSize":12},{"backgroundColor":"#00991A9F","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12}]},{"id":"Fixed<br>limma-trend","name":"Fixed<br>limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AED","fontSize":12},{"backgroundColor":"#00991A5F","fontSize":12},{"backgroundColor":"#00991A58","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991A67","fontSize":12},{"backgroundColor":"#00991A5A","fontSize":12},{"backgroundColor":"#00991AAC","fontSize":12},{"backgroundColor":"#00991A5C","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AA4","fontSize":12}]},{"id":"Fixed<br>glmQLF","name":"Fixed<br>glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AED","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991A5D","fontSize":12},{"backgroundColor":"#00991A55","fontSize":12},{"backgroundColor":"#00991A9C","fontSize":12},{"backgroundColor":"#00991AE8","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12},{"backgroundColor":"#00991AED","fontSize":12},{"backgroundColor":"#00991AF1","fontSize":12},{"backgroundColor":"#00991A5D","fontSize":12},{"backgroundColor":"#00991A51","fontSize":12},{"backgroundColor":"#00991A9D","fontSize":12},{"backgroundColor":"#00991A53","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12},{"backgroundColor":"#00991A9B","fontSize":12}]},{"id":"Fixed<br>Wald","name":"Fixed<br>Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AC8","fontSize":12},{"backgroundColor":"#00991ACC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A51","fontSize":12},{"backgroundColor":"#00991A4A","fontSize":12},{"backgroundColor":"#00991A8A","fontSize":12},{"backgroundColor":"#00991AC0","fontSize":12},{"backgroundColor":"#00991AE1","fontSize":12},{"backgroundColor":"#00991AED","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991A5E","fontSize":12},{"backgroundColor":"#00991A52","fontSize":12},{"backgroundColor":"#00991AA7","fontSize":12},{"backgroundColor":"#00991A54","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991A8D","fontSize":12}]},{"id":"Fixed<br>RLE limma-trend","name":"Fixed<br>RLE limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AE3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFA","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AF0","fontSize":12},{"backgroundColor":"#00991AE3","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AE5","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12}]},{"id":"Fixed<br>RLE glmQLF","name":"Fixed<br>RLE glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFA","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AEC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12}]},{"id":"Fixed<br>RLE Wald","name":"Fixed<br>RLE Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFA","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A93","fontSize":12},{"backgroundColor":"#00991A87","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AB5","fontSize":12},{"backgroundColor":"#00991A9F","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AA5","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12}]},{"id":"Fixed<br>RLE-Grouped glmQLF","name":"Fixed<br>RLE-Grouped glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFA","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991A66","fontSize":12},{"backgroundColor":"#00991A5E","fontSize":12},{"backgroundColor":"#00991AA8","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF1","fontSize":12},{"backgroundColor":"#00991AF5","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991A69","fontSize":12},{"backgroundColor":"#00991A5C","fontSize":12},{"backgroundColor":"#00991AAF","fontSize":12},{"backgroundColor":"#00991A5E","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AA8","fontSize":12}]},{"id":"Sliding<br>limma-trend","name":"Sliding<br>limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A8B","fontSize":12},{"backgroundColor":"#00991A86","fontSize":12},{"backgroundColor":"#00991A97","fontSize":12},{"backgroundColor":"#00991A35","fontSize":12},{"backgroundColor":"#00991A31","fontSize":12},{"backgroundColor":"#00991A5B","fontSize":12},{"backgroundColor":"#00991A80","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991A57","fontSize":12},{"backgroundColor":"#00991A4C","fontSize":12},{"backgroundColor":"#00991A99","fontSize":12},{"backgroundColor":"#00991A4E","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12},{"backgroundColor":"#00991A5D","fontSize":12}]},{"id":"Sliding<br>glmQLF","name":"Sliding<br>glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A7D","fontSize":12},{"backgroundColor":"#00991A7B","fontSize":12},{"backgroundColor":"#00991A8D","fontSize":12},{"backgroundColor":"#00991A30","fontSize":12},{"backgroundColor":"#00991A2C","fontSize":12},{"backgroundColor":"#00991A51","fontSize":12},{"backgroundColor":"#00991A73","fontSize":12},{"backgroundColor":"#00991ADC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AEC","fontSize":12},{"backgroundColor":"#00991A4E","fontSize":12},{"backgroundColor":"#00991A44","fontSize":12},{"backgroundColor":"#00991A88","fontSize":12},{"backgroundColor":"#00991A45","fontSize":12},{"backgroundColor":"#00991A91","fontSize":12},{"backgroundColor":"#00991A53","fontSize":12}]},{"id":"Sliding<br>Wald","name":"Sliding<br>Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A75","fontSize":12},{"backgroundColor":"#00991A75","fontSize":12},{"backgroundColor":"#00991A8C","fontSize":12},{"backgroundColor":"#00991A2D","fontSize":12},{"backgroundColor":"#00991A29","fontSize":12},{"backgroundColor":"#00991A4D","fontSize":12},{"backgroundColor":"#00991A6F","fontSize":12},{"backgroundColor":"#00991ACC","fontSize":12},{"backgroundColor":"#00991ADD","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A49","fontSize":12},{"backgroundColor":"#00991A3F","fontSize":12},{"backgroundColor":"#00991A81","fontSize":12},{"backgroundColor":"#00991A41","fontSize":12},{"backgroundColor":"#00991A8D","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12}]},{"id":"Sliding<br>RLE limma-trend","name":"Sliding<br>RLE limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AAA","fontSize":12},{"backgroundColor":"#00991A9F","fontSize":12},{"backgroundColor":"#00991AB8","fontSize":12},{"backgroundColor":"#00991A94","fontSize":12},{"backgroundColor":"#00991A8A","fontSize":12},{"backgroundColor":"#00991AC2","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991ADC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991ADD","fontSize":12},{"backgroundColor":"#00991AB7","fontSize":12},{"backgroundColor":"#00991AC4","fontSize":12}]},{"id":"Sliding<br>RLE glmQLF","name":"Sliding<br>RLE glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AAA","fontSize":12},{"backgroundColor":"#00991A9F","fontSize":12},{"backgroundColor":"#00991AB8","fontSize":12},{"backgroundColor":"#00991AA1","fontSize":12},{"backgroundColor":"#00991A9C","fontSize":12},{"backgroundColor":"#00991AC3","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991AB7","fontSize":12},{"backgroundColor":"#00991AC6","fontSize":12}]},{"id":"Sliding<br>RLE Wald","name":"Sliding<br>RLE Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AA1","fontSize":12},{"backgroundColor":"#00991A97","fontSize":12},{"backgroundColor":"#00991AB8","fontSize":12},{"backgroundColor":"#00991A58","fontSize":12},{"backgroundColor":"#00991A51","fontSize":12},{"backgroundColor":"#00991A95","fontSize":12},{"backgroundColor":"#00991A99","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A90","fontSize":12},{"backgroundColor":"#00991A7D","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A81","fontSize":12},{"backgroundColor":"#00991AB6","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12}]},{"id":"Sliding<br>SQN limma-trend","name":"Sliding<br>SQN limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AAA","fontSize":12},{"backgroundColor":"#00991A9F","fontSize":12},{"backgroundColor":"#00991AB8","fontSize":12},{"backgroundColor":"#00991A9E","fontSize":12},{"backgroundColor":"#00991A96","fontSize":12},{"backgroundColor":"#00991AC6","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991AE6","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AB7","fontSize":12},{"backgroundColor":"#00991AC6","fontSize":12}]}],"columnGroups":[{"name":"DiffBind (Wald Test)","columns":["DiffBind<br>","DiffBind<br>RLE "]},{"name":"extraChIPs Fixed","columns":["Fixed<br>limma-trend","Fixed<br>glmQLF","Fixed<br>Wald","Fixed<br>RLE limma-trend","Fixed<br>RLE glmQLF","Fixed<br>RLE Wald","Fixed<br>RLE-Grouped glmQLF"]},{"name":"extraChIPs Sliding","columns":["Sliding<br>limma-trend","Sliding<br>glmQLF","Sliding<br>Wald","Sliding<br>RLE limma-trend","Sliding<br>RLE glmQLF","Sliding<br>RLE Wald","Sliding<br>SQN limma-trend"]}],"filterable":true,"pagination":false,"highlight":true,"theme":{"style":{"fontSize":12}},"elementId":"tbl-all-comps","dataKey":"266f17269c10a06427a418e2ea06a489"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="tbl-all-comps">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"pkg":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","DiffBind"],"windows":["Fixed","Fixed","Fixed","Fixed","Fixed","Fixed","Fixed","Sliding","Sliding","Sliding","Sliding","Sliding","Sliding","Sliding","Fixed","Fixed"],"norm":["none","none","none","˙RLE","˙RLE","˙RLE","RLE<br>(Grouped)","none","none","none","RLE","RLE","RLE","SQN","none","˙RLE"],"method":["limma-trend","glmQLF","Wald Test","limma-trend","glmQLF","Wald Test","glmQLF","limma-trend","glmQLF","Wald Test","limma-trend","glmQLF","Wald Test","limma-trend","Wald Test","Wald Test"],"n_sig":[196,200,166,525,585,303,231,110,98,92,322,376,182,361,164,297],"n_unique":[0,0,0,11,51,0,0,0,0,0,1,10,0,14,0,0],"DiffBind<br>":[0.795918367346939,0.76,0.963855421686747,0.312380952380952,0.28034188034188,0.534653465346535,0.701298701298701,0.890909090909091,0.928571428571429,0.978260869565217,0.363354037267081,0.311170212765957,0.637362637362637,0.32409972299169,1,0.545454545454545],"DiffBind<br>RLE ":[0.974489795918367,0.915,0.987951807228916,0.565714285714286,0.507692307692308,0.953795379537954,0.913419913419913,0.972727272727273,0.979591836734694,0.989130434782609,0.704968944099379,0.611702127659574,0.978021978021978,0.637119113573407,0.98780487804878,1],"Fixed<br>limma-trend":[1,0.92,0.927710843373494,0.373333333333333,0.335042735042735,0.633663366336634,0.844155844155844,0.963636363636364,0.969387755102041,0.967391304347826,0.403726708074534,0.345744680851064,0.675824175824176,0.3601108033241,0.951219512195122,0.643097643097643],"Fixed<br>glmQLF":[0.938775510204082,1,0.91566265060241,0.380952380952381,0.341880341880342,0.617161716171617,0.865800865800866,0.918181818181818,0.938775510204082,0.945652173913043,0.372670807453416,0.319148936170213,0.615384615384615,0.332409972299169,0.926829268292683,0.616161616161616],"Fixed<br>Wald":[0.785714285714286,0.76,1,0.316190476190476,0.283760683760684,0.541254125412541,0.692640692640693,0.881818181818182,0.918367346938776,0.978260869565217,0.369565217391304,0.316489361702128,0.653846153846154,0.329639889196676,0.975609756097561,0.552188552188552],"Fixed<br>RLE limma-trend":[1,1,1,1,0.875213675213675,1,1,0.981818181818182,0.989795918367347,0.989130434782609,0.940993788819876,0.882978723404255,0.989010989010989,0.897506925207756,1,1],"Fixed<br>RLE glmQLF":[1,1,1,0.975238095238095,1,1,1,0.981818181818182,0.989795918367347,0.989130434782609,0.953416149068323,0.936170212765957,0.989010989010989,0.925207756232687,1,1],"Fixed<br>RLE Wald":[0.979591836734694,0.935,0.987951807228916,0.577142857142857,0.517948717948718,1,0.926406926406926,0.972727272727273,0.969387755102041,0.989130434782609,0.711180124223602,0.61436170212766,0.967032967032967,0.64819944598338,0.98780487804878,0.973063973063973],"Fixed<br>RLE-Grouped glmQLF":[0.994897959183674,1,0.963855421686747,0.44,0.394871794871795,0.706270627062706,1,0.963636363636364,0.989795918367347,0.989130434782609,0.456521739130435,0.390957446808511,0.730769230769231,0.407202216066482,0.98780487804878,0.71043771043771],"Sliding<br>limma-trend":[0.545918367346939,0.51,0.590361445783133,0.207619047619048,0.186324786324786,0.356435643564356,0.463203463203463,1,0.969387755102041,0.956521739130435,0.341614906832298,0.292553191489362,0.598901098901099,0.304709141274238,0.603658536585366,0.363636363636364],"Sliding<br>glmQLF":[0.489795918367347,0.465,0.548192771084337,0.186666666666667,0.167521367521368,0.316831683168317,0.424242424242424,0.863636363636364,1,0.91304347826087,0.304347826086957,0.26063829787234,0.532967032967033,0.271468144044321,0.560975609756098,0.326599326599327],"Sliding<br>Wald":[0.459183673469388,0.44,0.548192771084337,0.175238095238095,0.157264957264957,0.303630363036304,0.398268398268398,0.8,0.857142857142857,1,0.285714285714286,0.24468085106383,0.505494505494505,0.254847645429363,0.554878048780488,0.30976430976431],"Sliding<br>RLE limma-trend":[0.668367346938776,0.605,0.72289156626506,0.580952380952381,0.528205128205128,0.759075907590759,0.640692640692641,1,1,1,1,0.848404255319149,1,0.867036011080332,0.719512195121951,0.767676767676768],"Sliding<br>RLE glmQLF":[0.668367346938776,0.605,0.72289156626506,0.636190476190476,0.605128205128205,0.765676567656766,0.640692640692641,1,1,1,0.990683229813665,1,1,0.911357340720222,0.719512195121951,0.777777777777778],"Sliding<br>RLE Wald":[0.63265306122449,0.565,0.72289156626506,0.344761904761905,0.309401709401709,0.584158415841584,0.58008658008658,0.990909090909091,0.989795918367347,1,0.565217391304348,0.484042553191489,1,0.50415512465374,0.713414634146341,0.602693602693603],"Sliding<br>SQN limma-trend":[0.668367346938776,0.605,0.72289156626506,0.620952380952381,0.574358974358974,0.775577557755776,0.640692640692641,1,1,1,0.972049689440994,0.875,1,1,0.719512195121951,0.777777777777778]},"columns":[{"id":"pkg","name":"R Package","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":100,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}],"minWidth":80},{"id":"windows","name":"Window Type","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":75,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}],"minWidth":75},{"id":"norm","name":"Norm","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":70,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}]},{"id":"method","name":"Method","type":"character","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":100,"style":{"borderRight":"1px solid rgba(0, 0, 0, 0.1)"},"minWidth":80},{"id":"n_sig","name":"Sig","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"html":true,"maxWidth":55,"style":[{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12},{"backgroundColor":"#00991A00","fontSize":12}]},{"id":"n_unique","name":"Unique","type":"numeric","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"html":true,"maxWidth":65,"style":{"borderRight":"1px solid rgba(0, 0, 0, 0.1)"}},{"id":"DiffBind<br>","name":"DiffBind<br>","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991ACB","fontSize":12},{"backgroundColor":"#00991AC2","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991A50","fontSize":12},{"backgroundColor":"#00991A47","fontSize":12},{"backgroundColor":"#00991A88","fontSize":12},{"backgroundColor":"#00991AB3","fontSize":12},{"backgroundColor":"#00991AE3","fontSize":12},{"backgroundColor":"#00991AED","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991A5D","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991A53","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A8B","fontSize":12}]},{"id":"DiffBind<br>RLE ","name":"DiffBind<br>RLE ","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A90","fontSize":12},{"backgroundColor":"#00991A81","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991AFA","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AB4","fontSize":12},{"backgroundColor":"#00991A9C","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12}]},{"id":"Fixed<br>limma-trend","name":"Fixed<br>limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AEB","fontSize":12},{"backgroundColor":"#00991AED","fontSize":12},{"backgroundColor":"#00991A5F","fontSize":12},{"backgroundColor":"#00991A55","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991AD7","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991A67","fontSize":12},{"backgroundColor":"#00991A58","fontSize":12},{"backgroundColor":"#00991AAC","fontSize":12},{"backgroundColor":"#00991A5C","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AA4","fontSize":12}]},{"id":"Fixed<br>glmQLF","name":"Fixed<br>glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12},{"backgroundColor":"#00991A61","fontSize":12},{"backgroundColor":"#00991A57","fontSize":12},{"backgroundColor":"#00991A9D","fontSize":12},{"backgroundColor":"#00991ADD","fontSize":12},{"backgroundColor":"#00991AEA","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AF1","fontSize":12},{"backgroundColor":"#00991A5F","fontSize":12},{"backgroundColor":"#00991A51","fontSize":12},{"backgroundColor":"#00991A9D","fontSize":12},{"backgroundColor":"#00991A55","fontSize":12},{"backgroundColor":"#00991AEC","fontSize":12},{"backgroundColor":"#00991A9D","fontSize":12}]},{"id":"Fixed<br>Wald","name":"Fixed<br>Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AC8","fontSize":12},{"backgroundColor":"#00991AC2","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A51","fontSize":12},{"backgroundColor":"#00991A48","fontSize":12},{"backgroundColor":"#00991A8A","fontSize":12},{"backgroundColor":"#00991AB1","fontSize":12},{"backgroundColor":"#00991AE1","fontSize":12},{"backgroundColor":"#00991AEA","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991A5E","fontSize":12},{"backgroundColor":"#00991A51","fontSize":12},{"backgroundColor":"#00991AA7","fontSize":12},{"backgroundColor":"#00991A54","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991A8D","fontSize":12}]},{"id":"Fixed<br>RLE limma-trend","name":"Fixed<br>RLE limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991ADF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFA","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AF0","fontSize":12},{"backgroundColor":"#00991AE1","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AE5","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12}]},{"id":"Fixed<br>RLE glmQLF","name":"Fixed<br>RLE glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF9","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFA","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AF3","fontSize":12},{"backgroundColor":"#00991AEF","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AEC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12}]},{"id":"Fixed<br>RLE Wald","name":"Fixed<br>RLE Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFA","fontSize":12},{"backgroundColor":"#00991AEE","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A93","fontSize":12},{"backgroundColor":"#00991A84","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AEC","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AB5","fontSize":12},{"backgroundColor":"#00991A9D","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AA5","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12}]},{"id":"Fixed<br>RLE-Grouped glmQLF","name":"Fixed<br>RLE-Grouped glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AFE","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991A70","fontSize":12},{"backgroundColor":"#00991A65","fontSize":12},{"backgroundColor":"#00991AB4","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF6","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991A74","fontSize":12},{"backgroundColor":"#00991A64","fontSize":12},{"backgroundColor":"#00991ABA","fontSize":12},{"backgroundColor":"#00991A68","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AB5","fontSize":12}]},{"id":"Sliding<br>limma-trend","name":"Sliding<br>limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A8B","fontSize":12},{"backgroundColor":"#00991A82","fontSize":12},{"backgroundColor":"#00991A97","fontSize":12},{"backgroundColor":"#00991A35","fontSize":12},{"backgroundColor":"#00991A30","fontSize":12},{"backgroundColor":"#00991A5B","fontSize":12},{"backgroundColor":"#00991A76","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF7","fontSize":12},{"backgroundColor":"#00991AF4","fontSize":12},{"backgroundColor":"#00991A57","fontSize":12},{"backgroundColor":"#00991A4B","fontSize":12},{"backgroundColor":"#00991A99","fontSize":12},{"backgroundColor":"#00991A4E","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12},{"backgroundColor":"#00991A5D","fontSize":12}]},{"id":"Sliding<br>glmQLF","name":"Sliding<br>glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A7D","fontSize":12},{"backgroundColor":"#00991A77","fontSize":12},{"backgroundColor":"#00991A8C","fontSize":12},{"backgroundColor":"#00991A30","fontSize":12},{"backgroundColor":"#00991A2B","fontSize":12},{"backgroundColor":"#00991A51","fontSize":12},{"backgroundColor":"#00991A6C","fontSize":12},{"backgroundColor":"#00991ADC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AE9","fontSize":12},{"backgroundColor":"#00991A4E","fontSize":12},{"backgroundColor":"#00991A42","fontSize":12},{"backgroundColor":"#00991A88","fontSize":12},{"backgroundColor":"#00991A45","fontSize":12},{"backgroundColor":"#00991A8F","fontSize":12},{"backgroundColor":"#00991A53","fontSize":12}]},{"id":"Sliding<br>Wald","name":"Sliding<br>Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991A75","fontSize":12},{"backgroundColor":"#00991A70","fontSize":12},{"backgroundColor":"#00991A8C","fontSize":12},{"backgroundColor":"#00991A2D","fontSize":12},{"backgroundColor":"#00991A28","fontSize":12},{"backgroundColor":"#00991A4D","fontSize":12},{"backgroundColor":"#00991A66","fontSize":12},{"backgroundColor":"#00991ACC","fontSize":12},{"backgroundColor":"#00991ADB","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A49","fontSize":12},{"backgroundColor":"#00991A3E","fontSize":12},{"backgroundColor":"#00991A81","fontSize":12},{"backgroundColor":"#00991A41","fontSize":12},{"backgroundColor":"#00991A8D","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12}]},{"id":"Sliding<br>RLE limma-trend","name":"Sliding<br>RLE limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AAA","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12},{"backgroundColor":"#00991AB8","fontSize":12},{"backgroundColor":"#00991A94","fontSize":12},{"backgroundColor":"#00991A87","fontSize":12},{"backgroundColor":"#00991AC2","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AD8","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991ADD","fontSize":12},{"backgroundColor":"#00991AB7","fontSize":12},{"backgroundColor":"#00991AC4","fontSize":12}]},{"id":"Sliding<br>RLE glmQLF","name":"Sliding<br>RLE glmQLF","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AAA","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12},{"backgroundColor":"#00991AB8","fontSize":12},{"backgroundColor":"#00991AA2","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12},{"backgroundColor":"#00991AC3","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AE8","fontSize":12},{"backgroundColor":"#00991AB7","fontSize":12},{"backgroundColor":"#00991AC6","fontSize":12}]},{"id":"Sliding<br>RLE Wald","name":"Sliding<br>RLE Wald","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AA1","fontSize":12},{"backgroundColor":"#00991A90","fontSize":12},{"backgroundColor":"#00991AB8","fontSize":12},{"backgroundColor":"#00991A58","fontSize":12},{"backgroundColor":"#00991A4F","fontSize":12},{"backgroundColor":"#00991A95","fontSize":12},{"backgroundColor":"#00991A94","fontSize":12},{"backgroundColor":"#00991AFD","fontSize":12},{"backgroundColor":"#00991AFC","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A90","fontSize":12},{"backgroundColor":"#00991A7B","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991A81","fontSize":12},{"backgroundColor":"#00991AB6","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12}]},{"id":"Sliding<br>SQN limma-trend","name":"Sliding<br>SQN limma-trend","type":"numeric","format":{"cell":{"digits":0,"percent":true},"aggregated":{"digits":0,"percent":true}},"html":true,"maxWidth":65,"style":[{"backgroundColor":"#00991AAA","fontSize":12},{"backgroundColor":"#00991A9A","fontSize":12},{"backgroundColor":"#00991AB8","fontSize":12},{"backgroundColor":"#00991A9E","fontSize":12},{"backgroundColor":"#00991A92","fontSize":12},{"backgroundColor":"#00991AC6","fontSize":12},{"backgroundColor":"#00991AA3","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AF8","fontSize":12},{"backgroundColor":"#00991ADF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AFF","fontSize":12},{"backgroundColor":"#00991AB7","fontSize":12},{"backgroundColor":"#00991AC6","fontSize":12}]}],"columnGroups":[{"name":"DiffBind (Wald Test)","columns":["DiffBind<br>","DiffBind<br>RLE "]},{"name":"extraChIPs Fixed","columns":["Fixed<br>limma-trend","Fixed<br>glmQLF","Fixed<br>Wald","Fixed<br>RLE limma-trend","Fixed<br>RLE glmQLF","Fixed<br>RLE Wald","Fixed<br>RLE-Grouped glmQLF"]},{"name":"extraChIPs Sliding","columns":["Sliding<br>limma-trend","Sliding<br>glmQLF","Sliding<br>Wald","Sliding<br>RLE limma-trend","Sliding<br>RLE glmQLF","Sliding<br>RLE Wald","Sliding<br>SQN limma-trend"]}],"filterable":true,"pagination":false,"highlight":true,"theme":{"style":{"fontSize":12}},"elementId":"tbl-all-comps","dataKey":"edaefc3ab14088dc158bc84da64174fa"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="diffbind-vs-extrachips" class="section level2">
+<h2>DiffBind Vs extraChIPs</h2>
+<p>The two most directly comparable methods, i.e. the fixed-width Wald
+Test as implemented in either DiffBind or extraChIPs, were compared to
+each other using both Library Size and RLE normalisation, as a check for
+consistency. Given the different peak centering approaches, the
+distances between peak centres were also calculated.</p>
+<div id="library-size-normalisation" class="section level3 tabset">
+<h3 class="tabset">Library-Size Normalisation</h3>
+<div id="logfc" class="section level4">
+<h4>logFC</h4>
+<pre class="r"><code>GRangesList(
+  DiffBind = db_fw_res$`db-fw-ls-wt`, 
+  extraChIPs = select(ec_fw_res$`ec-fw-ls-wt`, -peak)
+) %&gt;% 
+  plotPairwise(&quot;logFC&quot;, xside = &quot;none&quot;, yside = &quot;none&quot;) +
+  labs(x = &quot;DiffBind (logFC)&quot;, y = &quot;extraChIPs (logFC)&quot;)</code></pre>
+<div class="figure">
+<img src="zr75_er_e2_e2dht_files/figure-html/db-ec-ls-compare-logfc-1.png" alt="*Comparison of logFC values between DiffBind and extraChIPs, using the Wald Test with Library Size normalisation*" width="960" />
+<p class="caption">
+<em>Comparison of logFC values between DiffBind and extraChIPs, using
+the Wald Test with Library Size normalisation</em>
+</p>
+</div>
+</div>
+<div id="p-values" class="section level4">
+<h4>P-Values</h4>
+<pre class="r"><code>GRangesList(
+  DiffBind = db_fw_res$`db-fw-ls-wt`, 
+  extraChIPs = select(ec_fw_res$`ec-fw-ls-wt`, -peak)
+) %&gt;% 
+  endoapply(
+    \(x) mutate(x, centre = start(resize(x, width = 1, fix = &#39;center&#39;)))
+  ) %&gt;% 
+  mapGrlCols(var = c(&quot;PValue&quot;, &quot;centre&quot;)) %&gt;% 
+  as_tibble() %&gt;% 
+  mutate(d = abs(DiffBind_centre - extraChIPs_centre) &gt; params$fixed_width / 10) %&gt;% 
+  dplyr::filter(!is.na(d)) %&gt;% 
+  ggplot(aes(-log10(DiffBind_PValue), -log10(extraChIPs_PValue))) +
+  geom_point(aes(colour = d), alpha = 0.7) +
+  geom_abline(slope = 1) +
+  geom_hline(
+    yintercept = dplyr::filter(ec_fw_res$`ec-fw-ls-wt`, FDR &lt; 0.05)$PValue %&gt;% 
+      max() %&gt;% 
+      log10() %&gt;% 
+      multiply_by(-1),
+    linetype = 2
+  ) +
+  geom_vline(
+    xintercept = dplyr::filter(db_fw_res$`db-fw-ls-wt`, FDR &lt; 0.05)$PValue %&gt;% 
+      max() %&gt;% 
+      log10() %&gt;% 
+      multiply_by(-1),
+    linetype = 2
+  ) +
+  labs(
+    x = &quot;DiffBind (-log10p)&quot;, y = &quot;extraChIPs (-log10p)&quot;,
+    colour = glue(&quot;centres &gt; {params$fixed_width / 10}bp apart&quot;)
+  ) +
+  scale_colour_manual(values = c(&quot;grey70&quot;, &quot;red4&quot;))</code></pre>
+<div class="figure">
+<img src="zr75_er_e2_e2dht_files/figure-html/db-ec-ls-compare-p-1.png" alt="*Comparison of -log10 p-values between DiffBind and extraChIPs, using the Wald Test with Library Size normalisation. Peaks with centres beyond 10% apart are highlighted in dark red, whilst the dashed lines indicate the significance cutoffs in each analysis.*" width="960" />
+<p class="caption">
+<em>Comparison of -log10 p-values between DiffBind and extraChIPs, using
+the Wald Test with Library Size normalisation. Peaks with centres beyond
+10% apart are highlighted in dark red, whilst the dashed lines indicate
+the significance cutoffs in each analysis.</em>
+</p>
+</div>
+</div>
+</div>
+<div id="p-value-vs-distance" class="section level3">
+<h3>P-Value Vs Distance</h3>
+<pre class="r"><code>GRangesList(
+  DiffBind = db_fw_res$`db-fw-ls-wt`, 
+  extraChIPs = select(ec_fw_res$`ec-fw-ls-wt`, -peak)
+) %&gt;% 
+  endoapply(
+    \(x) mutate(x, centre = start(resize(x, width = 1, fix = &#39;center&#39;)))
+  ) %&gt;% 
+  mapGrlCols(var = c(&quot;PValue&quot;, &quot;centre&quot;)) %&gt;% 
+  as_tibble() %&gt;% 
+  mutate(
+    d = abs(DiffBind_centre - extraChIPs_centre),
+    r = log2(extraChIPs_PValue / DiffBind_PValue)
+  ) %&gt;% 
+  dplyr::filter(!is.na(d)) %&gt;% 
+  ggplot(aes(d, r)) +
+  geom_point() +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE) +
+  labs(x = &quot;Distance Between Peak Centres&quot;, y = &quot;log2 (p_extraChIPs / p_DiffBind)&quot;) +
+  scale_x_sqrt() +
+  scale_y_continuous(breaks = seq(-6, 6, by = 2))</code></pre>
+<div class="figure">
+<img src="zr75_er_e2_e2dht_files/figure-html/db-ec-p-by-dist-1.png" alt="log~2~-transformed ratio of p-values shown as a function of the distance between peak centres, identifying divergent peak locations as a key source of diference in the results" width="960" />
+<p class="caption">
+log<sub>2</sub>-transformed ratio of p-values shown as a function of the
+distance between peak centres, identifying divergent peak locations as a
+key source of diference in the results
+</p>
+</div>
+</div>
+<div id="rle-normalisation" class="section level3 tabset">
+<h3 class="tabset">RLE Normalisation</h3>
+<div id="logfc-1" class="section level4">
+<h4>logFC</h4>
+<pre class="r"><code>GRangesList(
+  DiffBind = db_fw_res$`db-fw-rle-wt`, 
+  extraChIPs = select(ec_fw_res$`ec-fw-rle-wt`, -peak)
+) %&gt;% 
+  plotPairwise(&quot;logFC&quot;, xside = &quot;none&quot;, yside = &quot;none&quot;) +
+  labs(x = &quot;DiffBind (logFC)&quot;, y = &quot;extraChIPs (logFC)&quot;)</code></pre>
+<div class="figure">
+<img src="zr75_er_e2_e2dht_files/figure-html/db-ec-rle-compare-logfc-1.png" alt="*Comparison of logFC values between DiffBind and extraChIPs, using the Wald Test with RLE normalisation*" width="960" />
+<p class="caption">
+<em>Comparison of logFC values between DiffBind and extraChIPs, using
+the Wald Test with RLE normalisation</em>
+</p>
+</div>
+</div>
+<div id="p-values-1" class="section level4">
+<h4>P-Values</h4>
+<pre class="r"><code>GRangesList(
+  DiffBind = db_fw_res$`db-fw-rle-wt`, 
+  extraChIPs = select(ec_fw_res$`ec-fw-rle-wt`, -peak)
+) %&gt;% 
+  endoapply(
+    \(x) mutate(x, centre = start(resize(x, width = 1, fix = &#39;center&#39;)))
+  ) %&gt;% 
+  mapGrlCols(var = c(&quot;PValue&quot;, &quot;centre&quot;)) %&gt;% 
+  as_tibble() %&gt;% 
+  mutate(d = abs(DiffBind_centre - extraChIPs_centre) &gt; params$fixed_width / 10) %&gt;% 
+  dplyr::filter(!is.na(d)) %&gt;% 
+  # arrange(d) %&gt;% 
+  ggplot(aes(-log10(DiffBind_PValue), -log10(extraChIPs_PValue))) +
+  geom_point(aes(colour = d), alpha = 0.7) +
+  geom_abline(slope = 1) +
+  geom_hline(
+    yintercept = dplyr::filter(ec_fw_res$`ec-fw-rle-wt`, FDR &lt; 0.05)$PValue %&gt;% 
+      max() %&gt;% 
+      log10() %&gt;% 
+      multiply_by(-1),
+    linetype = 2
+  ) +
+  geom_vline(
+    xintercept = dplyr::filter(db_fw_res$`db-fw-rle-wt`, FDR &lt; 0.05)$PValue %&gt;% 
+      max() %&gt;% 
+      log10() %&gt;% 
+      multiply_by(-1),
+    linetype = 2
+  ) +
+  labs(
+    x = &quot;DiffBind (-log10p)&quot;, y = &quot;extraChIPs (-log10p)&quot;,
+    colour = glue(&quot;centres &gt; {params$fixed_width / 10}bp apart&quot;)
+  ) +
+  scale_colour_manual(values = c(&quot;grey70&quot;, &quot;red4&quot;))</code></pre>
+<div class="figure">
+<img src="zr75_er_e2_e2dht_files/figure-html/db-ec-rle-compare-p-1.png" alt="*Comparison of -log10 p-values between DiffBind and extraChIPs, using the Wald Test with RLE normalisation. Peaks with centres beyond 10% apart are highlighted in dark red, whilst the dashed lines indicate the significance cutoffs in each analysis.*" width="960" />
+<p class="caption">
+<em>Comparison of -log10 p-values between DiffBind and extraChIPs, using
+the Wald Test with RLE normalisation. Peaks with centres beyond 10%
+apart are highlighted in dark red, whilst the dashed lines indicate the
+significance cutoffs in each analysis.</em>
+</p>
+</div>
+</div>
+</div>
+<div id="comparison-of-identical-counts" class="section level3 tabset">
+<h3 class="tabset">Comparison of Identical Counts</h3>
+<p>In order to confirm there were no algorithmic differences between
+<code>DiffBind</code> and the Wald-Test as implemented in
+<code>extraChIPs</code>, the counts returned by DiffBind for the
+re-centred peaks were analysed using the <code>extraChIPs</code>
+implementation of the Wald Test.</p>
+<div id="library-size" class="section level4">
+<h4>Library Size</h4>
+<pre class="r"><code>db_ec_ls_wt &lt;- dba_ls %&gt;% 
+  dba(bSummarizedExperiment = TRUE) %&gt;% 
+  fitAssayDiff(
+    assay = &quot;Reads&quot;, 
+    design = model.matrix(~Treatment, data = colData(.)),
+    lib.size = &quot;Reads&quot;, norm = &quot;none&quot;, method = &quot;wald&quot;, asRanges = TRUE
+  )
+db_ec_ls_wt %&gt;% 
+  select(ec = PValue) %&gt;% 
+  join_overlap_inner(db_fw_res$`db-fw-ls-wt`) %&gt;% 
+  as_tibble() %&gt;% 
+  ggplot(aes(-log10(PValue), -log10(ec))) +
+  geom_point() +
+  geom_abline(slope = 1) +
+  labs(
+    x = expr(paste(-log[10], &quot;p (DiffBind)&quot;)),
+    y = expr(paste(-log[10], &quot;p (extraChIPs)&quot;))
+  )</code></pre>
+<div class="figure">
+<img src="zr75_er_e2_e2dht_files/figure-html/compare-db-ec-ls-1.png" alt="*Exact comparison between p-values obtained using the same set of counts when using the DiffBind implementation of the Wald Test and the extraChIPs implementation. Library Size normalisation was used for both analyses.*" width="960" />
+<p class="caption">
+<em>Exact comparison between p-values obtained using the same set of
+counts when using the DiffBind implementation of the Wald Test and the
+extraChIPs implementation. Library Size normalisation was used for both
+analyses.</em>
+</p>
+</div>
+</div>
+<div id="rle-normalisation-1" class="section level4">
+<h4>RLE Normalisation</h4>
+<pre class="r"><code>db_ec_rle_wt &lt;- dba_rle %&gt;% 
+  dba(bSummarizedExperiment = TRUE) %&gt;% 
+  fitAssayDiff(
+    assay = &quot;Reads&quot;, 
+    design = model.matrix(~Treatment, data = colData(.)),
+    lib.size = &quot;Reads&quot;, norm = &quot;RLE&quot;, method = &quot;wald&quot;, asRanges = TRUE
+  )
+db_ec_rle_wt %&gt;% 
+  select(ec = PValue) %&gt;% 
+  join_overlap_inner(db_fw_res$`db-fw-rle-wt`) %&gt;% 
+  as_tibble() %&gt;% 
+  ggplot(aes(-log10(PValue), -log10(ec))) +
+  geom_point() +
+  geom_abline(slope = 1) +
+  labs(
+    x = expr(paste(-log[10], &quot;p (DiffBind)&quot;)),
+    y = expr(paste(-log[10], &quot;p (extraChIPs)&quot;))
+  )</code></pre>
+<div class="figure">
+<img src="zr75_er_e2_e2dht_files/figure-html/compare-db-ec-rle-1.png" alt="*Exact comparison between p-values obtained using the same set of counts when using the DiffBind implementation of the Wald Test and the extraChIPs implementation. RLE normalisation was used for both analyses.*" width="960" />
+<p class="caption">
+<em>Exact comparison between p-values obtained using the same set of
+counts when using the DiffBind implementation of the Wald Test and the
+extraChIPs implementation. RLE normalisation was used for both
+analyses.</em>
+</p>
+</div>
+</div>
 </div>
 </div>
 <div id="range-based-h0" class="section level2">
@@ -1825,7 +2062,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <col width="9%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th align="left">abbr</th>
 <th align="left">Package</th>
 <th align="left">norm</th>
@@ -1837,7 +2074,7 @@ when switching to a range-based H<sub>0</sub></caption>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td align="left">ec-fw-ls-lt</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
@@ -1847,7 +2084,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">0</td>
 <td align="right">0.0%</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">ec-fw-ls-ql</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
@@ -1857,7 +2094,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">0</td>
 <td align="right">0.0%</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="left">ec-fw-ls-wt</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
@@ -1867,7 +2104,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">0</td>
 <td align="right">0.0%</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">ec-fw-rle-lt</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
@@ -1877,7 +2114,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">0</td>
 <td align="right">0.0%</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="left">ec-fw-rle-ql</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
@@ -1887,7 +2124,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">0</td>
 <td align="right">0.0%</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">ec-fw-rle-wt</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
@@ -1897,7 +2134,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">0</td>
 <td align="right">0.0%</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="left">ec-fw-rlg-ql</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE-Grouped</td>
@@ -1907,7 +2144,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">0</td>
 <td align="right">0.0%</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">ec-sw-ls-lt</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
@@ -1917,7 +2154,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">1,267</td>
 <td align="right">19.4%</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="left">ec-sw-ls-ql</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
@@ -1927,7 +2164,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">1,267</td>
 <td align="right">19.4%</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">ec-sw-ls-wt</td>
 <td align="left">extraChIPs</td>
 <td align="left">none</td>
@@ -1937,7 +2174,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">1,267</td>
 <td align="right">19.4%</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="left">ec-sw-rle-lt</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
@@ -1947,7 +2184,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">1,267</td>
 <td align="right">19.4%</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">ec-sw-rle-ql</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
@@ -1957,7 +2194,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">1,267</td>
 <td align="right">19.4%</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="left">ec-sw-rle-wt</td>
 <td align="left">extraChIPs</td>
 <td align="left">RLE</td>
@@ -1967,7 +2204,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">1,267</td>
 <td align="right">19.4%</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">ec-sw-sq-lt</td>
 <td align="left">extraChIPs</td>
 <td align="left">SQN</td>
@@ -1977,7 +2214,7 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">1,267</td>
 <td align="right">19.4%</td>
 </tr>
-<tr>
+<tr class="odd">
 <td align="left">db-fw-ls-wt</td>
 <td align="left">DiffBind</td>
 <td align="left">none</td>
@@ -1987,14 +2224,14 @@ when switching to a range-based H<sub>0</sub></caption>
 <td align="right">-6,612</td>
 <td align="right">-95.9%</td>
 </tr>
-<tr>
+<tr class="even">
 <td align="left">db-fw-rle-wt</td>
 <td align="left">DiffBind</td>
 <td align="left">RLE</td>
 <td align="left">wald</td>
 <td align="right">6,892</td>
-<td align="right">471</td>
-<td align="right">-6,421</td>
+<td align="right">469</td>
+<td align="right">-6,423</td>
 <td align="right">-93.2%</td>
 </tr>
 </tbody>
@@ -2207,7 +2444,7 @@ analysis. The status of the model as assessed using quantro is provided in
 the final column.</em>
 </caption>
 <div class="reactable html-widget html-fill-item" id="tbl-ranks" style="width:auto;height:auto;"></div>
-<script type="application/json" data-for="tbl-ranks">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"rank":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],"package":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","extraChIPs","extraChIPs","extraChIPs"],"windows":["Fixed-Width","Fixed-Width","Sliding","Sliding","Sliding","Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Sliding","Fixed-Width","Fixed-Width","Sliding","Sliding","Sliding"],"norm":["RLE","RLE","RLE","Smooth Quantile","RLE","RLE","RLE","RLE-Grouped","Library Size","Library Size","RLE","Library Size","Library Size","Library Size","Library Size","Library Size"],"method":["glmQLF","limma-trend","glmQLF","limma-trend","limma-trend","Wald Test","Wald Test","glmQLF","limma-trend","glmQLF","Wald Test","Wald Test","Wald Test","limma-trend","glmQLF","Wald Test"],"assay":["counts","logCPM (RLE)","counts","qsmooth","logCPM (RLE)","counts","counts","counts","logCPM","counts","counts","counts","counts","logCPM","counts","counts"],"n_sig":[571,525,370,361,322,303,297,210,196,191,182,166,164,110,98,92],"range_null":[284,252,216,189,185,141,142,112,90,96,89,65,58,52,61,37],"quantro_status":["Caution","Caution","Suitable","Suitable","Suitable","Caution","Caution","Suitable","Suitable","Suitable","Suitable","Suitable","Suitable","Suitable","Suitable","Suitable"]},"columns":[{"id":"rank","name":"Rank","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] <= filterValue\n    })\n  }","maxWidth":70},{"id":"package","name":"R Package","type":"character","html":true,"maxWidth":100},{"id":"windows","name":"Window Type","type":"character","html":true,"maxWidth":100},{"id":"norm","name":"Normalisation","type":"character","html":true,"minWidth":100},{"id":"method","name":"Analytic Approach","type":"character","html":true,"minWidth":100},{"id":"assay","name":"Assay","type":"character","html":true,"maxWidth":120},{"id":"n_sig","name":"Point H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"range_null","name":"Range H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"quantro_status","name":"Status","type":"character","html":true,"maxWidth":100,"style":[{"backgroundColor":"orange"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"}]}],"columnGroups":[{"name":"Significant Sites","columns":["n_sig","range_null"]}],"filterable":true,"pagination":false,"showPageSizeOptions":false,"theme":{"style":{"fontSize":13}},"elementId":"tbl-ranks","dataKey":"3c285eb1b35d5ff0be413fd87e123592"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.filterMethod","tag.attribs.columns.6.filterMethod","tag.attribs.columns.7.filterMethod"],"jsHooks":[]}</script>
+<script type="application/json" data-for="tbl-ranks">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"rank":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],"package":["extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","extraChIPs","extraChIPs","extraChIPs","extraChIPs","extraChIPs","DiffBind","extraChIPs","extraChIPs","extraChIPs"],"windows":["Fixed-Width","Fixed-Width","Sliding","Sliding","Sliding","Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Fixed-Width","Sliding","Fixed-Width","Fixed-Width","Sliding","Sliding","Sliding"],"norm":["RLE","RLE","RLE","Smooth Quantile","RLE","RLE","RLE","RLE-Grouped","Library Size","Library Size","RLE","Library Size","Library Size","Library Size","Library Size","Library Size"],"method":["glmQLF","limma-trend","glmQLF","limma-trend","limma-trend","Wald Test","Wald Test","glmQLF","glmQLF","limma-trend","Wald Test","Wald Test","Wald Test","limma-trend","glmQLF","Wald Test"],"assay":["counts","logCPM (RLE)","counts","qsmooth","logCPM (RLE)","counts","counts","counts","counts","logCPM","counts","counts","counts","logCPM","counts","counts"],"n_sig":[585,525,376,361,322,303,297,231,200,196,182,166,164,110,98,92],"range_null":[288,252,218,189,185,176,174,121,108,90,114,79,79,52,62,47],"quantro_status":["Caution","Caution","Suitable","Suitable","Suitable","Caution","Caution","Suitable","Suitable","Suitable","Suitable","Suitable","Suitable","Suitable","Suitable","Suitable"]},"columns":[{"id":"rank","name":"Rank","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] <= filterValue\n    })\n  }","maxWidth":70},{"id":"package","name":"R Package","type":"character","html":true,"maxWidth":100},{"id":"windows","name":"Window Type","type":"character","html":true,"maxWidth":100},{"id":"norm","name":"Normalisation","type":"character","html":true,"minWidth":100},{"id":"method","name":"Analytic Approach","type":"character","html":true,"minWidth":100},{"id":"assay","name":"Assay","type":"character","html":true,"maxWidth":120},{"id":"n_sig","name":"Point H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"range_null","name":"Range H<sub>0<\/sub>","type":"numeric","html":true,"filterMethod":"function(rows, columnId, filterValue) {\n    return rows.filter(function(row) {\n      return row.values[columnId] >= filterValue\n    })\n  }","format":{"cell":{"separators":true},"aggregated":{"separators":true}},"maxWidth":90},{"id":"quantro_status","name":"Status","type":"character","html":true,"maxWidth":100,"style":[{"backgroundColor":"orange"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"orange"},{"backgroundColor":"orange"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"},{"backgroundColor":"lightgreen"}]}],"columnGroups":[{"name":"Significant Sites","columns":["n_sig","range_null"]}],"filterable":true,"pagination":false,"showPageSizeOptions":false,"theme":{"style":{"fontSize":13}},"elementId":"tbl-ranks","dataKey":"98a93e67d9220bdd6a171b89ffada4f2"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.filterMethod","tag.attribs.columns.6.filterMethod","tag.attribs.columns.7.filterMethod"],"jsHooks":[]}</script>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
@@ -2247,8 +2484,9 @@ Randomly Drawn.”</span> <em>Stat. Appl. Genet. Mol. Biol.</em> 9
 Session information </button>
 </p>
 <div id="sessioninfo" class="collapse">
-<p><strong>R version 4.3.3 (2024-02-29)</strong></p>
-<p><strong>Platform:</strong> x86_64-conda-linux-gnu (64-bit)</p>
+
+<p><strong>R version 4.4.0 (2024-04-24)</strong></p>
+<p><strong>Platform:</strong> x86_64-pc-linux-gnu</p>
 <p><strong>locale:</strong> <em>LC_CTYPE=en_AU.UTF-8</em>,
 <em>LC_NUMERIC=C</em>, <em>LC_TIME=en_AU.UTF-8</em>,
 <em>LC_COLLATE=en_AU.UTF-8</em>, <em>LC_MONETARY=en_AU.UTF-8</em>,
@@ -2260,122 +2498,122 @@ Session information </button>
 <em>utils</em>, <em>datasets</em>, <em>methods</em> and
 <em>base</em></p>
 <p><strong>other attached packages:</strong> <em>ggtext(v.0.1.2)</em>,
-<em>GenomicAlignments(v.1.38.2)</em>, <em>corrplot(v.0.92)</em>,
+<em>GenomicAlignments(v.1.40.0)</em>, <em>corrplot(v.0.92)</em>,
 <em>pander(v.0.6.5)</em>, <em>patchwork(v.1.2.0)</em>,
-<em>plyranges(v.1.22.0)</em>, <em>magrittr(v.2.0.3)</em>,
+<em>plyranges(v.1.24.0)</em>, <em>magrittr(v.2.0.3)</em>,
 <em>doParallel(v.1.0.17)</em>, <em>iterators(v.1.0.14)</em>,
-<em>foreach(v.1.5.2)</em>, <em>qsmooth(v.1.18.0)</em>,
-<em>quantro(v.1.36.0)</em>, <em>edgeR(v.4.0.16)</em>,
-<em>limma(v.3.58.1)</em>, <em>csaw(v.1.36.1)</em>,
-<em>Rsamtools(v.2.18.0)</em>, <em>Biostrings(v.2.70.3)</em>,
-<em>XVector(v.0.42.0)</em>, <em>glue(v.1.7.0)</em>,
+<em>foreach(v.1.5.2)</em>, <em>qsmooth(v.1.20.0)</em>,
+<em>quantro(v.1.38.0)</em>, <em>edgeR(v.4.2.1)</em>,
+<em>limma(v.3.60.4)</em>, <em>csaw(v.1.38.0)</em>,
+<em>Rsamtools(v.2.20.0)</em>, <em>Biostrings(v.2.72.1)</em>,
+<em>XVector(v.0.44.0)</em>, <em>glue(v.1.7.0)</em>,
 <em>scales(v.1.3.0)</em>, <em>htmltools(v.0.5.8.1)</em>,
-<em>reactable(v.0.4.4)</em>, <em>extraChIPs(v.1.9.5)</em>,
-<em>ggside(v.0.3.1)</em>, <em>BiocParallel(v.1.36.0)</em>,
-<em>DiffBind(v.3.12.0)</em>, <em>SummarizedExperiment(v.1.32.0)</em>,
-<em>Biobase(v.2.62.0)</em>, <em>MatrixGenerics(v.1.14.0)</em>,
-<em>matrixStats(v.1.3.0)</em>, <em>GenomicRanges(v.1.54.1)</em>,
-<em>GenomeInfoDb(v.1.38.8)</em>, <em>IRanges(v.2.36.0)</em>,
-<em>S4Vectors(v.0.40.2)</em>, <em>BiocGenerics(v.0.48.1)</em>,
+<em>reactable(v.0.4.4)</em>, <em>extraChIPs(v.1.9.6)</em>,
+<em>ggside(v.0.3.1)</em>, <em>BiocParallel(v.1.38.0)</em>,
+<em>DiffBind(v.3.14.0)</em>, <em>SummarizedExperiment(v.1.34.0)</em>,
+<em>Biobase(v.2.64.0)</em>, <em>MatrixGenerics(v.1.16.0)</em>,
+<em>matrixStats(v.1.3.0)</em>, <em>GenomicRanges(v.1.56.1)</em>,
+<em>GenomeInfoDb(v.1.40.1)</em>, <em>IRanges(v.2.38.1)</em>,
+<em>S4Vectors(v.0.42.1)</em>, <em>BiocGenerics(v.0.50.0)</em>,
 <em>lubridate(v.1.9.3)</em>, <em>forcats(v.1.0.0)</em>,
 <em>stringr(v.1.5.1)</em>, <em>dplyr(v.1.1.4)</em>,
 <em>purrr(v.1.0.2)</em>, <em>readr(v.2.1.5)</em>,
 <em>tidyr(v.1.3.1)</em>, <em>tibble(v.3.2.1)</em>,
 <em>ggplot2(v.3.5.1)</em> and <em>tidyverse(v.2.0.0)</em></p>
 <p><strong>loaded via a namespace (and not attached):</strong>
-<em>ProtGenerics(v.1.34.0)</em>, <em>bitops(v.1.0-7)</em>,
-<em>httr(v.1.4.7)</em>, <em>RColorBrewer(v.1.1-3)</em>,
-<em>InteractionSet(v.1.30.0)</em>, <em>numDeriv(v.2016.8-1.1)</em>,
-<em>doRNG(v.1.8.6)</em>, <em>tools(v.4.3.3)</em>,
-<em>backports(v.1.5.0)</em>, <em>utf8(v.1.2.4)</em>,
-<em>R6(v.2.5.1)</em>, <em>HDF5Array(v.1.30.1)</em>,
-<em>mgcv(v.1.9-1)</em>, <em>lazyeval(v.0.2.2)</em>,
-<em>Gviz(v.1.46.1)</em>, <em>rhdf5filters(v.1.14.1)</em>,
-<em>apeglm(v.1.24.0)</em>, <em>withr(v.3.0.0)</em>,
-<em>prettyunits(v.1.2.0)</em>, <em>gridExtra(v.2.3)</em>,
-<em>base64(v.2.0.1)</em>, <em>preprocessCore(v.1.64.0)</em>,
-<em>VennDiagram(v.1.7.3)</em>, <em>cli(v.3.6.3)</em>,
-<em>formatR(v.1.14)</em>, <em>labeling(v.0.4.3)</em>,
-<em>sass(v.0.4.9)</em>, <em>SQUAREM(v.2021.1)</em>,
-<em>mvtnorm(v.1.2-5)</em>, <em>genefilter(v.1.84.0)</em>,
-<em>askpass(v.1.2.0)</em>, <em>mixsqp(v.0.3-54)</em>,
-<em>commonmark(v.1.9.1)</em>, <em>foreign(v.0.8-87)</em>,
-<em>illuminaio(v.0.44.0)</em>, <em>siggenes(v.1.76.0)</em>,
-<em>dichromat(v.2.0-0.1)</em>, <em>scrime(v.1.3.5)</em>,
-<em>BSgenome(v.1.70.2)</em>, <em>invgamma(v.1.1)</em>,
-<em>bbmle(v.1.0.25.1)</em>, <em>rstudioapi(v.0.16.0)</em>,
-<em>RSQLite(v.2.3.7)</em>, <em>generics(v.0.1.3)</em>,
-<em>BiocIO(v.1.12.0)</em>, <em>hwriter(v.1.3.2.1)</em>,
-<em>vroom(v.1.6.5)</em>, <em>gtools(v.3.9.5)</em>,
-<em>Matrix(v.1.6-5)</em>, <em>interp(v.1.1-6)</em>,
-<em>futile.logger(v.1.4.3)</em>, <em>fansi(v.1.0.6)</em>,
-<em>abind(v.1.4-5)</em>, <em>lifecycle(v.1.0.4)</em>,
-<em>yaml(v.2.3.9)</em>, <em>rhdf5(v.2.46.1)</em>,
-<em>gplots(v.3.1.3.1)</em>, <em>SparseArray(v.1.2.4)</em>,
-<em>BiocFileCache(v.2.10.2)</em>, <em>grid(v.4.3.3)</em>,
-<em>blob(v.1.2.4)</em>, <em>crayon(v.1.5.3)</em>,
-<em>bdsmatrix(v.1.3-7)</em>, <em>lattice(v.0.22-6)</em>,
-<em>ComplexUpset(v.1.3.3)</em>, <em>annotate(v.1.80.0)</em>,
-<em>GenomicFeatures(v.1.54.4)</em>, <em>KEGGREST(v.1.42.0)</em>,
-<em>beanplot(v.1.3.1)</em>, <em>pillar(v.1.9.0)</em>,
-<em>knitr(v.1.48)</em>, <em>metapod(v.1.10.1)</em>,
-<em>rjson(v.0.2.21)</em>, <em>systemPipeR(v.2.8.0)</em>,
-<em>codetools(v.0.2-20)</em>, <em>ShortRead(v.1.60.0)</em>,
-<em>GreyListChIP(v.1.34.0)</em>, <em>data.table(v.1.15.4)</em>,
-<em>vctrs(v.0.6.5)</em>, <em>png(v.0.1-8)</em>,
-<em>gtable(v.0.3.5)</em>, <em>reactR(v.0.6.0)</em>,
-<em>amap(v.0.8-19)</em>, <em>emdbook(v.1.3.13)</em>,
-<em>cachem(v.1.1.0)</em>, <em>xfun(v.0.46)</em>,
-<em>S4Arrays(v.1.2.1)</em>, <em>coda(v.0.19-4.1)</em>,
-<em>survival(v.3.7-0)</em>, <em>statmod(v.1.5.0)</em>,
-<em>GenomicInteractions(v.1.36.0)</em>, <em>nlme(v.3.1-165)</em>,
-<em>bit64(v.4.0.5)</em>, <em>progress(v.1.2.3)</em>,
-<em>filelock(v.1.0.3)</em>, <em>rprojroot(v.2.0.4)</em>,
-<em>nor1mix(v.1.3-3)</em>, <em>bslib(v.0.7.0)</em>,
-<em>irlba(v.2.3.5.1)</em>, <em>KernSmooth(v.2.23-24)</em>,
-<em>rpart(v.4.1.23)</em>, <em>colorspace(v.2.1-0)</em>,
-<em>DBI(v.1.2.3)</em>, <em>Hmisc(v.5.1-3)</em>, <em>nnet(v.7.3-19)</em>,
-<em>DESeq2(v.1.42.1)</em>, <em>tidyselect(v.1.2.1)</em>,
-<em>bit(v.4.0.5)</em>, <em>compiler(v.4.3.3)</em>,
-<em>curl(v.5.2.1)</em>, <em>htmlTable(v.2.4.3)</em>,
-<em>xml2(v.1.3.6)</em>, <em>DelayedArray(v.0.28.0)</em>,
-<em>rtracklayer(v.1.62.0)</em>, <em>checkmate(v.2.3.1)</em>,
-<em>caTools(v.1.18.2)</em>, <em>quadprog(v.1.5-8)</em>,
-<em>rappdirs(v.0.3.3)</em>, <em>digest(v.0.6.36)</em>,
-<em>rmarkdown(v.2.27)</em>, <em>GEOquery(v.2.70.0)</em>,
-<em>pkgconfig(v.2.0.3)</em>, <em>jpeg(v.0.1-10)</em>,
-<em>base64enc(v.0.1-3)</em>, <em>sparseMatrixStats(v.1.14.0)</em>,
-<em>highr(v.0.11)</em>, <em>dbplyr(v.2.5.0)</em>,
-<em>fastmap(v.1.2.0)</em>, <em>ensembldb(v.2.26.0)</em>,
-<em>rlang(v.1.1.4)</em>, <em>htmlwidgets(v.1.6.4)</em>,
-<em>DelayedMatrixStats(v.1.24.0)</em>, <em>farver(v.2.1.2)</em>,
-<em>jquerylib(v.0.1.4)</em>, <em>jsonlite(v.1.8.8)</em>,
-<em>mclust(v.6.1.1)</em>, <em>VariantAnnotation(v.1.48.1)</em>,
-<em>RCurl(v.1.98-1.16)</em>, <em>Formula(v.1.2-5)</em>,
-<em>GenomeInfoDbData(v.1.2.11)</em>, <em>Rhdf5lib(v.1.24.2)</em>,
-<em>munsell(v.0.5.1)</em>, <em>Rcpp(v.1.0.13)</em>,
-<em>stringi(v.1.8.4)</em>, <em>zlibbioc(v.1.48.2)</em>,
-<em>MASS(v.7.3-60.0.1)</em>, <em>bumphunter(v.1.44.0)</em>,
-<em>plyr(v.1.8.9)</em>, <em>minfi(v.1.48.0)</em>,
-<em>ggrepel(v.0.9.5)</em>, <em>deldir(v.2.0-4)</em>,
-<em>splines(v.4.3.3)</em>, <em>gridtext(v.0.1.5)</em>,
-<em>multtest(v.2.58.0)</em>, <em>hms(v.1.1.3)</em>,
-<em>locfit(v.1.5-9.10)</em>, <em>igraph(v.2.0.3)</em>,
-<em>markdown(v.1.13)</em>, <em>rngtools(v.1.5.2)</em>,
-<em>biomaRt(v.2.58.2)</em>, <em>futile.options(v.1.0.1)</em>,
-<em>XML(v.3.99-0.17)</em>, <em>evaluate(v.0.24.0)</em>,
-<em>latticeExtra(v.0.6-30)</em>, <em>biovizBase(v.1.50.0)</em>,
-<em>lambda.r(v.1.2.4)</em>, <em>tzdb(v.0.4.0)</em>,
-<em>tweenr(v.2.0.3)</em>, <em>openssl(v.2.2.0)</em>,
-<em>polyclip(v.1.10-6)</em>, <em>reshape(v.0.8.9)</em>,
-<em>ashr(v.2.2-63)</em>, <em>ggforce(v.0.4.2)</em>,
-<em>xtable(v.1.8-4)</em>, <em>broom(v.1.0.6)</em>,
-<em>restfulr(v.0.0.15)</em>, <em>AnnotationFilter(v.1.26.0)</em>,
-<em>truncnorm(v.1.0-9)</em>, <em>memoise(v.2.0.1)</em>,
-<em>AnnotationDbi(v.1.64.1)</em>, <em>cluster(v.2.1.6)</em>,
-<em>sva(v.3.50.0)</em>, <em>timechange(v.0.3.0)</em> and
-<em>here(v.1.0.1)</em></p>
-</div>
+<em>dichromat(v.2.0-0.1)</em>, <em>vroom(v.1.6.5)</em>,
+<em>progress(v.1.2.3)</em>, <em>nnet(v.7.3-19)</em>,
+<em>HDF5Array(v.1.32.0)</em>, <em>vctrs(v.0.6.5)</em>,
+<em>digest(v.0.6.36)</em>, <em>png(v.0.1-8)</em>,
+<em>ggrepel(v.0.9.5)</em>, <em>mixsqp(v.0.3-54)</em>,
+<em>deldir(v.2.0-4)</em>, <em>MASS(v.7.3-61)</em>,
+<em>reshape(v.0.8.9)</em>, <em>SQUAREM(v.2021.1)</em>,
+<em>bumphunter(v.1.46.0)</em>, <em>withr(v.3.0.1)</em>,
+<em>xfun(v.0.46)</em>, <em>amap(v.0.8-19)</em>,
+<em>survival(v.3.7-0)</em>, <em>doRNG(v.1.8.6)</em>,
+<em>commonmark(v.1.9.1)</em>, <em>memoise(v.2.0.1)</em>,
+<em>gtools(v.3.9.5)</em>, <em>Formula(v.1.2-5)</em>,
+<em>prettyunits(v.1.2.0)</em>, <em>KEGGREST(v.1.44.1)</em>,
+<em>httr(v.1.4.7)</em>, <em>GreyListChIP(v.1.36.0)</em>,
+<em>restfulr(v.0.0.15)</em>, <em>rhdf5filters(v.1.16.0)</em>,
+<em>ashr(v.2.2-63)</em>, <em>rhdf5(v.2.48.0)</em>,
+<em>rstudioapi(v.0.16.0)</em>, <em>UCSC.utils(v.1.0.0)</em>,
+<em>generics(v.0.1.3)</em>, <em>base64enc(v.0.1-3)</em>,
+<em>curl(v.5.2.1)</em>, <em>zlibbioc(v.1.50.0)</em>,
+<em>polyclip(v.1.10-7)</em>, <em>GenomeInfoDbData(v.1.2.12)</em>,
+<em>quadprog(v.1.5-8)</em>, <em>SparseArray(v.1.4.8)</em>,
+<em>xtable(v.1.8-4)</em>, <em>evaluate(v.0.24.0)</em>,
+<em>S4Arrays(v.1.4.1)</em>, <em>systemPipeR(v.2.10.0)</em>,
+<em>BiocFileCache(v.2.12.0)</em>, <em>preprocessCore(v.1.66.0)</em>,
+<em>hms(v.1.1.3)</em>, <em>irlba(v.2.3.5.1)</em>,
+<em>colorspace(v.2.1-1)</em>, <em>filelock(v.1.0.3)</em>,
+<em>VennDiagram(v.1.7.3)</em>, <em>lattice(v.0.22-6)</em>,
+<em>genefilter(v.1.86.0)</em>, <em>XML(v.3.99-0.17)</em>,
+<em>Hmisc(v.5.1-3)</em>, <em>pillar(v.1.9.0)</em>,
+<em>nlme(v.3.1-165)</em>, <em>pwalign(v.1.0.0)</em>,
+<em>caTools(v.1.18.2)</em>, <em>compiler(v.4.4.0)</em>,
+<em>stringi(v.1.8.4)</em>, <em>plyr(v.1.8.9)</em>,
+<em>crayon(v.1.5.3)</em>, <em>abind(v.1.4-5)</em>,
+<em>BiocIO(v.1.14.0)</em>, <em>truncnorm(v.1.0-9)</em>,
+<em>emdbook(v.1.3.13)</em>, <em>locfit(v.1.5-9.10)</em>,
+<em>bit(v.4.0.5)</em>, <em>codetools(v.0.2-20)</em>,
+<em>openssl(v.2.2.0)</em>, <em>crosstalk(v.1.2.1)</em>,
+<em>bslib(v.0.7.0)</em>, <em>biovizBase(v.1.52.0)</em>,
+<em>multtest(v.2.60.0)</em>, <em>splines(v.4.4.0)</em>,
+<em>markdown(v.1.13)</em>, <em>Rcpp(v.1.0.13)</em>,
+<em>dbplyr(v.2.5.0)</em>, <em>sparseMatrixStats(v.1.16.0)</em>,
+<em>interp(v.1.1-6)</em>, <em>gridtext(v.0.1.5)</em>,
+<em>knitr(v.1.48)</em>, <em>blob(v.1.2.4)</em>, <em>utf8(v.1.2.4)</em>,
+<em>here(v.1.0.1)</em>, <em>AnnotationFilter(v.1.28.0)</em>,
+<em>apeglm(v.1.26.1)</em>, <em>checkmate(v.2.3.1)</em>,
+<em>DelayedMatrixStats(v.1.26.0)</em>, <em>Gviz(v.1.48.0)</em>,
+<em>Matrix(v.1.6-5)</em>, <em>statmod(v.1.5.0)</em>,
+<em>tzdb(v.0.4.0)</em>, <em>tweenr(v.2.0.3)</em>,
+<em>pkgconfig(v.2.0.3)</em>, <em>tools(v.4.4.0)</em>,
+<em>cachem(v.1.1.0)</em>, <em>RSQLite(v.2.3.7)</em>,
+<em>DBI(v.1.2.3)</em>, <em>numDeriv(v.2016.8-1.1)</em>,
+<em>fastmap(v.1.2.0)</em>, <em>rmarkdown(v.2.27)</em>,
+<em>grid(v.4.4.0)</em>, <em>broom(v.1.0.6)</em>, <em>sass(v.0.4.9)</em>,
+<em>coda(v.0.19-4.1)</em>, <em>VariantAnnotation(v.1.50.0)</em>,
+<em>scrime(v.1.3.5)</em>, <em>rpart(v.4.1.23)</em>,
+<em>minfi(v.1.50.0)</em>, <em>farver(v.2.1.2)</em>,
+<em>mgcv(v.1.9-1)</em>, <em>yaml(v.2.3.9)</em>,
+<em>latticeExtra(v.0.6-30)</em>, <em>foreign(v.0.8-87)</em>,
+<em>rtracklayer(v.1.64.0)</em>, <em>illuminaio(v.0.46.0)</em>,
+<em>cli(v.3.6.3)</em>, <em>siggenes(v.1.78.0)</em>,
+<em>GEOquery(v.2.72.0)</em>, <em>lifecycle(v.1.0.4)</em>,
+<em>askpass(v.1.2.0)</em>, <em>mvtnorm(v.1.2-5)</em>,
+<em>lambda.r(v.1.2.4)</em>, <em>backports(v.1.5.0)</em>,
+<em>annotate(v.1.82.0)</em>, <em>timechange(v.0.3.0)</em>,
+<em>gtable(v.0.3.5)</em>, <em>rjson(v.0.2.21)</em>,
+<em>jsonlite(v.1.8.8)</em>, <em>bitops(v.1.0-8)</em>,
+<em>bit64(v.4.0.5)</em>, <em>base64(v.2.0.1)</em>,
+<em>futile.options(v.1.0.1)</em>, <em>bdsmatrix(v.1.3-7)</em>,
+<em>jquerylib(v.0.1.4)</em>, <em>highr(v.0.11)</em>,
+<em>metapod(v.1.12.0)</em>, <em>reactR(v.0.6.0)</em>,
+<em>lazyeval(v.0.2.2)</em>, <em>rappdirs(v.0.3.3)</em>,
+<em>formatR(v.1.14)</em>, <em>ensembldb(v.2.28.0)</em>,
+<em>httr2(v.1.0.2)</em>, <em>RCurl(v.1.98-1.16)</em>,
+<em>InteractionSet(v.1.32.0)</em>, <em>rprojroot(v.2.0.4)</em>,
+<em>ComplexUpset(v.1.3.3)</em>, <em>mclust(v.6.1.1)</em>,
+<em>BSgenome(v.1.72.0)</em>, <em>jpeg(v.0.1-10)</em>,
+<em>futile.logger(v.1.4.3)</em>, <em>gridExtra(v.2.3)</em>,
+<em>igraph(v.2.0.3)</em>, <em>invgamma(v.1.1)</em>,
+<em>R6(v.2.5.1)</em>, <em>sva(v.3.52.0)</em>, <em>DESeq2(v.1.44.0)</em>,
+<em>gplots(v.3.1.3.1)</em>, <em>labeling(v.0.4.3)</em>,
+<em>GenomicFeatures(v.1.56.0)</em>, <em>cluster(v.2.1.6)</em>,
+<em>rngtools(v.1.5.2)</em>, <em>bbmle(v.1.0.25.1)</em>,
+<em>Rhdf5lib(v.1.26.0)</em>, <em>beanplot(v.1.3.1)</em>,
+<em>DelayedArray(v.0.30.1)</em>, <em>tidyselect(v.1.2.1)</em>,
+<em>ProtGenerics(v.1.36.0)</em>, <em>htmlTable(v.2.4.3)</em>,
+<em>ggforce(v.0.4.2)</em>, <em>xml2(v.1.3.6)</em>,
+<em>AnnotationDbi(v.1.66.0)</em>, <em>munsell(v.0.5.1)</em>,
+<em>KernSmooth(v.2.23-24)</em>, <em>GenomicInteractions(v.1.38.0)</em>,
+<em>nor1mix(v.1.3-3)</em>, <em>data.table(v.1.15.4)</em>,
+<em>htmlwidgets(v.1.6.4)</em>, <em>RColorBrewer(v.1.1-3)</em>,
+<em>hwriter(v.1.3.2.1)</em>, <em>biomaRt(v.2.60.1)</em>,
+<em>rlang(v.1.1.4)</em>, <em>ShortRead(v.1.62.0)</em> and
+<em>fansi(v.1.0.6)</em></p>
 </div>
 
 
